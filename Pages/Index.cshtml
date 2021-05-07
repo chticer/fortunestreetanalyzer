@@ -1,0 +1,41 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "";
+}
+
+@section styles{
+    <link href="~/css/index.css" rel="stylesheet" type="text/css" asp-append-version="true" />
+}
+
+@section scripts{
+    <script src="~/js/index.js" type="text/javascript" asp-append-version="true"></script>
+}
+
+<input type="hidden" name="__ApplicationURI" value="@Url.Content("~")" />
+
+<div>
+    <div id="output-panel">
+        <div id="board-subpanel">
+            <div></div>
+        </div>
+
+        <div id="stock-districts-subpanel">
+            <div class="header">Stock Districts</div>
+
+            <div></div>
+        </div>
+
+        <div id="standings-subpanel">
+            <div class="header">Standings</div>
+
+            <div></div>
+        </div>
+    </div>
+
+    <div id="settings-panel">
+        <div class="header">Settings</div>
+
+        <div></div>
+    </div>
+</div>

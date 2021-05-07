@@ -1,0 +1,79 @@
+﻿@font-face
+{
+    font-family: "Open Sans";
+    src: url("../fonts/OpenSans-Regular.eot?#iefix") format("embedded-opentype"), url("../fonts/OpenSans-Regular.woff") format("woff"), url("../fonts/OpenSans-Regular.ttf") format("truetype");
+}
+
+html, body, body > div, h4
+{
+    margin: 0;
+    padding: 0;
+}
+
+body > div
+{
+    display: flex;
+    flex-direction: row;
+    width: 1920px;
+    height: 1080px;
+}
+
+#output-panel
+{
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+}
+
+#board-subpanel
+{
+    flex: 3;
+}
+
+#stock-districts-subpanel, #standings-subpanel
+{
+    flex: 1;
+}
+
+#settings-panel
+{
+    flex: 2;
+}
+
+#output-panel, #settings-panel
+{
+    margin: 1%;
+}
+
+.header
+{
+    font-size: 36px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.loading
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading > div:first-of-type
+{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 0.5rem;
+}
+
+.loading, .loading > div:first-of-type
+{
+    text-align: center;
+}
+
+.loading > div:first-of-type > div:first-of-type
+{
+    margin-right: 10px;
+}
