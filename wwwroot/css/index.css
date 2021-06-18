@@ -18,6 +18,11 @@ body > div
     height: 1080px;
 }
 
+.alert
+{
+    border-radius: unset;
+}
+
 #output-panel
 {
     display: flex;
@@ -38,6 +43,31 @@ body > div
 #settings-panel
 {
     flex: 2;
+}
+
+#settings-panel > div:last-of-type > div
+{
+    padding: 40px 0;
+}
+
+#settings-panel > div:last-of-type > div:first-of-type
+{
+    padding-top: 0;
+}
+
+#settings-panel > div:last-of-type > div:last-of-type
+{
+    padding-bottom: 0;
+}
+
+#settings-panel > div:last-of-type > div:not(:last-of-type)
+{
+    border-bottom: 2px solid #888;
+}
+
+#settings-panel > div:last-of-type > div:not(.loading) > div:not(:last-of-type)
+{
+    margin-bottom: 20px;
 }
 
 #output-panel, #settings-panel
@@ -76,4 +106,50 @@ body > div
 .loading > div:first-of-type > div:first-of-type
 {
     margin-right: 10px;
+}
+
+.color-selection > div
+{
+    flex: 1 0 15%;
+}
+
+.color-selection > div > div
+{
+    margin: 5px auto;
+    width: 75px;
+    height: 75px;
+    border: 1px solid #333;
+    border-radius: 50%;
+    opacity: 0.25;
+    cursor: pointer;
+}
+
+.color-selection:not(.disabled) > div > div:not(.selected):hover
+{
+    opacity: 0.5
+}
+
+.color-selection > div > .selected
+{
+    opacity: 1;
+}
+
+.color-selection.disabled > div > div
+{
+    cursor: not-allowed;
+}
+
+.confirmation-actions > div
+{
+    margin: 5px;
+    flex-basis: 30%;
+}
+
+.center-items
+{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
 }
