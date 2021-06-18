@@ -1,6 +1,8 @@
+using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,6 +22,11 @@ namespace fortunestreetanalyzer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+
+            services.AddDbContext<FortuneStreetAppContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("FortuneStreetDatabase"));
+            });
 
             services.AddMvc().AddRazorPagesOptions(options =>
             {
