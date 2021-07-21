@@ -21,7 +21,7 @@
         );
     }
 
-    function alertDisplay(alert)
+    function alertDisplay(alert, position)
     {
         if (alert !== null)
         {
@@ -31,22 +31,36 @@
                     return "<div>" + value + "</div>";
             });
 
-            if (descriptions.length > 0)
+            settingsContainer.find(".alert." + position).remove();
+
+            let alertMessage =  "<div class=\"alert alert-dismissible " + alert["Type"] + " " + position + "\">" +
+                                    "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>" +
+
+                                    "<div>" +
+                                        "<strong>" + alert["Title"] + "</strong>" +
+                                    "</div>" +
+
+                                    "<div>" + descriptions.join("") + "</div>" +
+                                "</div>";
+
+            if (position === "bottom")
+                settingsContainer.append(alertMessage);
+            else
+                settingsContainer.prepend(alertMessage);
+
+            let alertContainer = settingsContainer.find(".alert." + position);
+
+            if (position === "bottom" && alertContainer.offset().top + alertContainer.innerHeight() > $(window).scrollTop() + $(window).innerHeight() - alertContainer.innerHeight())
             {
-                settingsContainer.find(".alert").remove();
+                alertContainer.addClass("sticky");
 
-                settingsContainer.prepend
-                (
-                    "<div class=\"alert alert-dismissible " + alert["Type"] + "\">" +
-                        "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>" +
+                alertContainer.css({ top: ($(window).scrollTop() + $(window).innerHeight() - alertContainer.innerHeight() - alertContainer.parent().offset().top) + "px" });
+            }
+            else if (position === "top" && alertContainer.offset().top < $(window).scrollTop())
+            {
+                alertContainer.addClass("sticky");
 
-                        "<div>" +
-                            "<strong>" + alert["Title"] + "</strong>" +
-                        "</div>" +
-
-                        "<div>" + descriptions.join("") + "</div>" +
-                    "</div>"
-                );
+                alertContainer.css({ top: ($(window).scrollTop() - alertContainer.parent().offset().top) + "px" });
             }
         }
     }
@@ -70,6 +84,16 @@
 
     function saveAnalyzerData(keys)
     {
+        alertDisplay
+        (
+            {
+                Type: "alert-primary",
+                Title: "Saving to database...",
+                Descriptions: []
+            },
+            "bottom"
+        );
+
         ajaxCall
         (
             "POST",
@@ -78,10 +102,96 @@
                 keys: keys,
                 analyzerData: analyzerData
             }
-        );
+        ).done(function (response)
+        {
+            alertDisplay(response["AlertData"], "bottom");
+        }).fail(function ()
+        {
+            alertDisplay
+            (
+                {
+                    Type: "alert-warning",
+                    Title: "Cannot save data...",
+                    Descriptions: []
+                },
+                "bottom"
+            );
+        });
+    }
 
-        // TODO
-        // Call alertDisplay with "Saving to database..." alert at bottom.
+    function loadAnalyzerInstanceData()
+    {
+    }
+
+    function loadGameSelection()
+    {
+        settingsContainer.empty().append(loadingDisplay());
+
+        ajaxCall
+        (
+            "GET",
+            "LoadGameSelection",
+            {}
+        ).done(function (response)
+        {
+            settingsContainer.empty();
+
+            alertDisplay(response["AlertData"], "top");
+
+            if (!response["Error"])
+            {
+                let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
+                analyzerData = JSONResponse["Data"];
+
+                settingsContainer.append(JSONResponse["Response"]);
+
+                $("#game-selection > div:first-of-type select").on("change", function ()
+                {
+                    analyzerData["GameSelection"]["RuleID"] = Number($(this).val());
+                });
+
+                $("#game-selection > div:nth-of-type(2) select").on("change", function ()
+                {
+                    analyzerData["GameSelection"]["BoardID"] = Number($(this).val());
+                });
+
+                $("#game-selection > div:nth-of-type(3) > .color-selection input[type=\"hidden\"]").each(function ()
+                {
+                    let colorSelectionInputContainer = $(this);
+
+                    let currentColorContainer = colorSelectionInputContainer.parent();
+
+                    let colorSelectionInputData =
+                    {
+                        ColorID: Number(colorSelectionInputContainer.data("colorid"))
+                    };
+
+                    colorSelectionInputContainer.remove();
+
+                    currentColorContainer.children().first().on("click", function ()
+                    {
+                        if (analyzerData["GameSelection"]["ColorID"] !== colorSelectionInputData["ColorID"])
+                        {
+                            analyzerData["GameSelection"]["ColorID"] = colorSelectionInputData["ColorID"];
+
+                            currentColorContainer.parent().find(".selected").removeClass("selected");
+
+                            $(this).addClass("selected");
+                        }
+                    });
+                });
+
+                $("#game-selection > div:last-of-type button[name=\"confirm\"]").on("click", function ()
+                {
+                    $(this).closest(".confirmation-actions").remove();
+
+                    saveAnalyzerData([ "GameSelection" ]);
+
+                    initializeDetermineCharacterSettings();
+                });
+            }
+        });
     }
 
     function initializeDetermineCharacterSettings()
@@ -107,66 +217,56 @@
     ajaxCall
     (
         "GET",
-        "LoadGameSelection",
+        "LoadAnalyzerInstance",
         {}
     ).done(function (response)
     {
         settingsContainer.empty();
 
-        alertDisplay(response["AlertData"]);
+        alertDisplay(response["AlertData"], "top");
 
         if (!response["Error"])
         {
-            let JSONResponse = JSON.parse(response["HTMLResponse"]);
+            settingsContainer.append(response["HTMLResponse"]);
 
-            analyzerData = JSONResponse["Data"];
+            settingsContainer.find("button[name=\"load\"]").on("click", loadAnalyzerInstanceData);
 
-            settingsContainer.append(JSONResponse["Response"]);
+            settingsContainer.find("button[name=\"create\"]").on("click", loadGameSelection);
+        }
+    });
 
-            $("#game-selection > div:first-of-type select").on("change", function ()
+    $(window).on("scroll", function ()
+    {
+        let alertTopContainer = settingsContainer.find(".alert.top");
+
+        if (alertTopContainer.length > 0)
+        {
+            alertTopContainer.removeClass("sticky");
+
+            alertTopContainer.css({ top: "" });
+
+            if (alertTopContainer.offset().top < $(window).scrollTop())
             {
-                analyzerData["GameSelection"]["RuleID"] = Number($(this).val());
-            });
+                alertTopContainer.addClass("sticky");
 
-            $("#game-selection > div:nth-of-type(2) select").on("change", function ()
+                alertTopContainer.css({ top: ($(window).scrollTop() - alertTopContainer.parent().offset().top) + "px" });
+            }
+        }
+
+        let alertBottomContainer = settingsContainer.find(".alert.bottom");
+
+        if (alertBottomContainer.length > 0)
+        {
+            alertBottomContainer.removeClass("sticky");
+
+            alertBottomContainer.css({ top: "" });
+
+            if (alertBottomContainer.offset().top + alertBottomContainer.innerHeight() > $(window).scrollTop() + $(window).innerHeight() - alertBottomContainer.innerHeight())
             {
-                analyzerData["GameSelection"]["BoardID"] = Number($(this).val());
-            });
+                alertBottomContainer.addClass("sticky");
 
-            $("#game-selection > div:nth-of-type(3) > .color-selection input[type=\"hidden\"]").each(function ()
-            {
-                let colorSelectionInputContainer = $(this);
-
-                let currentColorContainer = colorSelectionInputContainer.parent();
-
-                let colorSelectionInputData =
-                {
-                    ColorID: Number(colorSelectionInputContainer.data("colorid"))
-                };
-
-                colorSelectionInputContainer.remove();
-
-                currentColorContainer.children().first().on("click", function ()
-                {
-                    if (analyzerData["GameSelection"]["ColorID"] !== colorSelectionInputData["ColorID"])
-                    {
-                        analyzerData["GameSelection"]["ColorID"] = colorSelectionInputData["ColorID"];
-
-                        currentColorContainer.parent().find(".selected").removeClass("selected");
-
-                        $(this).addClass("selected");
-                    }
-                });
-            });
-
-            $("#game-selection > div:last-of-type button[name=\"confirm\"]").on("click", function ()
-            {
-                $(this).closest(".confirmation-actions").remove();
-
-                saveAnalyzerData([ "GameSelection" ]);
-
-                initializeDetermineCharacterSettings();
-            });
+                alertBottomContainer.css({ top: ($(window).scrollTop() + $(window).innerHeight() - alertBottomContainer.innerHeight() - alertBottomContainer.parent().offset().top) + "px" });
+            }
         }
     });
 });

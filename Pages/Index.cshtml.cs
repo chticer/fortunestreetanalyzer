@@ -1,6 +1,7 @@
 ﻿using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,63 @@ namespace fortunestreetanalyzer.Pages
         public IndexModel(FortuneStreetAppContext fortuneStreetAppContext)
         {
             _fortuneStreetAppContext = fortuneStreetAppContext;
+        }
+
+        public JsonResult OnGetLoadAnalyzerInstance()
+        {
+            Global.Response response = new Global.Response();
+
+            try
+            {
+                string userIPAddress = Global.GetUserIPAddress();
+
+                List<CurrentAnalyzerInstancesTVF> currentAnalyzerInstancesTVFResults = _fortuneStreetAppContext.CurrentAnalyzerInstancesTVF.FromSqlInterpolated($"SELECT * FROM currentanalyzerinstances_tvf() WHERE status = 'in_progress'").OrderByDescending(timestampadded => timestampadded.TimestampAdded).ToList();
+
+                foreach (CurrentAnalyzerInstancesTVF currentAnalyzerInstancesTVFResult in currentAnalyzerInstancesTVFResults)
+                {
+                    if (!Global.HashComparison(userIPAddress, currentAnalyzerInstancesTVFResult.IPAddress))
+                        currentAnalyzerInstancesTVFResults.Remove(currentAnalyzerInstancesTVFResult);
+                }
+
+                response.HTMLResponse =
+                    "<div>" +
+
+                        (
+                            currentAnalyzerInstancesTVFResults.Count > 0
+                            ?
+                            "<div class=\"horizontal-items\">" +
+                                "<div>" +
+                                    "<select class=\"form-select\">" +
+
+                                        string.Join("", currentAnalyzerInstancesTVFResults.Select(results => "<option value=\"" + results.AnalyzerInstanceID + "\">" + results.TimestampAdded.ToLocalTime().ToString("MMMM d, yyyy h:mm:ss tt") + "</option>")) +
+
+                                    "</select>" +
+                                "</div>" +
+
+                                "<div>" +
+                                    "<button type=\"button\" class=\"btn btn-primary\" name=\"load\">Load</button>" +
+                                "</div>" +
+                            "</div>"
+                            :
+                            "<div>No previous analyzer instances found. Start a new one by clicking the \"Create\" button below.</div>"
+                        ) +
+
+                        "<div>" +
+
+                            Global.CreateConfirmationActions("center-items", new List<string>
+                            {
+                                "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"create\">Create</button>"
+                            }) +
+
+                        "</div>" +
+                    "</div>";
+
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                return Global.ServerErrorResponse(e);
+            }
         }
 
         public JsonResult OnGetLoadGameSelection()
@@ -48,60 +106,62 @@ namespace fortunestreetanalyzer.Pages
                         }
                     },
                     Response =
-                        "<div id=\"game-selection\">" +
-                            "<div>" +
+                        "<div id=\"settings-content\">" +
+                            "<div id=\"game-selection\">" +
                                 "<div>" +
-                                    "<h5>Rules</h5>" +
+                                    "<div>" +
+                                        "<h5>Rules</h5>" +
+                                    "</div>" +
+
+                                    "<div>" +
+                                        "<select class=\"form-select\">" +
+
+                                            string.Join("", rules.Select(rule => "<option value=\"" + rule.ID + "\">" + rule.Name + "</option>")) +
+
+                                        "</select>" +
+                                    "</div>" +
                                 "</div>" +
 
                                 "<div>" +
-                                    "<select class=\"form-select\">" +
+                                    "<div>" +
+                                        "<h5>Boards</h5>" +
+                                    "</div>" +
 
-                                        string.Join("", rules.Select(rule => "<option value=\"" + rule.ID + "\">" + rule.Name + "</option>")) +
+                                    "<div>" +
+                                        "<select class=\"form-select\">" +
 
-                                    "</select>" +
+                                            string.Join("", boards.Select(board => "<option value=\"" + board.ID + "\">" + board.Name + "</option>")) +
+
+                                        "</select>" +
+                                    "</div>" +
                                 "</div>" +
+
+                                "<div>" +
+                                    "<div>" +
+                                        "<h5>Mii Color</h5>" +
+                                    "</div>" +
+
+                                    "<div class=\"color-selection center-items\">" +
+
+                                        string.Join("", miiColors.Select
+                                        (
+                                            (color, index) =>
+                                                "<div>" +
+                                                    "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
+
+                                                    "<div style=\"background-color: #" + color.MiiColor + "\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
+                                                "</div>"
+                                        )) +
+
+                                    "</div>" +
+                                "</div>" +
+
+                                Global.CreateConfirmationActions("center-items", new List<string>
+                                {
+                                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
+                                }) +
+
                             "</div>" +
-
-                            "<div>" +
-                                "<div>" +
-                                    "<h5>Boards</h5>" +
-                                "</div>" +
-
-                                "<div>" +
-                                    "<select class=\"form-select\">" +
-
-                                        string.Join("", boards.Select(board => "<option value=\"" + board.ID + "\">" + board.Name + "</option>")) +
-
-                                    "</select>" +
-                                "</div>" +
-                            "</div>" +
-
-                            "<div>" +
-                                "<div>" +
-                                    "<h5>Mii Color</h5>" +
-                                "</div>" +
-
-                                "<div class=\"color-selection center-items\">" +
-
-                                    string.Join("", miiColors.Select
-                                    (
-                                        (color, index) =>
-                                            "<div>" +
-                                                "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
-
-                                                "<div style=\"background-color: #" + color.MiiColor + "\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
-                                            "</div>"
-                                    )) +
-
-                                "</div>" +
-                            "</div>" +
-
-                            Global.CreateConfirmationActions("center-items", new List<string>
-                            {
-                                "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
-                            }) +
-
                         "</div>"
                 });
 
@@ -142,8 +202,7 @@ namespace fortunestreetanalyzer.Pages
                 response.AlertData = new Global.Response.Alert
                 {
                     Type = "alert-success",
-                    Title = "Saved data...",
-                    Descriptions = new List<string>()
+                    Title = "Saved data..."
                 };
             }
             catch
@@ -151,8 +210,7 @@ namespace fortunestreetanalyzer.Pages
                 response.AlertData = new Global.Response.Alert
                 {
                     Type = "alert-warning",
-                    Title = "Cannot save data...",
-                    Descriptions = new List<string>()
+                    Title = "Cannot save data..."
                 };
             }
 
