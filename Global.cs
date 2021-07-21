@@ -63,11 +63,13 @@ namespace fortunestreetanalyzer
             {
                 CurrentAnalyzerInstancesTVF currentAnalyzerInstancesTVFResult = fortuneStreetAppContext.CurrentAnalyzerInstancesTVF.FromSqlInterpolated($"SELECT * FROM currentanalyzerinstances_tvf() WHERE analyzer_instance_id = {analyzerInstanceID} AND status = 'in_progress'").FirstOrDefault();
 
-                if (currentAnalyzerInstancesTVFResult == null || !HashComparison(Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault().ToString(), currentAnalyzerInstancesTVFResult.IPAddress))
+                string userIPAddress = GetUserIPAddress();
+
+                if (currentAnalyzerInstancesTVFResult == null || !HashComparison(userIPAddress, currentAnalyzerInstancesTVFResult.IPAddress))
                 {
                     AnalyzerInstances analyzerInstanceRecord = new AnalyzerInstances
                     {
-                        IPAddress = Hash(Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault().ToString()),
+                        IPAddress = Hash(userIPAddress),
                         Status = "in_progress"
                     };
 
@@ -106,7 +108,7 @@ namespace fortunestreetanalyzer
             return Convert.ToBase64String(hashValue);
         }
 
-        private static bool HashComparison(string input, string storedInput)
+        public static bool HashComparison(string input, string storedInput)
         {
             byte[] storedHashBytes = Convert.FromBase64String(storedInput);
 
@@ -123,6 +125,11 @@ namespace fortunestreetanalyzer
             }
 
             return true;
+        }
+
+        public static string GetUserIPAddress()
+        {
+            return Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault().ToString();
         }
 
         public static JsonResult ServerErrorResponse(Exception e)
