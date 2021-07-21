@@ -20,7 +20,15 @@ body > div
 
 .alert
 {
+    margin: 0;
     border-radius: unset;
+    z-index: 1;
+}
+
+.alert.sticky
+{
+    position: absolute;
+    width: 100%;
 }
 
 #output-panel
@@ -45,27 +53,32 @@ body > div
     flex: 2;
 }
 
-#settings-panel > div:last-of-type > div
+#settings-panel > div:last-of-type
+{
+    position: relative;
+}
+
+#settings-content > div
 {
     padding: 40px 0;
 }
 
-#settings-panel > div:last-of-type > div:first-of-type
+#settings-content > div:first-of-type
 {
     padding-top: 0;
 }
 
-#settings-panel > div:last-of-type > div:last-of-type
+#settings-content > div:last-of-type
 {
     padding-bottom: 0;
 }
 
-#settings-panel > div:last-of-type > div:not(:last-of-type)
+#settings-content > div:not(:last-of-type)
 {
     border-bottom: 2px solid #888;
 }
 
-#settings-panel > div:last-of-type > div:not(.loading) > div:not(:last-of-type)
+#settings-content > div:not(.loading) > div:not(:last-of-type)
 {
     margin-bottom: 20px;
 }
@@ -104,6 +117,22 @@ body > div
 }
 
 .loading > div:first-of-type > div:first-of-type
+{
+    margin-right: 10px;
+}
+
+.horizontal-items
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.horizontal-items > div:first-of-type
+{
+    flex: 1;
+}
+
+.horizontal-items > div:not(:last-of-type)
 {
     margin-right: 10px;
 }
