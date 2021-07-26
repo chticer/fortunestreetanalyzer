@@ -21,7 +21,42 @@
         );
     }
 
-    function alertDisplay(alert, position)
+    function alertScroll()
+    {
+        let alertNotificationContainer = settingsContainer.find(".alert.notification");
+
+        if (alertNotificationContainer.length > 0)
+        {
+            alertNotificationContainer.removeClass("sticky");
+
+            alertNotificationContainer.css({ top: "" });
+
+            if (alertNotificationContainer.offset().top < $(window).scrollTop())
+            {
+                alertNotificationContainer.addClass("sticky");
+
+                alertNotificationContainer.css({ top: ($(window).scrollTop() - alertNotificationContainer.parent().offset().top) + "px" });
+            }
+        }
+
+        let alertSaveContainer = settingsContainer.find(".alert.save");
+
+        if (alertSaveContainer.length > 0)
+        {
+            alertSaveContainer.removeClass("sticky");
+
+            alertSaveContainer.css({ top: "" });
+
+            if (alertSaveContainer.offset().top + alertSaveContainer.innerHeight() > $(window).scrollTop() + $(window).innerHeight() - alertSaveContainer.innerHeight())
+            {
+                alertSaveContainer.addClass("sticky");
+
+                alertSaveContainer.css({ top: ($(window).scrollTop() + $(window).innerHeight() - alertSaveContainer.innerHeight() - alertSaveContainer.parent().offset().top) + "px" });
+            }
+        }
+    }
+
+    function alertNotificationMessageDisplay(alert)
     {
         if (alert !== null)
         {
@@ -31,37 +66,52 @@
                     return "<div>" + value + "</div>";
             });
 
-            settingsContainer.find(".alert." + position).remove();
+            if (descriptions.length > 0)
+            {
+                settingsContainer.find(".alert.notification").remove();
 
-            let alertMessage =  "<div class=\"alert alert-dismissible " + alert["Type"] + " " + position + "\">" +
-                                    "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>" +
+                let alertMessage =  "<div class=\"alert alert-dismissible " + alert["Type"] + " notification\">" +
+                                        "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>" +
 
+                                        "<div>" +
+                                            "<strong>" + alert["Title"] + "</strong>" +
+                                        "</div>" +
+
+                                        "<div>" + descriptions.join("") + "</div>" +
+                                    "</div>";
+
+                settingsContainer.prepend(alertMessage);
+
+                alertScroll();
+            }
+        }
+    }
+
+    function alertSaveMessageDisplay(alert)
+    {
+        if (alert !== null)
+        {
+            settingsContainer.find(".alert.save").remove();
+
+            let alertMessage =  "<div class=\"alert alert-dismissible " + alert["Type"] + " save\">" +
                                     "<div>" +
                                         "<strong>" + alert["Title"] + "</strong>" +
                                     "</div>" +
-
-                                    "<div>" + descriptions.join("") + "</div>" +
                                 "</div>";
 
-            if (position === "bottom")
-                settingsContainer.append(alertMessage);
-            else
-                settingsContainer.prepend(alertMessage);
+            settingsContainer.append(alertMessage);
 
-            let alertContainer = settingsContainer.find(".alert." + position);
+            alertScroll();
 
-            if (position === "bottom" && alertContainer.offset().top + alertContainer.innerHeight() > $(window).scrollTop() + $(window).innerHeight() - alertContainer.innerHeight())
+            let alertSaveContainer = settingsContainer.find(".alert.save");
+
+            setTimeout(function ()
             {
-                alertContainer.addClass("sticky");
-
-                alertContainer.css({ top: ($(window).scrollTop() + $(window).innerHeight() - alertContainer.innerHeight() - alertContainer.parent().offset().top) + "px" });
-            }
-            else if (position === "top" && alertContainer.offset().top < $(window).scrollTop())
-            {
-                alertContainer.addClass("sticky");
-
-                alertContainer.css({ top: ($(window).scrollTop() - alertContainer.parent().offset().top) + "px" });
-            }
+                alertSaveContainer.animate({ opacity: 0 }, 3000, function ()
+                {
+                    alertSaveContainer.remove();
+                });
+            }, 1000);
         }
     }
 
@@ -84,14 +134,12 @@
 
     function saveAnalyzerData(keys)
     {
-        alertDisplay
+        alertSaveMessageDisplay
         (
             {
                 Type: "alert-primary",
-                Title: "Saving to database...",
-                Descriptions: []
-            },
-            "bottom"
+                Title: "Saving to database..."
+            }
         );
 
         ajaxCall
@@ -104,17 +152,15 @@
             }
         ).done(function (response)
         {
-            alertDisplay(response["AlertData"], "bottom");
+            alertSaveMessageDisplay(response["AlertData"]);
         }).fail(function ()
         {
-            alertDisplay
+            alertSaveMessageDisplay
             (
                 {
                     Type: "alert-warning",
-                    Title: "Cannot save data...",
-                    Descriptions: []
-                },
-                "bottom"
+                    Title: "Cannot save data..."
+                }
             );
         });
     }
@@ -136,7 +182,7 @@
         {
             settingsContainer.empty();
 
-            alertDisplay(response["AlertData"], "top");
+            alertNotificationMessageDisplay(response["AlertData"]);
 
             if (!response["Error"])
             {
@@ -223,7 +269,7 @@
     {
         settingsContainer.empty();
 
-        alertDisplay(response["AlertData"], "top");
+        alertNotificationMessageDisplay(response["AlertData"]);
 
         if (!response["Error"])
         {
@@ -235,38 +281,5 @@
         }
     });
 
-    $(window).on("scroll", function ()
-    {
-        let alertTopContainer = settingsContainer.find(".alert.top");
-
-        if (alertTopContainer.length > 0)
-        {
-            alertTopContainer.removeClass("sticky");
-
-            alertTopContainer.css({ top: "" });
-
-            if (alertTopContainer.offset().top < $(window).scrollTop())
-            {
-                alertTopContainer.addClass("sticky");
-
-                alertTopContainer.css({ top: ($(window).scrollTop() - alertTopContainer.parent().offset().top) + "px" });
-            }
-        }
-
-        let alertBottomContainer = settingsContainer.find(".alert.bottom");
-
-        if (alertBottomContainer.length > 0)
-        {
-            alertBottomContainer.removeClass("sticky");
-
-            alertBottomContainer.css({ top: "" });
-
-            if (alertBottomContainer.offset().top + alertBottomContainer.innerHeight() > $(window).scrollTop() + $(window).innerHeight() - alertBottomContainer.innerHeight())
-            {
-                alertBottomContainer.addClass("sticky");
-
-                alertBottomContainer.css({ top: ($(window).scrollTop() + $(window).innerHeight() - alertBottomContainer.innerHeight() - alertBottomContainer.parent().offset().top) + "px" });
-            }
-        }
-    });
+    $(window).on("scroll", alertScroll);
 });
