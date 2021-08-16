@@ -180,6 +180,112 @@ namespace fortunestreetanalyzer.Pages
             }
         }
 
+        public JsonResult OnPostSaveGameSelection([FromBody] Global.AnalyzerDataModel.GameSelectionDataModel saveGameSelectionParameters)
+        {
+            Global.Response response = new Global.Response();
+
+            try
+            {
+                Rules rulesResult = _fortuneStreetAppContext.Rules.SingleOrDefault(id => id.ID == saveGameSelectionParameters.RuleData.ID);
+
+                if (rulesResult == null)
+                {
+                    response.AlertData = new Global.Response.Alert
+                    {
+                        Type = "alert-error",
+                        Title = "Invalid rule selection."
+                    };
+                    response.Error = true;
+
+                    return new JsonResult(response);
+                }
+
+                Boards boardsResult = _fortuneStreetAppContext.Boards.SingleOrDefault(id => id.ID == saveGameSelectionParameters.BoardData.ID);
+
+                if (boardsResult == null)
+                {
+                    response.AlertData = new Global.Response.Alert
+                    {
+                        Type = "alert-error",
+                        Title = "Invalid board selection."
+                    };
+                    response.Error = true;
+
+                    return new JsonResult(response);
+                }
+
+                Colors colorsResult = _fortuneStreetAppContext.Colors.SingleOrDefault(id => id.ID == saveGameSelectionParameters.ColorData.ID);
+
+                if (colorsResult == null)
+                {
+                    response.AlertData = new Global.Response.Alert
+                    {
+                        Type = "alert-error",
+                        Title = "Invalid mii color selection."
+                    };
+                    response.Error = true;
+
+                    return new JsonResult(response);
+                }
+
+                long? analyzerInstanceID = Global.CreateAnalyzerInstanceID(_fortuneStreetAppContext);
+
+                if (analyzerInstanceID == null)
+                {
+                    response.AlertData = new Global.Response.Alert
+                    {
+                        Type = "alert-error",
+                        Title = "Unable to create an analyzer instance ID."
+                    };
+                    response.Error = true;
+
+                    return new JsonResult(response);
+                }
+
+                _fortuneStreetAppContext.GameSettings.Add(new GameSettings
+                {
+                    AnalyzerInstanceID = (long) analyzerInstanceID,
+                    RuleID = rulesResult.ID,
+                    BoardID = boardsResult.ID,
+                    MiiColorID = colorsResult.ID
+                });
+
+                _fortuneStreetAppContext.SaveChanges();
+
+                response.HTMLResponse = JsonSerializer.Serialize(new
+                {
+                    Data = new Global.AnalyzerDataModel
+                    {
+                        AnalyzerInstanceID = (long) analyzerInstanceID,
+                        GameSelection = new Global.AnalyzerDataModel.GameSelectionDataModel
+                        {
+                            RuleData = new Global.AnalyzerDataModel.GameSelectionDataModel.RuleDataModel
+                            {
+                                ID = rulesResult.ID,
+                                Name = rulesResult.Name
+                            },
+                            BoardData = new Global.AnalyzerDataModel.GameSelectionDataModel.BoardDataModel
+                            {
+                                ID = boardsResult.ID,
+                                Name = boardsResult.Name
+                            },
+                            ColorData = new Global.AnalyzerDataModel.GameSelectionDataModel.ColorDataModel
+                            {
+                                ID = colorsResult.ID,
+                                MiiColor = colorsResult.MiiColor,
+                                GameColor = colorsResult.GameColor
+                            }
+                        }
+                    }
+                });
+
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                return Global.ServerErrorResponse(e);
+            }
+        }
         public JsonResult OnPostSaveAnalyzerData([FromBody] SaveAnalyzerDataModel saveAnalyzerParameter)
         {
             Global.Response response = new Global.Response();
@@ -206,6 +312,14 @@ namespace fortunestreetanalyzer.Pages
 
                 _fortuneStreetAppContext.SaveChanges();
 
+                response.HTMLResponse = JsonSerializer.Serialize(new
+                {
+                    Data = new Global.AnalyzerDataModel
+                    {
+                        AnalyzerInstanceID = (long) analyzerInstanceID
+                    }
+                });
+
                 response.AlertData = new Global.Response.Alert
                 {
                     Type = "alert-success",
@@ -219,6 +333,7 @@ namespace fortunestreetanalyzer.Pages
                     Type = "alert-warning",
                     Title = "Cannot save data..."
                 };
+                response.Error = true;
             }
 
             return new JsonResult(response);
