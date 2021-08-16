@@ -8,6 +8,7 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public Rules()
         {
             BoardGoals = new HashSet<BoardCharacteristics>();
+            GameSettings = new HashSet<GameSettings>();
             Spaces = new HashSet<Spaces>();
         }
 
@@ -16,6 +17,7 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public DateTime TimestampAdded { get; set; }
 
         public virtual ICollection<BoardCharacteristics> BoardGoals { get; set; }
+        public virtual ICollection<GameSettings> GameSettings { get; set; }
         public virtual ICollection<Spaces> Spaces { get; set; }
     }
 }

@@ -22,16 +22,20 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public virtual DbSet<AnalyzerInstances> AnalyzerInstances { get; set; }
         public virtual DbSet<AnalyzerInstanceLogs> AnalyzerInstanceLogs { get; set; }
         public virtual DbSet<Boards> Boards { get; set; }
-        public virtual DbSet<BoardCharacterCrosslist> BoardCharacterCrosslists { get; set; }
+        public virtual DbSet<BoardCharacterCrosslist> BoardCharacterCrosslist { get; set; }
         public virtual DbSet<BoardCharacteristics> BoardCharacteristics { get; set; }
         public virtual DbSet<Characters> Characters { get; set; }
-        public virtual DbSet<CharacterColorCrosslist> CharacterColorCrosslists { get; set; }
+        public virtual DbSet<CharacterColorCrosslist> CharacterColorCrosslist { get; set; }
         public virtual DbSet<Colors> Colors { get; set; }
+        public virtual DbSet<GameSettings> GameSettings { get; set; }
         public virtual DbSet<Rules> Rules { get; set; }
         public virtual DbSet<Shops> Shops { get; set; }
         public virtual DbSet<Spaces> Spaces { get; set; }
         public virtual DbSet<SpaceTypes> SpaceTypes { get; set; }
+        public virtual DbSet<TurnOrderDetermination> TurnOrderDetermination { get; set; }
         public virtual DbSet<CurrentAnalyzerInstancesTVF> CurrentAnalyzerInstancesTVF { get; set; }
+        public virtual DbSet<GetBoardCharactersTVF> GetBoardCharactersTVF { get; set; }
+        public virtual DbSet<GetCharacterColorsTVF> GetCharacterColorsTVF { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -236,6 +240,44 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasColumnName("timestamp_added");
             });
 
+            modelBuilder.Entity<GameSettings>(entity =>
+            {
+                entity.ToTable("gamesettings");
+
+                entity.Property(e => e.ID).HasColumnName("id");
+
+                entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
+
+                entity.Property(e => e.BoardID).HasColumnName("board_id");
+
+                entity.Property(e => e.MiiColorID).HasColumnName("mii_color_id");
+
+                entity.Property(e => e.RuleID).HasColumnName("rule_id");
+
+                entity.Property(e => e.TimestampAdded)
+                    .HasColumnType("datetime")
+                    .HasColumnName("timestamp_added")
+                    .HasDefaultValueSql("(getutcdate())");
+
+                entity.HasOne(d => d.Boards)
+                    .WithMany(p => p.GameSettings)
+                    .HasForeignKey(d => d.BoardID)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gamesettings_boards");
+
+                entity.HasOne(d => d.Colors)
+                    .WithMany(p => p.GameSettings)
+                    .HasForeignKey(d => d.MiiColorID)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gamesettings_colors");
+
+                entity.HasOne(d => d.Rules)
+                    .WithMany(p => p.GameSettings)
+                    .HasForeignKey(d => d.RuleID)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_gamesettings_rules");
+            });
+
             modelBuilder.Entity<Rules>(entity =>
             {
                 entity.ToTable("rules");
@@ -349,6 +391,24 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasConstraintName("FK_spacetypes_shops");
             });
 
+            modelBuilder.Entity<TurnOrderDetermination>(entity =>
+            {
+                entity.ToTable("turnorderdetermination");
+
+                entity.Property(e => e.ID).HasColumnName("id");
+
+                entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
+
+                entity.Property(e => e.CharacterID).HasColumnName("character_id");
+
+                entity.Property(e => e.TimestampAdded)
+                    .HasColumnType("datetime")
+                    .HasColumnName("timestamp_added")
+                    .HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.Value).HasColumnName("value");
+            });
+
             modelBuilder.Entity<CurrentAnalyzerInstancesTVF>(entity =>
             {
                 entity.Property(e => e.ID).HasColumnName("id");
@@ -371,6 +431,34 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
             });
 
             modelBuilder.Entity<CurrentAnalyzerInstancesTVF>().HasNoKey();
+
+            modelBuilder.Entity<GetBoardCharactersTVF>(entity =>
+            {
+                entity.Property(e => e.CharacterID).HasColumnName("character_id");
+
+                entity.Property(e => e.CharacterSpriteURL)
+                    .IsRequired()
+                    .HasMaxLength(900)
+                    .HasColumnName("character_sprite_url");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<GetBoardCharactersTVF>().HasNoKey();
+
+            modelBuilder.Entity<GetCharacterColorsTVF>(entity =>
+            {
+                entity.Property(e => e.CharacterID).HasColumnName("character_id");
+
+                entity.Property(e => e.ColorIDAssigned).HasColumnName("color_id_assigned");
+
+                entity.Property(e => e.Value).HasColumnName("value");
+            });
+
+            modelBuilder.Entity<GetCharacterColorsTVF>().HasNoKey();
 
             OnModelCreatingPartial(modelBuilder);
         }
