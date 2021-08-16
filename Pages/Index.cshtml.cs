@@ -286,6 +286,167 @@ namespace fortunestreetanalyzer.Pages
                 return Global.ServerErrorResponse(e);
             }
         }
+
+        public JsonResult OnPostLoadCharacters([FromBody] Boards loadCharactersParameter)
+        {
+            Global.Response response = new Global.Response();
+
+            try
+            {
+                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = _fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({loadCharactersParameter.ID})").ToList();
+
+                List<Global.AnalyzerDataModel.CharacterDataModel> characters = new List<Global.AnalyzerDataModel.CharacterDataModel>
+                {
+                    new Global.AnalyzerDataModel.CharacterDataModel
+                    {
+                        Name = "You"
+                    }
+                }.Union(getBoardCharactersTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel
+                {
+                    ID = result.CharacterID,
+                    SpriteURL = Global.AZURE_STORAGE_URL + result.CharacterSpriteURL,
+                    Name = result.Name
+                })).ToList();
+
+                response.HTMLResponse = JsonSerializer.Serialize(new
+                {
+                    Data = new Global.AnalyzerDataModel
+                    {
+                        CharacterData = characters
+                    },
+                    Response =
+                        "<div id=\"player-turn-determination\">" +
+                            "<div>" +
+
+                                string.Join("", characters.Select
+                                (
+                                    character =>
+                                        "<div>" +
+                                            "<div></div>" +
+
+                                            "<div>" + character.Name + "</div>" +
+
+                                            "<div>" +
+                                                "<div>" +
+
+                                                    string.Join("", Enumerable.Range(0, 10).Select
+                                                    (
+                                                        digit =>
+                                                            "<span>" +
+                                                                "<button type=\"button\" class=\"btn btn-outline-primary btn-lg\" value=\"" + (digit * 10) + "\">" + digit + "</button>" +
+                                                            "</span>"
+                                                    )) +
+
+                                                "</div>" +
+
+                                                "<div>" +
+
+                                                    string.Join("", Enumerable.Range(0, 10).Select
+                                                    (
+                                                        digit =>
+                                                            "<span>" +
+                                                                "<button type=\"button\" class=\"btn btn-outline-primary btn-lg\" value=\"" + digit + "\">" + digit + "</button>" +
+                                                            "</span>"
+                                                    )) +
+
+                                                "</div>" +
+                                            "</div>" +
+                                        "</div>"
+                                )) +
+
+                            "</div>" +
+
+                            Global.CreateConfirmationActions("center-items", new List<string>
+                            {
+                                "<button type=\"button\" class=\"btn btn-lg btn-primary disabled\" name=\"confirm\" disabled=\"disabled\">Confirm</button>"
+                            }) +
+
+                        "</div>"
+                });
+
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                return Global.ServerErrorResponse(e);
+            }
+        }
+
+        public JsonResult OnPostSaveCharacterData([FromBody] Global.AnalyzerDataModel loadCharacterColorsParameter)
+        {
+            Global.Response response = new Global.Response();
+
+            try
+            {
+                _fortuneStreetAppContext.TurnOrderDetermination.AddRange(loadCharacterColorsParameter.CharacterData.Select(character => new TurnOrderDetermination
+                {
+                    AnalyzerInstanceID = loadCharacterColorsParameter.AnalyzerInstanceID,
+                    CharacterID = character.ID,
+                    Value = character.TurnOrderValue
+                }));
+
+                _fortuneStreetAppContext.SaveChanges();
+
+                List<GetCharacterColorsTVF> getCharacterColorsTVFResults = _fortuneStreetAppContext.GetCharacterColorsTVF.FromSqlInterpolated($"SELECT * FROM getcharactercolors_tvf({loadCharacterColorsParameter.AnalyzerInstanceID})").ToList();
+
+                List<Global.AnalyzerDataModel.CharacterDataModel> characters = getCharacterColorsTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel
+                {
+                    ID = result.CharacterID,
+                    TurnOrderValue = result.Value,
+                    ColorData = new Global.AnalyzerDataModel.CharacterDataModel.ColorDataModel
+                    {
+                        ID = result.ColorIDAssigned
+                    }
+                }).ToList();
+
+                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = _fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({loadCharacterColorsParameter.GameSelection.BoardData.ID})").ToList();
+
+                List<long> characterColorIDs = characters.Select(character => character.ColorData.ID).ToList();
+
+                List<Colors> colors = _fortuneStreetAppContext.Colors.Where(color => characterColorIDs.Contains(color.ID)).ToList();
+
+                foreach (Global.AnalyzerDataModel.CharacterDataModel currentCharacter in characters)
+                {
+                    GetBoardCharactersTVF currentGetBoardCharactersTVFResult = getBoardCharactersTVFResults.SingleOrDefault(result => result.CharacterID == currentCharacter.ID);
+
+                    if (currentGetBoardCharactersTVFResult != null)
+                    {
+                        currentCharacter.SpriteURL = Global.AZURE_STORAGE_URL + currentGetBoardCharactersTVFResult.CharacterSpriteURL;
+                        currentCharacter.Name = currentGetBoardCharactersTVFResult.Name;
+                    }
+
+                    Colors currentColor = colors.SingleOrDefault(color => color.ID == currentCharacter.ColorData.ID);
+
+                    currentCharacter.ColorData.GameColor = currentColor.GameColor;
+                }
+
+                response.HTMLResponse = JsonSerializer.Serialize(new
+                {
+                    Data = new Global.AnalyzerDataModel
+                    {
+                        CharacterData = characters.Select(character => new Global.AnalyzerDataModel.CharacterDataModel
+                        {
+                            ID = character.ID,
+                            SpriteURL = character.SpriteURL,
+                            Name = character.Name,
+                            TurnOrderValue = character.TurnOrderValue,
+                            ColorData = new Global.AnalyzerDataModel.CharacterDataModel.ColorDataModel
+                            {
+                                ID = character.ColorData.ID,
+                                GameColor = character.ColorData.GameColor
+                            }
+                        }).ToList()
+                    }
+                });
+
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                return Global.ServerErrorResponse(e);
+            }
+        }
+
         public JsonResult OnPostSaveAnalyzerData([FromBody] SaveAnalyzerDataModel saveAnalyzerParameter)
         {
             Global.Response response = new Global.Response();
