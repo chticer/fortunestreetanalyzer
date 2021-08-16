@@ -93,7 +93,7 @@
         {
             settingsContainer.find(".alert.save").remove();
 
-            let alertMessage =  "<div class=\"alert alert-dismissible " + alert["Type"] + " save\">" +
+            let alertMessage =  "<div class=\"alert " + alert["Type"] + " save\">" +
                                     "<div>" +
                                         "<strong>" + alert["Title"] + "</strong>" +
                                     "</div>" +
@@ -153,6 +153,13 @@
         ).done(function (response)
         {
             alertSaveMessageDisplay(response["AlertData"]);
+
+            if (!response["Error"])
+            {
+                let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
+                analyzerData["AnalyzerInstanceID"] = JSONResponse["Data"]["AnalyzerInstanceID"];
+            }
         }).fail(function ()
         {
             alertSaveMessageDisplay
@@ -171,7 +178,7 @@
 
     function loadGameSelection()
     {
-        settingsContainer.empty().append(loadingDisplay());
+        $("#settings-content").append(loadingDisplay());
 
         ajaxCall
         (
@@ -180,7 +187,7 @@
             {}
         ).done(function (response)
         {
-            settingsContainer.empty();
+            $("#settings-content > .loading").remove();
 
             alertNotificationMessageDisplay(response["AlertData"]);
 
@@ -190,16 +197,16 @@
 
                 analyzerData = JSONResponse["Data"];
 
-                settingsContainer.append(JSONResponse["Response"]);
+                $("#settings-content").append(JSONResponse["Response"]);
 
                 $("#game-selection > div:first-of-type select").on("change", function ()
                 {
-                    analyzerData["GameSelection"]["RuleID"] = Number($(this).val());
+                    analyzerData["GameSelection"]["RuleData"]["ID"] = Number($(this).val());
                 });
 
                 $("#game-selection > div:nth-of-type(2) select").on("change", function ()
                 {
-                    analyzerData["GameSelection"]["BoardID"] = Number($(this).val());
+                    analyzerData["GameSelection"]["BoardData"]["ID"] = Number($(this).val());
                 });
 
                 $("#game-selection > div:nth-of-type(3) > .color-selection input[type=\"hidden\"]").each(function ()
@@ -217,9 +224,9 @@
 
                     currentColorContainer.children().first().on("click", function ()
                     {
-                        if (analyzerData["GameSelection"]["ColorID"] !== colorSelectionInputData["ColorID"])
+                        if (analyzerData["GameSelection"]["ColorData"]["ID"] !== colorSelectionInputData["ColorID"])
                         {
-                            analyzerData["GameSelection"]["ColorID"] = colorSelectionInputData["ColorID"];
+                            analyzerData["GameSelection"]["ColorData"]["ID"] = colorSelectionInputData["ColorID"];
 
                             currentColorContainer.parent().find(".selected").removeClass("selected");
 
@@ -232,9 +239,46 @@
                 {
                     $(this).closest(".confirmation-actions").remove();
 
-                    saveAnalyzerData([ "GameSelection" ]);
+                    let gameSelectionRulesSelectContainer = $("#game-selection > div:first-of-type select");
 
-                    initializeDetermineCharacterSettings();
+                    gameSelectionRulesSelectContainer.addClass("disabled");
+                    gameSelectionRulesSelectContainer.prop("disabled", true);
+
+                    let gameSelectionBoardsSelectContainer = $("#game-selection > div:nth-of-type(2) select");
+
+                    gameSelectionBoardsSelectContainer.addClass("disabled");
+                    gameSelectionBoardsSelectContainer.prop("disabled", true);
+
+                    let gameSelectionColorSelectionContainer = $("#game-selection > div:nth-of-type(3) > .color-selection");
+
+                    gameSelectionColorSelectionContainer.addClass("disabled");
+                    gameSelectionColorSelectionContainer.children().children().off("click");
+
+                    $("#settings-content").append(loadingDisplay());
+
+                    ajaxCall
+                    (
+                        "POST",
+                        "SaveGameSelection",
+                        analyzerData["GameSelection"]
+                    ).done(function (response)
+                    {
+                        $("#settings-content > .loading").remove();
+
+                        alertNotificationMessageDisplay(response["AlertData"]);
+
+                        if (!response["Error"])
+                        {
+                            let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
+                            analyzerData["AnalyzerInstanceID"] = JSONResponse["Data"]["AnalyzerInstanceID"];
+                            analyzerData["GameSelection"] = JSONResponse["Data"]["GameSelection"];
+
+                            saveAnalyzerData([ "GameSelection" ]);
+
+                            initializeDetermineCharacterSettings();
+                        }
+                    });
                 });
             }
         });
@@ -242,21 +286,9 @@
 
     function initializeDetermineCharacterSettings()
     {
-        let gameSelectionRulesSelectContainer = $("#game-selection > div:first-of-type select");
-
-        gameSelectionRulesSelectContainer.addClass("disabled");
-        gameSelectionRulesSelectContainer.prop("disabled", true);
-
-        let gameSelectionBoardsSelectContainer = $("#game-selection > div:nth-of-type(2) select");
-
-        gameSelectionBoardsSelectContainer.addClass("disabled");
-        gameSelectionBoardsSelectContainer.prop("disabled", true);
-
-        let gameSelectionColorSelectionContainer = $("#game-selection > div:nth-of-type(3) > .color-selection");
-
-        gameSelectionColorSelectionContainer.addClass("disabled");
-        gameSelectionColorSelectionContainer.children().children().off("click");
     }
+
+    $("#stock-districts-subpanel").hide();
 
     settingsContainer.append(loadingDisplay());
 
@@ -275,9 +307,19 @@
         {
             settingsContainer.append(response["HTMLResponse"]);
 
-            settingsContainer.find("button[name=\"load\"]").on("click", loadAnalyzerInstanceData);
+            settingsContainer.find("button[name=\"load\"]").on("click", function ()
+            {
+                settingsContainer.empty().append("<div id=\"settings-content\"></div>");
 
-            settingsContainer.find("button[name=\"create\"]").on("click", loadGameSelection);
+                loadAnalyzerInstanceData();
+            });
+
+            settingsContainer.find("button[name=\"create\"]").on("click", function ()
+            {
+                settingsContainer.empty().append("<div id=\"settings-content\"></div>");
+
+                loadGameSelection();
+            });
         }
     });
 
