@@ -100,68 +100,75 @@ namespace fortunestreetanalyzer.Pages
                     {
                         GameSelection = new Global.AnalyzerDataModel.GameSelectionDataModel
                         {
-                            RuleID = rules.FirstOrDefault().ID,
-                            BoardID = boards.FirstOrDefault().ID,
-                            ColorID = miiColors.FirstOrDefault().ID
+                            RuleData = new Global.AnalyzerDataModel.GameSelectionDataModel.RuleDataModel
+                            {
+                                ID = rules.FirstOrDefault().ID
+                            },
+                            BoardData = new Global.AnalyzerDataModel.GameSelectionDataModel.BoardDataModel
+                            {
+                                ID = boards.FirstOrDefault().ID
+                            },
+                            ColorData = new Global.AnalyzerDataModel.GameSelectionDataModel.ColorDataModel
+                            {
+                                ID = miiColors.FirstOrDefault().ID
+                            }
                         }
                     },
                     Response =
-                        "<div id=\"settings-content\">" +
-                            "<div id=\"game-selection\">" +
+                        "<div id=\"game-selection\">" +
+                            "<div>" +
                                 "<div>" +
-                                    "<div>" +
-                                        "<h5>Rules</h5>" +
-                                    "</div>" +
-
-                                    "<div>" +
-                                        "<select class=\"form-select\">" +
-
-                                            string.Join("", rules.Select(rule => "<option value=\"" + rule.ID + "\">" + rule.Name + "</option>")) +
-
-                                        "</select>" +
-                                    "</div>" +
+                                    "<h5>Rules</h5>" +
                                 "</div>" +
 
                                 "<div>" +
-                                    "<div>" +
-                                        "<h5>Boards</h5>" +
-                                    "</div>" +
+                                    "<select class=\"form-select\">" +
 
-                                    "<div>" +
-                                        "<select class=\"form-select\">" +
+                                        string.Join("", rules.Select(rule => "<option value=\"" + rule.ID + "\">" + rule.Name + "</option>")) +
 
-                                            string.Join("", boards.Select(board => "<option value=\"" + board.ID + "\">" + board.Name + "</option>")) +
-
-                                        "</select>" +
-                                    "</div>" +
+                                    "</select>" +
                                 "</div>" +
-
-                                "<div>" +
-                                    "<div>" +
-                                        "<h5>Mii Color</h5>" +
-                                    "</div>" +
-
-                                    "<div class=\"color-selection center-items\">" +
-
-                                        string.Join("", miiColors.Select
-                                        (
-                                            (color, index) =>
-                                                "<div>" +
-                                                    "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
-
-                                                    "<div style=\"background-color: #" + color.MiiColor + "\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
-                                                "</div>"
-                                        )) +
-
-                                    "</div>" +
-                                "</div>" +
-
-                                Global.CreateConfirmationActions("center-items", new List<string>
-                                {
-                                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
-                                }) +
-
                             "</div>" +
+
+                            "<div>" +
+                                "<div>" +
+                                    "<h5>Boards</h5>" +
+                                "</div>" +
+
+                                "<div>" +
+                                    "<select class=\"form-select\">" +
+
+                                        string.Join("", boards.Select(board => "<option value=\"" + board.ID + "\">" + board.Name + "</option>")) +
+
+                                    "</select>" +
+                                "</div>" +
+                            "</div>" +
+
+                            "<div>" +
+                                "<div>" +
+                                    "<h5>Mii Color</h5>" +
+                                "</div>" +
+
+                                "<div class=\"color-selection center-items\">" +
+
+                                    string.Join("", miiColors.Select
+                                    (
+                                        (color, index) =>
+                                            "<div>" +
+                                                "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
+
+                                                "<div style=\"background-color: #" + color.MiiColor + "\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
+                                            "</div>"
+                                    )) +
+
+                                "</div>" +
+                            "</div>" +
+
+                            Global.CreateConfirmationActions("center-items", new List<string>
+                            {
+                                "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
+                            }) +
+
                         "</div>"
                 });
 
