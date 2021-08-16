@@ -11,6 +11,7 @@ namespace fortunestreetanalyzer
 {
     public class Global
     {
+        public readonly static string AZURE_STORAGE_URL = "https://projectsecretply10004.blob.core.windows.net/main/";
         public readonly static string GITHUB_URL = "https://github.com/chticer/fortunestreetanalyzer/";
 
         public class AnalyzerDataModel
@@ -92,32 +93,40 @@ namespace fortunestreetanalyzer
                 "</div>";
         }
 
+        public static long? CreateAnalyzerInstanceID(FortuneStreetAppContext fortuneStreetAppContext)
+        {
+            try
+            {
+                AnalyzerInstances analyzerInstanceRecord = new AnalyzerInstances
+                {
+                    IPAddress = Hash(GetUserIPAddress()),
+                    Status = "in_progress"
+                };
+
+                fortuneStreetAppContext.AnalyzerInstances.Add(analyzerInstanceRecord);
+
+                fortuneStreetAppContext.SaveChanges();
+
+                analyzerInstanceRecord.AnalyzerInstanceID = analyzerInstanceRecord.ID;
+
+                fortuneStreetAppContext.SaveChanges();
+
+                return analyzerInstanceRecord.AnalyzerInstanceID;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public static long? VerifyAnalyzerInstanceID(long analyzerInstanceID, FortuneStreetAppContext fortuneStreetAppContext)
         {
             try
             {
                 CurrentAnalyzerInstancesTVF currentAnalyzerInstancesTVFResult = fortuneStreetAppContext.CurrentAnalyzerInstancesTVF.FromSqlInterpolated($"SELECT * FROM currentanalyzerinstances_tvf() WHERE analyzer_instance_id = {analyzerInstanceID} AND status = 'in_progress'").FirstOrDefault();
 
-                string userIPAddress = GetUserIPAddress();
-
-                if (currentAnalyzerInstancesTVFResult == null || !HashComparison(userIPAddress, currentAnalyzerInstancesTVFResult.IPAddress))
-                {
-                    AnalyzerInstances analyzerInstanceRecord = new AnalyzerInstances
-                    {
-                        IPAddress = Hash(userIPAddress),
-                        Status = "in_progress"
-                    };
-
-                    fortuneStreetAppContext.AnalyzerInstances.Add(analyzerInstanceRecord);
-
-                    fortuneStreetAppContext.SaveChanges();
-
-                    analyzerInstanceRecord.AnalyzerInstanceID = analyzerInstanceRecord.ID;
-
-                    fortuneStreetAppContext.SaveChanges();
-
-                    return analyzerInstanceRecord.AnalyzerInstanceID;
-                }
+                if (currentAnalyzerInstancesTVFResult == null || !HashComparison(GetUserIPAddress(), currentAnalyzerInstancesTVFResult.IPAddress))
+                    return CreateAnalyzerInstanceID(fortuneStreetAppContext);
 
                 return currentAnalyzerInstancesTVFResult.AnalyzerInstanceID;
             }
