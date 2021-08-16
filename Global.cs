@@ -17,12 +17,47 @@ namespace fortunestreetanalyzer
         {
             public long AnalyzerInstanceID { get; set; }
             public GameSelectionDataModel GameSelection { get; set; }
+            public List<CharacterDataModel> CharacterData { get; set; }
 
             public class GameSelectionDataModel
             {
-                public long RuleID { get; set; }
-                public long BoardID { get; set; }
-                public long ColorID { get; set; }
+                public RuleDataModel RuleData { get; set; }
+                public BoardDataModel BoardData { get; set; }
+                public ColorDataModel ColorData { get; set; }
+
+                public class RuleDataModel
+                {
+                    public long ID { get; set; }
+                    public string Name { get; set; }
+                }
+
+                public class BoardDataModel
+                {
+                    public long ID { get; set; }
+                    public string Name { get; set; }
+                }
+
+                public class ColorDataModel
+                {
+                    public long ID { get; set; }
+                    public string MiiColor { get; set; }
+                    public string GameColor { get; set; }
+                }
+            }
+
+            public class CharacterDataModel
+            {
+                public long ID { get; set; }
+                public string SpriteURL { get; set; }
+                public string Name { get; set; }
+                public byte TurnOrderValue { get; set; }
+                public ColorDataModel ColorData { get; set; }
+
+                public class ColorDataModel
+                {
+                    public long ID { get; set; }
+                    public string GameColor { get; set; }
+                }
             }
         }
 
