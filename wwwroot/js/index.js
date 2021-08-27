@@ -451,6 +451,10 @@
 
     function initializeGameStartSettings()
     {
+        let playerTurnDeterminationContainer = $("#player-turn-determination > div:first-of-type");
+
+        playerTurnDeterminationContainer.addClass("disabled");
+        playerTurnDeterminationContainer.find("button").off("click");
     }
 
     $("#stock-districts-subpanel").hide();

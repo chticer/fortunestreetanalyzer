@@ -52,6 +52,12 @@ body > div
     cursor: not-allowed;
 }
 
+.disabled .btn-outline-primary:not(.active):hover
+{
+    color: #0D6EFD;
+    background-color: transparent;
+}
+
 #output-panel
 {
     display: flex;
@@ -151,6 +157,21 @@ body > div
 {
     padding: .25rem .5rem;
     font-size: 36px;
+}
+
+#player-turn-determination > .disabled > div > div:last-of-type > div > span > button
+{
+    cursor: not-allowed;
+}
+
+#player-turn-determination > .disabled > div > div:last-of-type > div > span > button:focus
+{
+    box-shadow: none;
+}
+
+#player-turn-determination > .disabled > div > div:last-of-type > div > span > button:not(.active)
+{
+    opacity: 0.65;
 }
 
 #output-panel, #settings-panel
