@@ -35,10 +35,10 @@ namespace fortunestreetanalyzer.Pages
 
                 List<CurrentAnalyzerInstancesTVF> currentAnalyzerInstancesTVFResults = _fortuneStreetAppContext.CurrentAnalyzerInstancesTVF.FromSqlInterpolated($"SELECT * FROM currentanalyzerinstances_tvf() WHERE status = 'in_progress'").OrderByDescending(timestampadded => timestampadded.TimestampAdded).ToList();
 
-                foreach (CurrentAnalyzerInstancesTVF currentAnalyzerInstancesTVFResult in currentAnalyzerInstancesTVFResults)
+                for (int i = currentAnalyzerInstancesTVFResults.Count - 1; i >= 0; --i)
                 {
-                    if (!Global.HashComparison(userIPAddress, currentAnalyzerInstancesTVFResult.IPAddress))
-                        currentAnalyzerInstancesTVFResults.Remove(currentAnalyzerInstancesTVFResult);
+                    if (!Global.HashComparison(userIPAddress, currentAnalyzerInstancesTVFResults[i].IPAddress))
+                        currentAnalyzerInstancesTVFResults.RemoveAt(i);
                 }
 
                 response.HTMLResponse =
