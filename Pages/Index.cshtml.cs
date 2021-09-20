@@ -304,7 +304,7 @@ namespace fortunestreetanalyzer.Pages
                 }.Union(getBoardCharactersTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel
                 {
                     ID = result.CharacterID,
-                    SpriteURL = Global.AZURE_STORAGE_URL + result.CharacterSpriteURL,
+                    PortraitURL = Global.AZURE_STORAGE_URL + result.CharacterPortraitURI,
                     Name = result.Name
                 })).ToList();
 
@@ -322,7 +322,17 @@ namespace fortunestreetanalyzer.Pages
                                 (
                                     character =>
                                         "<div>" +
-                                            "<div></div>" +
+                                            "<div class=\"character-portrait-icon\">" +
+
+                                                (
+                                                    !string.IsNullOrEmpty(character.PortraitURL)
+                                                    ?
+                                                    "<img src=\"" + character.PortraitURL + "\" alt=\"Character Portrait for " + character.Name + "\" />"
+                                                    :
+                                                    ""
+                                                ) +
+
+                                            "</div>" +
 
                                             "<div>" + character.Name + "</div>" +
 
@@ -411,7 +421,7 @@ namespace fortunestreetanalyzer.Pages
 
                     if (currentGetBoardCharactersTVFResult != null)
                     {
-                        currentCharacter.SpriteURL = Global.AZURE_STORAGE_URL + currentGetBoardCharactersTVFResult.CharacterSpriteURL;
+                        currentCharacter.PortraitURL = Global.AZURE_STORAGE_URL + currentGetBoardCharactersTVFResult.CharacterPortraitURI;
                         currentCharacter.Name = currentGetBoardCharactersTVFResult.Name;
                     }
 
@@ -427,7 +437,7 @@ namespace fortunestreetanalyzer.Pages
                         CharacterData = characters.Select(character => new Global.AnalyzerDataModel.CharacterDataModel
                         {
                             ID = character.ID,
-                            SpriteURL = character.SpriteURL,
+                            PortraitURL = character.PortraitURL,
                             Name = character.Name,
                             TurnOrderValue = character.TurnOrderValue,
                             ColorData = new Global.AnalyzerDataModel.CharacterDataModel.ColorDataModel

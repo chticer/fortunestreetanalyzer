@@ -49,7 +49,7 @@ namespace fortunestreetanalyzer
             public class CharacterDataModel
             {
                 public long ID { get; set; }
-                public string SpriteURL { get; set; }
+                public string PortraitURL { get; set; }
                 public string Name { get; set; }
                 public byte TurnOrderValue { get; set; }
                 public ColorDataModel ColorData { get; set; }

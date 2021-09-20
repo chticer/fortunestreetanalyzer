@@ -10,6 +10,12 @@ html, body, body > div, h4
     padding: 0;
 }
 
+img
+{
+    margin: auto;
+    height: 100%;
+}
+
 body > div
 {
     display: flex;
@@ -272,4 +278,19 @@ body > div
     flex-wrap: wrap;
     justify-content: center;
     text-align: center;
+}
+
+.character-portrait-icon
+{
+    height: 64px;
+}
+
+.character-portrait-icon.small
+{
+    height: 48px;
+}
+
+.character-portrait-icon.large
+{
+    height: 96px;
 }
