@@ -9,6 +9,10 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public long BoardID { get; set; }
         public byte StandingThreshold { get; set; }
         public short NetWorthThreshold { get; set; }
+        public short ReadyCashStart { get; set; }
+        public short SalaryStart { get; set; }
+        public byte SalaryIncrease { get; set; }
+        public byte MaxDieRoll { get; set; }
         public DateTime TimestampAdded { get; set; }
 
         public virtual Boards Board { get; set; }

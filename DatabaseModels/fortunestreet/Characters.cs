@@ -12,7 +12,7 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         }
 
         public long ID { get; set; }
-        public string CharacterSpriteURL { get; set; }
+        public string CharacterPortraitURI { get; set; }
         public string Name { get; set; }
         public string Rank { get; set; }
         public DateTime TimestampAdded { get; set; }

@@ -11,8 +11,8 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public long MiiColorID { get; set; }
         public DateTime TimestampAdded { get; set; }
 
-        public virtual Boards Boards { get; set; }
-        public virtual Colors Colors { get; set; }
-        public virtual Rules Rules { get; set; }
+        public virtual Boards Board { get; set; }
+        public virtual Colors Color { get; set; }
+        public virtual Rules Rule { get; set; }
     }
 }

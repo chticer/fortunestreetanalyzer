@@ -8,7 +8,7 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public Boards()
         {
             BoardCharacterCrosslists = new HashSet<BoardCharacterCrosslist>();
-            BoardGoals = new HashSet<BoardCharacteristics>();
+            BoardCharacteristics = new HashSet<BoardCharacteristics>();
             GameSettings = new HashSet<GameSettings>();
             Spaces = new HashSet<Spaces>();
         }
@@ -18,7 +18,7 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public DateTime TimestampAdded { get; set; }
 
         public virtual ICollection<BoardCharacterCrosslist> BoardCharacterCrosslists { get; set; }
-        public virtual ICollection<BoardCharacteristics> BoardGoals { get; set; }
+        public virtual ICollection<BoardCharacteristics> BoardCharacteristics { get; set; }
         public virtual ICollection<GameSettings> GameSettings { get; set; }
         public virtual ICollection<Spaces> Spaces { get; set; }
     }

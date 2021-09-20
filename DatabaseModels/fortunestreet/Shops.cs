@@ -7,17 +7,14 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
     {
         public Shops()
         {
-            SpaceTypes = new HashSet<SpaceTypes>();
+            Spaces = new HashSet<Spaces>();
         }
 
         public long ID { get; set; }
         public string Name { get; set; }
         public int Value { get; set; }
-        public int Price { get; set; }
-        public int MaxCapital { get; set; }
-        public string District { get; set; }
         public DateTime TimestampAdded { get; set; }
 
-        public virtual ICollection<SpaceTypes> SpaceTypes { get; set; }
+        public virtual ICollection<Spaces> Spaces { get; set; }
     }
 }

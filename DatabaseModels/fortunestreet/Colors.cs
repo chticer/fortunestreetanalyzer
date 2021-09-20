@@ -12,8 +12,8 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         }
 
         public long ID { get; set; }
-        public string MiiColor { get; set; }
-        public string GameColor { get; set; }
+        public string SystemColor { get; set; }
+        public string CharacterColor { get; set; }
         public DateTime TimestampAdded { get; set; }
 
         public virtual ICollection<CharacterColorCrosslist> CharacterColorCrosslists { get; set; }
