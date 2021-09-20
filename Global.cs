@@ -41,8 +41,8 @@ namespace fortunestreetanalyzer
                 public class ColorDataModel
                 {
                     public long ID { get; set; }
-                    public string MiiColor { get; set; }
-                    public string GameColor { get; set; }
+                    public string SystemColor { get; set; }
+                    public string CharacterColor { get; set; }
                 }
             }
 

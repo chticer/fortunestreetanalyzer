@@ -157,7 +157,7 @@ namespace fortunestreetanalyzer.Pages
                                             "<div>" +
                                                 "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
 
-                                                "<div style=\"background-color: #" + color.MiiColor + "\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
+                                                "<div style=\"background-color: #" + color.SystemColor + "\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
                                             "</div>"
                                     )) +
 
@@ -272,8 +272,8 @@ namespace fortunestreetanalyzer.Pages
                             ColorData = new Global.AnalyzerDataModel.GameSelectionDataModel.ColorDataModel
                             {
                                 ID = colorsResult.ID,
-                                MiiColor = colorsResult.MiiColor,
-                                GameColor = colorsResult.GameColor
+                                SystemColor = colorsResult.SystemColor,
+                                CharacterColor = colorsResult.CharacterColor
                             }
                         }
                     }
@@ -417,7 +417,7 @@ namespace fortunestreetanalyzer.Pages
 
                     Colors currentColor = colors.SingleOrDefault(color => color.ID == currentCharacter.ColorData.ID);
 
-                    currentCharacter.ColorData.GameColor = currentColor.GameColor;
+                    currentCharacter.ColorData.GameColor = currentColor.CharacterColor;
                 }
 
                 response.HTMLResponse = JsonSerializer.Serialize(new
