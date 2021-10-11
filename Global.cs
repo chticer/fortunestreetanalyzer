@@ -19,23 +19,35 @@ namespace fortunestreetanalyzer
             public long AnalyzerInstanceID { get; set; }
             public GameDataModel GameData { get; set; }
             public List<CharacterDataModel> CharacterData { get; set; }
+            public long SpaceLayoutIndex { get; set; }
+            public List<SpaceDataModel> SpaceData { get; set; }
+            public List<SpaceTypeDataModel> SpaceTypeData { get; set; }
+            public List<ShopDataModel> ShopData { get; set; }
+            public List<DistrictDataModel> DistrictData { get; set; }
 
             public class GameDataModel
             {
                 public RuleDataModel RuleData { get; set; }
                 public BoardDataModel BoardData { get; set; }
                 public ColorDataModel ColorData { get; set; }
+                public List<TurnDataModel> TurnData { get; set; }
 
                 public class RuleDataModel
                 {
                     public long ID { get; set; }
                     public string Name { get; set; }
+                    public byte StandingThreshold { get; set; }
+                    public short NetWorthThreshold { get; set; }
                 }
 
                 public class BoardDataModel
                 {
                     public long ID { get; set; }
                     public string Name { get; set; }
+                    public short ReadyCashStart { get; set; }
+                    public short SalaryStart { get; set; }
+                    public short SalaryIncrease { get; set; }
+                    public byte MaxDieRoll { get; set; }
                 }
 
                 public class ColorDataModel
@@ -43,6 +55,10 @@ namespace fortunestreetanalyzer
                     public long ID { get; set; }
                     public string SystemColor { get; set; }
                     public string CharacterColor { get; set; }
+                }
+
+                public class TurnDataModel
+                {
                 }
             }
 
@@ -59,6 +75,68 @@ namespace fortunestreetanalyzer
                     public long ID { get; set; }
                     public string GameColor { get; set; }
                 }
+            }
+
+            public class SpaceDataModel
+            {
+                public long ID { get; set; }
+                public string AdditionalProperties { get; set; }
+                public List<SpaceLayoutDataModel> SpaceLayoutData { get; set; }
+                public long SpaceTypeIndex { get; set; }
+                public long? ShopIndex { get; set; }
+                public long? DistrictIndex { get; set; }
+
+                public class SpaceLayoutDataModel
+                {
+                    public decimal CenterXFactor { get; set; }
+                    public decimal CenterYFactor { get; set; }
+                }
+            }
+
+            public class SpaceTypeDataModel
+            {
+                public long ID { get; set; }
+                public string Description { get; set; }
+                public string Icon { get; set; }
+            }
+
+            public class ShopDataModel
+            {
+                public long ID { get; set; }
+                public string Name { get; set; }
+                public int Value { get; set; }
+            }
+
+            public class DistrictDataModel
+            {
+                public long ID { get; set; }
+                public string Name { get; set; }
+                public string Color { get; set; }
+            }
+        }
+
+        public class IndexDataModel
+        {
+            public List<SpaceTypeIndexDataModel> SpaceTypeIndexData { get; set; }
+            public List<ShopIndexDataModel> ShopIndexData { get; set; }
+            public List<DistrictIndexDataModel> DistrictIndexData { get; set; }
+
+            public class SpaceTypeIndexDataModel
+            {
+                public long Index { get; set; }
+                public SpaceTypes SpaceTypeData { get; set; }
+            }
+
+            public class ShopIndexDataModel
+            {
+                public long Index { get; set; }
+                public Shops ShopData { get; set; }
+            }
+
+            public class DistrictIndexDataModel
+            {
+                public long Index { get; set; }
+                public Districts DistrictData { get; set; }
             }
         }
 

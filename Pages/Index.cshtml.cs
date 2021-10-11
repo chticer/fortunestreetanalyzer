@@ -457,11 +457,127 @@ namespace fortunestreetanalyzer.Pages
             }
         }
 
+        public JsonResult OnPostLoadSettingsOnGameStart([FromBody] Global.AnalyzerDataModel.GameDataModel loadSettingsOnGameStartParameter)
         {
             Global.Response response = new Global.Response();
 
             try
             {
+                BoardCharacteristics boardCharacteristicResult = _fortuneStreetAppContext.BoardCharacteristics.SingleOrDefault(board_characteristic => board_characteristic.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && board_characteristic.BoardID == loadSettingsOnGameStartParameter.BoardData.ID);
+
+                List<Spaces> spaceResults = _fortuneStreetAppContext.Spaces.Where(space => space.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && space.BoardID == loadSettingsOnGameStartParameter.BoardData.ID).ToList();
+
+                List<long> spaceIDs = spaceResults.Select(id => id.ID).ToList();
+
+                List<SpaceLayouts> spaceLayoutResults = _fortuneStreetAppContext.SpaceLayouts.Where(space_id => spaceIDs.Contains(space_id.SpaceID)).OrderBy(layout_index => layout_index.LayoutIndex).ToList();
+
+                List<long> spaceTypeIDs = spaceResults.Select(space_type_id => space_type_id.SpaceTypeID).Distinct().ToList();
+
+                List<SpaceTypes> spaceTypeResults = _fortuneStreetAppContext.SpaceTypes.Where(id => spaceTypeIDs.Contains(id.ID)).ToList();
+
+                List<long> shopIDs = spaceResults.Where(shop_id => shop_id.ShopID != null).Select(shop_id => (long) shop_id.ShopID).Distinct().ToList();
+
+                List<Shops> shopResults = _fortuneStreetAppContext.Shops.Where(id => shopIDs.Contains(id.ID)).ToList();
+
+                List<long> districtIDs = spaceResults.Where(district_id => district_id.DistrictID != null).Select(district_id => (long) district_id.DistrictID).Distinct().ToList();
+
+                List<Districts> districtResults = _fortuneStreetAppContext.Districts.Where(id => districtIDs.Contains(id.ID)).ToList();
+
+                Global.IndexDataModel indexData = new Global.IndexDataModel
+                {
+                    SpaceTypeIndexData = spaceTypeResults.Select((space_type_result, space_type_index) => new Global.IndexDataModel.SpaceTypeIndexDataModel
+                    {
+                        Index = space_type_index,
+                        SpaceTypeData = space_type_result
+                    }).ToList(),
+                    ShopIndexData = shopResults.Select((shop_result, shop_index) => new Global.IndexDataModel.ShopIndexDataModel
+                    {
+                        Index = shop_index,
+                        ShopData = shop_result
+                    }).ToList(),
+                    DistrictIndexData = new List<Global.IndexDataModel.DistrictIndexDataModel>()
+                };
+
+                if (districtIDs.Count > 0)
+                    indexData.DistrictIndexData = districtResults.Select((district_result, district_index) => new Global.IndexDataModel.DistrictIndexDataModel
+                    {
+                        Index = district_index,
+                        DistrictData = district_result
+                    }).ToList();
+
+                List<Global.AnalyzerDataModel.SpaceDataModel> spaceData = new List<Global.AnalyzerDataModel.SpaceDataModel>();
+
+                foreach (Spaces currentSpaceResult in spaceResults)
+                {
+                    Global.IndexDataModel.ShopIndexDataModel currentShopIndexData = indexData.ShopIndexData.SingleOrDefault(shop_index_result => currentSpaceResult.ShopID != null && shop_index_result.ShopData.ID == (long) currentSpaceResult.ShopID);
+                    Global.IndexDataModel.DistrictIndexDataModel currentDistrictIndexData = indexData.DistrictIndexData.SingleOrDefault(district_index_result => currentSpaceResult.DistrictID != null && district_index_result.DistrictData.ID == (long) currentSpaceResult.DistrictID);
+
+                    spaceData.Add(new Global.AnalyzerDataModel.SpaceDataModel
+                    {
+                        ID = currentSpaceResult.ID,
+                        AdditionalProperties = currentSpaceResult.AdditionalProperties,
+                        SpaceLayoutData = spaceLayoutResults.Where(space_id => space_id.SpaceID == currentSpaceResult.ID).Select(space_layout_result => new Global.AnalyzerDataModel.SpaceDataModel.SpaceLayoutDataModel
+                        {
+                            CenterXFactor = space_layout_result.CenterXFactor,
+                            CenterYFactor = space_layout_result.CenterYFactor
+                        }).ToList(),
+                        SpaceTypeIndex = indexData.SpaceTypeIndexData.SingleOrDefault(space_type_index_result => space_type_index_result.SpaceTypeData.ID == currentSpaceResult.SpaceTypeID).Index,
+                        ShopIndex = currentShopIndexData?.Index,
+                        DistrictIndex = currentDistrictIndexData?.Index
+                    });
+                }
+
+                response.HTMLResponse = JsonSerializer.Serialize(new
+                {
+                    Data = new Global.AnalyzerDataModel
+                    {
+                        GameData = new Global.AnalyzerDataModel.GameDataModel
+                        {
+                            RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
+                            {
+                                StandingThreshold = boardCharacteristicResult.StandingThreshold,
+                                NetWorthThreshold = boardCharacteristicResult.NetWorthThreshold
+                            },
+                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
+                            {
+                                ReadyCashStart = boardCharacteristicResult.ReadyCashStart,
+                                SalaryStart = boardCharacteristicResult.SalaryStart,
+                                SalaryIncrease = boardCharacteristicResult.SalaryIncrease,
+                                MaxDieRoll = boardCharacteristicResult.MaxDieRoll
+                            },
+                            TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>()
+                        },
+                        SpaceLayoutIndex = 0,
+                        SpaceData = spaceData,
+                        SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
+                        {
+                            ID = space_type_index_result.SpaceTypeData.ID,
+                            Description = space_type_index_result.SpaceTypeData.Description,
+                            Icon = space_type_index_result.SpaceTypeData.Icon
+                        }).ToList(),
+                        ShopData = indexData.ShopIndexData.Select(shop_index_result => new Global.AnalyzerDataModel.ShopDataModel
+                        {
+                            ID = shop_index_result.ShopData.ID,
+                            Name = shop_index_result.ShopData.Name,
+                            Value = shop_index_result.ShopData.Value
+                        }).ToList(),
+                        DistrictData = indexData.DistrictIndexData.Select(district_index_result => new Global.AnalyzerDataModel.DistrictDataModel
+                        {
+                            ID = district_index_result.DistrictData.ID,
+                            Name = district_index_result.DistrictData.Name,
+                            Color = district_index_result.DistrictData.Color
+                        }).ToList()
+                    }
+                });
+
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                return Global.ServerErrorResponse(e);
+            }
+        }
+
         public JsonResult OnPostSaveAnalyzerData([FromBody] SaveAnalyzerDataModel saveAnalyzerDataParameter)
         {
             Global.Response response = new Global.Response();

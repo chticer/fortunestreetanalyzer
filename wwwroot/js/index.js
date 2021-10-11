@@ -455,6 +455,34 @@
 
         playerTurnDeterminationContainer.addClass("disabled");
         playerTurnDeterminationContainer.find("button").off("click");
+
+        ajaxCall
+        (
+            "POST",
+            "LoadSettingsOnGameStart",
+            analyzerData["GameData"]
+        ).done(function (response)
+        {
+            alertNotificationMessageDisplay(response["AlertData"]);
+
+            if (!response["Error"])
+            {
+                let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
+                analyzerData["GameData"]["RuleData"]["StandingThreshold"] = JSONResponse["GameData"]["RuleData"]["StandingThreshold"];
+                analyzerData["GameData"]["RuleData"]["NetWorthThreshold"] = JSONResponse["GameData"]["RuleData"]["NetWorthThreshold"];
+                analyzerData["GameData"]["BoardData"]["ReadyCashStart"] = JSONResponse["GameData"]["BoardData"]["ReadyCashStart"];
+                analyzerData["GameData"]["BoardData"]["SalaryStart"] = JSONResponse["GameData"]["BoardData"]["SalaryStart"];
+                analyzerData["GameData"]["BoardData"]["SalaryIncrease"] = JSONResponse["GameData"]["BoardData"]["SalaryIncrease"];
+                analyzerData["GameData"]["BoardData"]["MaxDieRoll"] = JSONResponse["GameData"]["BoardData"]["MaxDieRoll"];
+                analyzerData["GameData"]["TurnData"] = JSONResponse["GameData"]["TurnData"];
+                analyzerData["SpaceLayoutIndex"] = JSONResponse["SpaceLayoutIndex"];
+                analyzerData["DistrictData"] = JSONResponse["DistrictData"];
+                analyzerData["ShopData"] = JSONResponse["ShopData"];
+                analyzerData["SpaceData"] = JSONResponse["SpaceData"];
+                analyzerData["SpaceTypeData"] = JSONResponse["SpaceTypeData"];
+            }
+        });
     }
 
     $("#stock-districts-subpanel").hide();
