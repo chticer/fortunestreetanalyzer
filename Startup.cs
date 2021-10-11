@@ -2,6 +2,7 @@ using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,10 +24,11 @@ namespace fortunestreetanalyzer
         {
             services.AddRazorPages();
 
-            services.AddDbContext<FortuneStreetAppContext>(options =>
+            services.AddDbContext<FortuneStreetAppContext>(options => options.UseSqlServer(new SqlConnection(new SqlConnectionStringBuilder
             {
-                options.UseSqlServer(Configuration.GetConnectionString("FortuneStreetDatabase"));
-            });
+                DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
+                InitialCatalog = "fortunestreet"
+            }.ConnectionString)));
 
             services.AddMvc().AddRazorPagesOptions(options =>
             {
