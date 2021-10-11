@@ -176,14 +176,14 @@
     {
     }
 
-    function loadGameSelection()
+    function loadGameData()
     {
         $("#settings-content").append(loadingDisplay());
 
         ajaxCall
         (
             "GET",
-            "LoadGameSelection",
+            "LoadGameData",
             {}
         ).done(function (response)
         {
@@ -201,12 +201,12 @@
 
                 $("#game-selection > div:first-of-type select").on("change", function ()
                 {
-                    analyzerData["GameSelection"]["RuleData"]["ID"] = Number($(this).val());
+                    analyzerData["GameData"]["RuleData"]["ID"] = Number($(this).val());
                 });
 
                 $("#game-selection > div:nth-of-type(2) select").on("change", function ()
                 {
-                    analyzerData["GameSelection"]["BoardData"]["ID"] = Number($(this).val());
+                    analyzerData["GameData"]["BoardData"]["ID"] = Number($(this).val());
                 });
 
                 $("#game-selection > div:nth-of-type(3) > .color-selection input[type=\"hidden\"]").each(function ()
@@ -224,9 +224,9 @@
 
                     currentColorContainer.children().first().on("click", function ()
                     {
-                        if (analyzerData["GameSelection"]["ColorData"]["ID"] !== colorSelectionInputData["ColorID"])
+                        if (analyzerData["GameData"]["ColorData"]["ID"] !== colorSelectionInputData["ColorID"])
                         {
-                            analyzerData["GameSelection"]["ColorData"]["ID"] = colorSelectionInputData["ColorID"];
+                            analyzerData["GameData"]["ColorData"]["ID"] = colorSelectionInputData["ColorID"];
 
                             currentColorContainer.parent().find(".selected").removeClass("selected");
 
@@ -259,8 +259,8 @@
                     ajaxCall
                     (
                         "POST",
-                        "SaveGameSelection",
-                        analyzerData["GameSelection"]
+                        "SaveGameData",
+                        analyzerData["GameData"]
                     ).done(function (response)
                     {
                         $("#settings-content > .loading").remove();
@@ -272,9 +272,9 @@
                             let JSONResponse = JSON.parse(response["HTMLResponse"]);
 
                             analyzerData["AnalyzerInstanceID"] = JSONResponse["Data"]["AnalyzerInstanceID"];
-                            analyzerData["GameSelection"] = JSONResponse["Data"]["GameSelection"];
+                            analyzerData["GameData"] = JSONResponse["Data"]["GameData"];
 
-                            saveAnalyzerData([ "GameSelection" ]);
+                            saveAnalyzerData([ "GameData" ]);
 
                             initializeDetermineCharacterSettings();
                         }
@@ -295,7 +295,7 @@
             "POST",
             "LoadCharacters",
             {
-                ID: analyzerData["GameSelection"]["BoardData"]["ID"]
+                ID: analyzerData["GameData"]["BoardData"]["ID"]
             }
         ).done(function (response)
         {
@@ -487,7 +487,7 @@
             {
                 settingsContainer.empty().append("<div id=\"settings-content\"></div>");
 
-                loadGameSelection();
+                loadGameData();
             });
         }
     });

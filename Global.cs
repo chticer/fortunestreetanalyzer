@@ -17,10 +17,10 @@ namespace fortunestreetanalyzer
         public class AnalyzerDataModel
         {
             public long AnalyzerInstanceID { get; set; }
-            public GameSelectionDataModel GameSelection { get; set; }
+            public GameDataModel GameData { get; set; }
             public List<CharacterDataModel> CharacterData { get; set; }
 
-            public class GameSelectionDataModel
+            public class GameDataModel
             {
                 public RuleDataModel RuleData { get; set; }
                 public BoardDataModel BoardData { get; set; }

@@ -82,7 +82,7 @@ namespace fortunestreetanalyzer.Pages
             }
         }
 
-        public JsonResult OnGetLoadGameSelection()
+        public JsonResult OnGetLoadGameData()
         {
             Global.Response response = new Global.Response();
 
@@ -98,17 +98,17 @@ namespace fortunestreetanalyzer.Pages
                 {
                     Data = new Global.AnalyzerDataModel
                     {
-                        GameSelection = new Global.AnalyzerDataModel.GameSelectionDataModel
+                        GameData = new Global.AnalyzerDataModel.GameDataModel
                         {
-                            RuleData = new Global.AnalyzerDataModel.GameSelectionDataModel.RuleDataModel
+                            RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
                             {
                                 ID = rules.FirstOrDefault().ID
                             },
-                            BoardData = new Global.AnalyzerDataModel.GameSelectionDataModel.BoardDataModel
+                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
                             {
                                 ID = boards.FirstOrDefault().ID
                             },
-                            ColorData = new Global.AnalyzerDataModel.GameSelectionDataModel.ColorDataModel
+                            ColorData = new Global.AnalyzerDataModel.GameDataModel.ColorDataModel
                             {
                                 ID = miiColors.FirstOrDefault().ID
                             }
@@ -180,13 +180,13 @@ namespace fortunestreetanalyzer.Pages
             }
         }
 
-        public JsonResult OnPostSaveGameSelection([FromBody] Global.AnalyzerDataModel.GameSelectionDataModel saveGameSelectionParameters)
+        public JsonResult OnPostSaveGameData([FromBody] Global.AnalyzerDataModel.GameDataModel saveGameDataParameter)
         {
             Global.Response response = new Global.Response();
 
             try
             {
-                Rules rulesResult = _fortuneStreetAppContext.Rules.SingleOrDefault(id => id.ID == saveGameSelectionParameters.RuleData.ID);
+                Rules rulesResult = _fortuneStreetAppContext.Rules.SingleOrDefault(id => id.ID == saveGameDataParameter.RuleData.ID);
 
                 if (rulesResult == null)
                 {
@@ -200,7 +200,7 @@ namespace fortunestreetanalyzer.Pages
                     return new JsonResult(response);
                 }
 
-                Boards boardsResult = _fortuneStreetAppContext.Boards.SingleOrDefault(id => id.ID == saveGameSelectionParameters.BoardData.ID);
+                Boards boardsResult = _fortuneStreetAppContext.Boards.SingleOrDefault(id => id.ID == saveGameDataParameter.BoardData.ID);
 
                 if (boardsResult == null)
                 {
@@ -214,7 +214,7 @@ namespace fortunestreetanalyzer.Pages
                     return new JsonResult(response);
                 }
 
-                Colors colorsResult = _fortuneStreetAppContext.Colors.SingleOrDefault(id => id.ID == saveGameSelectionParameters.ColorData.ID);
+                Colors colorsResult = _fortuneStreetAppContext.Colors.SingleOrDefault(id => id.ID == saveGameDataParameter.ColorData.ID);
 
                 if (colorsResult == null)
                 {
@@ -257,19 +257,19 @@ namespace fortunestreetanalyzer.Pages
                     Data = new Global.AnalyzerDataModel
                     {
                         AnalyzerInstanceID = (long) analyzerInstanceID,
-                        GameSelection = new Global.AnalyzerDataModel.GameSelectionDataModel
+                        GameData = new Global.AnalyzerDataModel.GameDataModel
                         {
-                            RuleData = new Global.AnalyzerDataModel.GameSelectionDataModel.RuleDataModel
+                            RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
                             {
                                 ID = rulesResult.ID,
                                 Name = rulesResult.Name
                             },
-                            BoardData = new Global.AnalyzerDataModel.GameSelectionDataModel.BoardDataModel
+                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
                             {
                                 ID = boardsResult.ID,
                                 Name = boardsResult.Name
                             },
-                            ColorData = new Global.AnalyzerDataModel.GameSelectionDataModel.ColorDataModel
+                            ColorData = new Global.AnalyzerDataModel.GameDataModel.ColorDataModel
                             {
                                 ID = colorsResult.ID,
                                 SystemColor = colorsResult.SystemColor,
@@ -382,22 +382,22 @@ namespace fortunestreetanalyzer.Pages
             }
         }
 
-        public JsonResult OnPostSaveCharacterData([FromBody] Global.AnalyzerDataModel loadCharacterColorsParameter)
+        public JsonResult OnPostSaveCharacterData([FromBody] Global.AnalyzerDataModel saveCharacterDataParameter)
         {
             Global.Response response = new Global.Response();
 
             try
             {
-                _fortuneStreetAppContext.TurnOrderDetermination.AddRange(loadCharacterColorsParameter.CharacterData.Select(character => new TurnOrderDetermination
+                _fortuneStreetAppContext.TurnOrderDetermination.AddRange(saveCharacterDataParameter.CharacterData.Select(character => new TurnOrderDetermination
                 {
-                    AnalyzerInstanceID = loadCharacterColorsParameter.AnalyzerInstanceID,
+                    AnalyzerInstanceID = saveCharacterDataParameter.AnalyzerInstanceID,
                     CharacterID = character.ID,
                     Value = character.TurnOrderValue
                 }));
 
                 _fortuneStreetAppContext.SaveChanges();
 
-                List<GetCharacterColorsTVF> getCharacterColorsTVFResults = _fortuneStreetAppContext.GetCharacterColorsTVF.FromSqlInterpolated($"SELECT * FROM getcharactercolors_tvf({loadCharacterColorsParameter.AnalyzerInstanceID})").ToList();
+                List<GetCharacterColorsTVF> getCharacterColorsTVFResults = _fortuneStreetAppContext.GetCharacterColorsTVF.FromSqlInterpolated($"SELECT * FROM getcharactercolors_tvf({saveCharacterDataParameter.AnalyzerInstanceID})").ToList();
 
                 List<Global.AnalyzerDataModel.CharacterDataModel> characters = getCharacterColorsTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel
                 {
@@ -409,7 +409,7 @@ namespace fortunestreetanalyzer.Pages
                     }
                 }).ToList();
 
-                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = _fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({loadCharacterColorsParameter.GameSelection.BoardData.ID})").ToList();
+                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = _fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({saveCharacterDataParameter.GameData.BoardData.ID})").ToList();
 
                 List<long> characterColorIDs = characters.Select(character => character.ColorData.ID).ToList();
 
@@ -457,13 +457,18 @@ namespace fortunestreetanalyzer.Pages
             }
         }
 
-        public JsonResult OnPostSaveAnalyzerData([FromBody] SaveAnalyzerDataModel saveAnalyzerParameter)
         {
             Global.Response response = new Global.Response();
 
             try
             {
-                long? analyzerInstanceID = Global.VerifyAnalyzerInstanceID(saveAnalyzerParameter.analyzerData.AnalyzerInstanceID, _fortuneStreetAppContext);
+        public JsonResult OnPostSaveAnalyzerData([FromBody] SaveAnalyzerDataModel saveAnalyzerDataParameter)
+        {
+            Global.Response response = new Global.Response();
+
+            try
+            {
+                long? analyzerInstanceID = Global.VerifyAnalyzerInstanceID(saveAnalyzerDataParameter.analyzerData.AnalyzerInstanceID, _fortuneStreetAppContext);
 
                 if (analyzerInstanceID == null)
                     throw new Exception();
@@ -472,12 +477,12 @@ namespace fortunestreetanalyzer.Pages
 
                 foreach (PropertyInfo currentAnalyzerDataModelProperty in analyzerDataModelProperties)
                 {
-                    if (saveAnalyzerParameter.keys.Contains(currentAnalyzerDataModelProperty.Name))
+                    if (saveAnalyzerDataParameter.keys.Contains(currentAnalyzerDataModelProperty.Name))
                         _fortuneStreetAppContext.AnalyzerInstanceLogs.Add(new AnalyzerInstanceLogs
                         {
                             AnalyzerInstanceID = (long) analyzerInstanceID,
                             Key = currentAnalyzerDataModelProperty.Name,
-                            Value = JsonSerializer.Serialize(currentAnalyzerDataModelProperty.GetValue(saveAnalyzerParameter.analyzerData, null))
+                            Value = JsonSerializer.Serialize(currentAnalyzerDataModelProperty.GetValue(saveAnalyzerDataParameter.analyzerData, null))
                         });
                 }
 
