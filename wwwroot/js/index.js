@@ -469,18 +469,18 @@
             {
                 let JSONResponse = JSON.parse(response["HTMLResponse"]);
 
-                analyzerData["GameData"]["RuleData"]["StandingThreshold"] = JSONResponse["GameData"]["RuleData"]["StandingThreshold"];
-                analyzerData["GameData"]["RuleData"]["NetWorthThreshold"] = JSONResponse["GameData"]["RuleData"]["NetWorthThreshold"];
-                analyzerData["GameData"]["BoardData"]["ReadyCashStart"] = JSONResponse["GameData"]["BoardData"]["ReadyCashStart"];
-                analyzerData["GameData"]["BoardData"]["SalaryStart"] = JSONResponse["GameData"]["BoardData"]["SalaryStart"];
-                analyzerData["GameData"]["BoardData"]["SalaryIncrease"] = JSONResponse["GameData"]["BoardData"]["SalaryIncrease"];
-                analyzerData["GameData"]["BoardData"]["MaxDieRoll"] = JSONResponse["GameData"]["BoardData"]["MaxDieRoll"];
-                analyzerData["GameData"]["TurnData"] = JSONResponse["GameData"]["TurnData"];
-                analyzerData["SpaceLayoutIndex"] = JSONResponse["SpaceLayoutIndex"];
-                analyzerData["DistrictData"] = JSONResponse["DistrictData"];
-                analyzerData["ShopData"] = JSONResponse["ShopData"];
-                analyzerData["SpaceData"] = JSONResponse["SpaceData"];
-                analyzerData["SpaceTypeData"] = JSONResponse["SpaceTypeData"];
+                analyzerData["GameData"]["RuleData"]["StandingThreshold"] = JSONResponse["Data"]["GameData"]["RuleData"]["StandingThreshold"];
+                analyzerData["GameData"]["RuleData"]["NetWorthThreshold"] = JSONResponse["Data"]["GameData"]["RuleData"]["NetWorthThreshold"];
+                analyzerData["GameData"]["BoardData"]["ReadyCashStart"] = JSONResponse["Data"]["GameData"]["BoardData"]["ReadyCashStart"];
+                analyzerData["GameData"]["BoardData"]["SalaryStart"] = JSONResponse["Data"]["GameData"]["BoardData"]["SalaryStart"];
+                analyzerData["GameData"]["BoardData"]["SalaryIncrease"] = JSONResponse["Data"]["GameData"]["BoardData"]["SalaryIncrease"];
+                analyzerData["GameData"]["BoardData"]["MaxDieRoll"] = JSONResponse["Data"]["GameData"]["BoardData"]["MaxDieRoll"];
+                analyzerData["GameData"]["TurnData"] = JSONResponse["Data"]["GameData"]["TurnData"];
+                analyzerData["SpaceLayoutIndex"] = JSONResponse["Data"]["SpaceLayoutIndex"];
+                analyzerData["DistrictData"] = JSONResponse["Data"]["DistrictData"];
+                analyzerData["ShopData"] = JSONResponse["Data"]["ShopData"];
+                analyzerData["SpaceData"] = JSONResponse["Data"]["SpaceData"];
+                analyzerData["SpaceTypeData"] = JSONResponse["Data"]["SpaceTypeData"];
             }
         });
     }
