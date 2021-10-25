@@ -421,6 +421,10 @@
                 {
                     $(this).closest(".confirmation-actions").remove();
 
+                    $("#player-turn-determination").addClass("disabled");
+
+                    $("#player-turn-determination button").off("click");
+
                     for (let i = 0; i < playerTurnDeterminationSumValues.length; ++i)
                         analyzerData["CharacterData"][i]["TurnOrderValue"] = playerTurnDeterminationSumValues[i];
 
@@ -451,11 +455,6 @@
 
     function initializeGameStartSettings()
     {
-        let playerTurnDeterminationContainer = $("#player-turn-determination > div:first-of-type");
-
-        playerTurnDeterminationContainer.addClass("disabled");
-        playerTurnDeterminationContainer.find("button").off("click");
-
         ajaxCall
         (
             "POST",

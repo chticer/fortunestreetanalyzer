@@ -53,15 +53,15 @@ body > div
     pointer-events: all;
 }
 
-.disabled
-{
-    cursor: not-allowed;
-}
-
 .disabled .btn-outline-primary:not(.active):hover
 {
     color: #0D6EFD;
     background-color: transparent;
+}
+
+.disabled:not(#player-turn-determination)
+{
+    cursor: not-allowed;
 }
 
 #output-panel
@@ -165,17 +165,17 @@ body > div
     font-size: 36px;
 }
 
-#player-turn-determination > .disabled > div > div:last-of-type > div > span > button
+#player-turn-determination.disabled > div:first-of-type > div > div:last-of-type > div > span > button
 {
     cursor: not-allowed;
 }
 
-#player-turn-determination > .disabled > div > div:last-of-type > div > span > button:focus
+#player-turn-determination.disabled > div:first-of-type > div > div:last-of-type > div > span > button:focus
 {
     box-shadow: none;
 }
 
-#player-turn-determination > .disabled > div > div:last-of-type > div > span > button:not(.active)
+#player-turn-determination.disabled > div:first-of-type > div > div:last-of-type > div > span > button:not(.active)
 {
     opacity: 0.65;
 }
