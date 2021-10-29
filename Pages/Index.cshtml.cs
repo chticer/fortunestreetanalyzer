@@ -515,7 +515,7 @@ namespace fortunestreetanalyzer.Pages
                     spaceData.Add(new Global.AnalyzerDataModel.SpaceDataModel
                     {
                         ID = currentSpaceResult.ID,
-                        AdditionalProperties = currentSpaceResult.AdditionalProperties,
+                        AdditionalPropertiesData = !string.IsNullOrEmpty(currentSpaceResult.AdditionalProperties) ? JsonSerializer.Deserialize<Global.AnalyzerDataModel.SpaceDataModel.AdditionalPropertiesDataModel>(currentSpaceResult.AdditionalProperties) : null,
                         SpaceLayoutData = spaceLayoutResults.Where(space_id => space_id.SpaceID == currentSpaceResult.ID).Select(space_layout_result => new Global.AnalyzerDataModel.SpaceDataModel.SpaceLayoutDataModel
                         {
                             CenterXFactor = space_layout_result.CenterXFactor,
@@ -552,8 +552,10 @@ namespace fortunestreetanalyzer.Pages
                         SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
                         {
                             ID = space_type_index_result.SpaceTypeData.ID,
-                            Description = space_type_index_result.SpaceTypeData.Description,
-                            Icon = space_type_index_result.SpaceTypeData.Icon
+                            Name = space_type_index_result.SpaceTypeData.Name,
+                            Icon = space_type_index_result.SpaceTypeData.Icon,
+                            Title = space_type_index_result.SpaceTypeData.Title,
+                            Description = space_type_index_result.SpaceTypeData.Description
                         }).ToList(),
                         ShopData = indexData.ShopIndexData.Select(shop_index_result => new Global.AnalyzerDataModel.ShopDataModel
                         {

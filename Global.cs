@@ -80,11 +80,29 @@ namespace fortunestreetanalyzer
             public class SpaceDataModel
             {
                 public long ID { get; set; }
-                public string AdditionalProperties { get; set; }
+                public AdditionalPropertiesDataModel AdditionalPropertiesData { get; set; }
                 public List<SpaceLayoutDataModel> SpaceLayoutData { get; set; }
                 public long SpaceTypeIndex { get; set; }
                 public long? ShopIndex { get; set; }
                 public long? DistrictIndex { get; set; }
+
+                public class AdditionalPropertiesDataModel
+                {
+                    public ShopDataModel ShopData { get; set; }
+                    public SuitDataModel SuitData { get; set; }
+
+                    public class ShopDataModel
+                    {
+                        public short? OwnerCharacterIndex { get; set; }
+                        public short? Price { get; set; }
+                    }
+
+                    public class SuitDataModel
+                    {
+                        public string Name { get; set; }
+                        public bool? Rotate { get; set; }
+                    }
+                }
 
                 public class SpaceLayoutDataModel
                 {
@@ -96,8 +114,10 @@ namespace fortunestreetanalyzer
             public class SpaceTypeDataModel
             {
                 public long ID { get; set; }
-                public string Description { get; set; }
+                public string Name { get; set; }
                 public string Icon { get; set; }
+                public string Title { get; set; }
+                public string Description { get; set; }
             }
 
             public class ShopDataModel
