@@ -483,17 +483,26 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
 
                 entity.Property(e => e.Description)
                     .IsRequired()
-                    .HasMaxLength(50)
+                    .HasMaxLength(900)
                     .HasColumnName("description");
 
                 entity.Property(e => e.Icon)
                     .HasMaxLength(50)
                     .HasColumnName("icon");
 
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("name");
+
                 entity.Property(e => e.TimestampAdded)
                     .HasColumnType("datetime")
                     .HasColumnName("timestamp_added")
                     .HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .HasColumnName("title");
             });
 
             modelBuilder.Entity<TurnOrderDetermination>(entity =>

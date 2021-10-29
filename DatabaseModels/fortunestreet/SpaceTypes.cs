@@ -11,8 +11,10 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         }
 
         public long ID { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; }
         public string Icon { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
         public DateTime TimestampAdded { get; set; }
 
         public virtual ICollection<Spaces> Spaces { get; set; }
