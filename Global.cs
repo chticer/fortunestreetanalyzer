@@ -69,6 +69,7 @@ namespace fortunestreetanalyzer
                 public string Name { get; set; }
                 public byte TurnOrderValue { get; set; }
                 public ColorDataModel ColorData { get; set; }
+                public long SpaceIndex { get; set; }
 
                 public class ColorDataModel
                 {
@@ -137,9 +138,16 @@ namespace fortunestreetanalyzer
 
         public class IndexDataModel
         {
+            public List<SpaceIndexDataModel> SpaceIndexData { get; set; }
             public List<SpaceTypeIndexDataModel> SpaceTypeIndexData { get; set; }
             public List<ShopIndexDataModel> ShopIndexData { get; set; }
             public List<DistrictIndexDataModel> DistrictIndexData { get; set; }
+
+            public class SpaceIndexDataModel
+            {
+                public long Index { get; set; }
+                public Spaces SpaceData { get; set; }
+            }
 
             public class SpaceTypeIndexDataModel
             {

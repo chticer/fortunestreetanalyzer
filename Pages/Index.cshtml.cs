@@ -485,6 +485,11 @@ namespace fortunestreetanalyzer.Pages
 
                 Global.IndexDataModel indexData = new Global.IndexDataModel
                 {
+                    SpaceIndexData = spaceResults.Select((space_result, space_index) => new Global.IndexDataModel.SpaceIndexDataModel
+                    {
+                        Index = space_index,
+                        SpaceData = space_result
+                    }).ToList(),
                     SpaceTypeIndexData = spaceTypeResults.Select((space_type_result, space_type_index) => new Global.IndexDataModel.SpaceTypeIndexDataModel
                     {
                         Index = space_type_index,
@@ -505,23 +510,30 @@ namespace fortunestreetanalyzer.Pages
                         DistrictData = district_result
                     }).ToList();
 
+                List<Global.AnalyzerDataModel.CharacterDataModel> characterData = new List<Global.AnalyzerDataModel.CharacterDataModel>();
                 List<Global.AnalyzerDataModel.SpaceDataModel> spaceData = new List<Global.AnalyzerDataModel.SpaceDataModel>();
 
-                foreach (Spaces currentSpaceResult in spaceResults)
+                foreach (Global.IndexDataModel.SpaceIndexDataModel currentSpaceIndexData in indexData.SpaceIndexData)
                 {
-                    Global.IndexDataModel.ShopIndexDataModel currentShopIndexData = indexData.ShopIndexData.SingleOrDefault(shop_index_result => currentSpaceResult.ShopID != null && shop_index_result.ShopData.ID == (long) currentSpaceResult.ShopID);
-                    Global.IndexDataModel.DistrictIndexDataModel currentDistrictIndexData = indexData.DistrictIndexData.SingleOrDefault(district_index_result => currentSpaceResult.DistrictID != null && district_index_result.DistrictData.ID == (long) currentSpaceResult.DistrictID);
+                    if (currentSpaceIndexData.SpaceData.SpaceType.Name.Equals("bank"))
+                        characterData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.CharacterDataModel
+                        {
+                            SpaceIndex = currentSpaceIndexData.Index
+                        }).ToList();
+
+                    Global.IndexDataModel.ShopIndexDataModel currentShopIndexData = indexData.ShopIndexData.SingleOrDefault(shop_index_result => currentSpaceIndexData.SpaceData.ShopID != null && shop_index_result.ShopData.ID == (long) currentSpaceIndexData.SpaceData.ShopID);
+                    Global.IndexDataModel.DistrictIndexDataModel currentDistrictIndexData = indexData.DistrictIndexData.SingleOrDefault(district_index_result => currentSpaceIndexData.SpaceData.DistrictID != null && district_index_result.DistrictData.ID == (long) currentSpaceIndexData.SpaceData.DistrictID);
 
                     spaceData.Add(new Global.AnalyzerDataModel.SpaceDataModel
                     {
-                        ID = currentSpaceResult.ID,
-                        AdditionalPropertiesData = !string.IsNullOrEmpty(currentSpaceResult.AdditionalProperties) ? JsonSerializer.Deserialize<Global.AnalyzerDataModel.SpaceDataModel.AdditionalPropertiesDataModel>(currentSpaceResult.AdditionalProperties) : null,
-                        SpaceLayoutData = spaceLayoutResults.Where(space_id => space_id.SpaceID == currentSpaceResult.ID).Select(space_layout_result => new Global.AnalyzerDataModel.SpaceDataModel.SpaceLayoutDataModel
+                        ID = currentSpaceIndexData.SpaceData.ID,
+                        AdditionalPropertiesData = !string.IsNullOrEmpty(currentSpaceIndexData.SpaceData.AdditionalProperties) ? JsonSerializer.Deserialize<Global.AnalyzerDataModel.SpaceDataModel.AdditionalPropertiesDataModel>(currentSpaceIndexData.SpaceData.AdditionalProperties) : null,
+                        SpaceLayoutData = spaceLayoutResults.Where(space_id => space_id.SpaceID == currentSpaceIndexData.SpaceData.ID).Select(space_layout_result => new Global.AnalyzerDataModel.SpaceDataModel.SpaceLayoutDataModel
                         {
                             CenterXFactor = space_layout_result.CenterXFactor,
                             CenterYFactor = space_layout_result.CenterYFactor
                         }).ToList(),
-                        SpaceTypeIndex = indexData.SpaceTypeIndexData.SingleOrDefault(space_type_index_result => space_type_index_result.SpaceTypeData.ID == currentSpaceResult.SpaceTypeID).Index,
+                        SpaceTypeIndex = indexData.SpaceTypeIndexData.SingleOrDefault(space_type_index_result => space_type_index_result.SpaceTypeData.ID == currentSpaceIndexData.SpaceData.SpaceTypeID).Index,
                         ShopIndex = currentShopIndexData?.Index,
                         DistrictIndex = currentDistrictIndexData?.Index
                     });
@@ -547,6 +559,7 @@ namespace fortunestreetanalyzer.Pages
                             },
                             TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>()
                         },
+                        CharacterData = characterData,
                         SpaceLayoutIndex = 0,
                         SpaceData = spaceData,
                         SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
