@@ -1,4 +1,26 @@
-﻿$(document).ready(function ()
+﻿const SPACE_SQUARE_SIZE = 100;
+const SUIT_SQUARE_DATA =
+[
+    {
+        Icon: "spade",
+        Color: "1491E3"
+    },
+    {
+        Icon: "heart",
+        Color: "FF8BE9"
+    },
+    {
+        Icon: "diamond",
+        Color: "FFF02C"
+    },
+    {
+        Icon: "club",
+        Color: "2DD936"
+    }
+];
+const SUIT_SQUARE_ORDER = [ "spade", "heart", "diamond", "club" ];
+
+$(document).ready(function ()
 {
     const applicationURI = $("input[name=\"__ApplicationURI\"]").val();
 
@@ -453,6 +475,14 @@
         });
     }
 
+    let mouseCoordinates =
+    {
+        x: 0,
+        y: 0
+    };
+
+    let spacePopupDialogScrollDebounce;
+
     function initializeGameStartSettings()
     {
         ajaxCall
@@ -468,20 +498,314 @@
             {
                 let JSONResponse = JSON.parse(response["HTMLResponse"]);
 
-                analyzerData["GameData"]["RuleData"]["StandingThreshold"] = JSONResponse["Data"]["GameData"]["RuleData"]["StandingThreshold"];
-                analyzerData["GameData"]["RuleData"]["NetWorthThreshold"] = JSONResponse["Data"]["GameData"]["RuleData"]["NetWorthThreshold"];
-                analyzerData["GameData"]["BoardData"]["ReadyCashStart"] = JSONResponse["Data"]["GameData"]["BoardData"]["ReadyCashStart"];
-                analyzerData["GameData"]["BoardData"]["SalaryStart"] = JSONResponse["Data"]["GameData"]["BoardData"]["SalaryStart"];
-                analyzerData["GameData"]["BoardData"]["SalaryIncrease"] = JSONResponse["Data"]["GameData"]["BoardData"]["SalaryIncrease"];
-                analyzerData["GameData"]["BoardData"]["MaxDieRoll"] = JSONResponse["Data"]["GameData"]["BoardData"]["MaxDieRoll"];
-                analyzerData["GameData"]["TurnData"] = JSONResponse["Data"]["GameData"]["TurnData"];
-                analyzerData["SpaceLayoutIndex"] = JSONResponse["Data"]["SpaceLayoutIndex"];
-                analyzerData["DistrictData"] = JSONResponse["Data"]["DistrictData"];
-                analyzerData["ShopData"] = JSONResponse["Data"]["ShopData"];
-                analyzerData["SpaceData"] = JSONResponse["Data"]["SpaceData"];
-                analyzerData["SpaceTypeData"] = JSONResponse["Data"]["SpaceTypeData"];
+                $.extend
+                (
+	                true,
+	                analyzerData,
+	                {
+		                GameData:
+		                {
+			                RuleData:
+			                {
+				                StandingThreshold: JSONResponse["Data"]["GameData"]["RuleData"]["StandingThreshold"],
+				                NetWorthThreshold: JSONResponse["Data"]["GameData"]["RuleData"]["NetWorthThreshold"]
+			                },
+			                BoardData:
+			                {
+				                ReadyCashStart: JSONResponse["Data"]["GameData"]["BoardData"]["ReadyCashStart"],
+				                SalaryStart: JSONResponse["Data"]["GameData"]["BoardData"]["SalaryStart"],
+				                SalaryIncrease: JSONResponse["Data"]["GameData"]["BoardData"]["SalaryIncrease"],
+				                MaxDieRoll: JSONResponse["Data"]["GameData"]["BoardData"]["MaxDieRoll"]
+			                },
+			                TurnData: JSONResponse["Data"]["GameData"]["TurnData"]
+		                },
+		                CharacterData: $.map($.extend(true, [], analyzerData["CharacterData"]), function (value, index)
+		                {
+			                return $.extend
+			                (
+				                true,
+				                value,
+				                {
+					                SpaceIndex: JSONResponse["Data"]["CharacterData"][index]["SpaceIndex"]
+				                }
+			                );
+		                }),
+		                SpaceLayoutIndex: JSONResponse["Data"]["SpaceLayoutIndex"],
+		                DistrictData: JSONResponse["Data"]["DistrictData"],
+		                ShopData: JSONResponse["Data"]["ShopData"],
+		                SpaceData: JSONResponse["Data"]["SpaceData"],
+		                SpaceTypeData: JSONResponse["Data"]["SpaceTypeData"]
+	                }
+                );
+
+                renderMap();
+
+                $(document).on("mousemove", function (e)
+                {
+                    mouseCoordinates["x"] = e.clientX;
+                    mouseCoordinates["y"] = e.clientY;
+                });
+
+                $(window).on("resize", renderMap);
             }
         });
+    }
+
+    function spacePopupDialog(element)
+    {
+        let currentSpaceInformationContainer = $(element);
+
+        currentSpaceInformationContainer.show();
+
+        let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
+
+        let boardSubpanelOffset = boardSubpanelContainer.offset();
+
+        let currentSpaceOffset = currentSpaceInformationContainer.parent().offset();
+
+        let currentSpacePopupDialogOffsetX = $(document).scrollLeft() + mouseCoordinates["x"] + 10;
+
+        if (currentSpacePopupDialogOffsetX + currentSpaceInformationContainer.outerWidth() > boardSubpanelContainer.width())
+            currentSpacePopupDialogOffsetX = $(document).scrollLeft() + mouseCoordinates["x"] - 10 - currentSpaceInformationContainer.outerWidth();
+
+        let currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"] - currentSpaceInformationContainer.outerHeight() / 2;
+
+        if (currentSpacePopupDialogOffsetY < boardSubpanelOffset.top)
+            currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"];
+        else if (currentSpacePopupDialogOffsetY + currentSpaceInformationContainer.outerHeight() > boardSubpanelContainer.height())
+            currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"] - currentSpaceInformationContainer.outerHeight();
+
+        currentSpaceInformationContainer.css
+        (
+            {
+                left: (currentSpacePopupDialogOffsetX - currentSpaceOffset.left - parseInt(currentSpaceInformationContainer.parent().css("border-left-width"), 10)) + "px",
+                top: (currentSpacePopupDialogOffsetY - currentSpaceOffset.top - parseInt(currentSpaceInformationContainer.parent().css("border-top-width"), 10)) + "px"
+            }
+        );
+    }
+
+    function renderMap()
+    {
+        $("#board-subpanel").empty().append("<div></div>");
+
+        let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
+
+        let maxCenterXFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterXFactor"];
+        let maxCenterYFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterYFactor"];
+
+        for (let i = 1; i < analyzerData["SpaceData"].length; ++i)
+        {
+            let currentCenterXFactor = analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterXFactor"];
+
+            if (currentCenterXFactor > maxCenterXFactor)
+                maxCenterXFactor = currentCenterXFactor;
+
+            let currentCenterYFactor = analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterYFactor"];
+
+            if (currentCenterYFactor > maxCenterYFactor)
+                maxCenterYFactor = currentCenterYFactor;
+        }
+
+        let boardSubpanelOffsetX = Math.max((boardSubpanelContainer.width() - SPACE_SQUARE_SIZE * (maxCenterXFactor + 0.5)) / 2, 0);
+        let boardSubpanelOffsetY = Math.max((boardSubpanelContainer.height() - SPACE_SQUARE_SIZE * (maxCenterYFactor + 0.5)) / 2, 0);
+
+        for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
+        {
+            boardSubpanelContainer.append("<div></div>");
+
+            let currentSpaceContainer = boardSubpanelContainer.children().last();
+
+            currentSpaceContainer.css
+            (
+                {
+                    left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterXFactor"] - 0.5) + "px",
+                    top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterYFactor"] - 0.5) + "px",
+                    width: SPACE_SQUARE_SIZE + "px",
+                    height: SPACE_SQUARE_SIZE + "px"
+                }
+            );
+
+            updateMapSpace(i);
+
+            currentSpaceContainer.on("mouseenter mousemove", function ()
+            {
+                let currentSpaceInformationContainer = $(this).find(".space-information");
+
+                spacePopupDialog(currentSpaceInformationContainer);
+            }).on("mouseleave", function ()
+            {
+                $(this).find(".space-information").hide();
+            });
+        }
+
+        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        {
+            let currentSpaceInformationContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["CharacterData"][i]["SpaceIndex"] + 1) + ") > div:first-of-type");
+
+            let currentSpaceCharacterMarkersContainer = currentSpaceInformationContainer.find(".character-markers");
+
+            currentSpaceCharacterMarkersContainer.append("<div></div>");
+
+            let currentCharacterMarkerContainer = currentSpaceCharacterMarkersContainer.children().last();
+
+            currentCharacterMarkerContainer.css
+            (
+                {
+                    left: ((i % 2) * currentSpaceInformationContainer.width() / 2) + "px",
+                    top: (Math.floor(i / 2) * currentSpaceInformationContainer.height() / 2) + "px",
+                    backgroundColor: "#" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"]
+                }
+            );
+        }
+
+        boardSubpanelContainer.css({ overflow: "" });
+
+        if (SPACE_SQUARE_SIZE * (maxCenterXFactor + 0.5) > boardSubpanelContainer.width() || SPACE_SQUARE_SIZE * (maxCenterYFactor + 0.5) > boardSubpanelContainer.height())
+        {
+            boardSubpanelContainer.css({ overflow: "scroll" });
+
+            boardSubpanelContainer.on("scroll", function ()
+            {
+                clearTimeout(spacePopupDialogScrollDebounce);
+
+                $(this).find(".space-information").hide();
+
+                spacePopupDialogScrollDebounce = setTimeout(function ()
+                {
+                    let currentSpaceInformationContainer = null;
+
+                    boardSubpanelContainer.children().each(function ()
+                    {
+                        if ($(this).is(":hover"))
+                        {
+                            currentSpaceInformationContainer = $(this).find(".space-information");
+
+                            return;
+                        }
+                    });
+
+                    if (currentSpaceInformationContainer !== null)
+                        spacePopupDialog(currentSpaceInformationContainer);
+                }, 100);
+            });
+        }
+    }
+
+    function updateMapSpace(spaceIndex)
+    {
+        let spaceContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (spaceIndex + 1) + ")");
+
+        spaceContainer.empty().append("<div></div>");
+
+        let spaceSquareContainer = spaceContainer.children().last();
+
+        let spaceIconValue = analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Icon"];
+
+        if (spaceIconValue == null)
+        {
+            if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "suit")
+                spaceIconValue = SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"];
+        }
+
+        spaceSquareContainer.append
+        (
+            "<div class=\"space-icon\">" +
+                "<span class=\"fas fa-" + spaceIconValue + "\"></span>" +
+            "</div>"
+        );
+
+        let spaceSquareIconContainer = spaceSquareContainer.find(".fa-" + spaceIconValue);
+
+        spaceSquareIconContainer.css({ fontSize: 0.80 * SPACE_SQUARE_SIZE / Math.max(spaceSquareIconContainer.width(), spaceSquareIconContainer.height()) + "em" });
+
+        let spaceInformationPlaceholders =
+        {
+            BankData:
+            {
+                StockInformation: analyzerData["GameData"]["RuleData"]["Name"] === "Standard" ? ", and you can buy stocks as you pass through" : ""
+            },
+            ShopData:
+            {
+                ShopName: "",
+                ShopValue: "",
+                ShopPrice: "",
+                MaxCapital: ""
+            },
+            SuitData:
+            {
+                SuitIcon: ""
+            }
+        };
+
+        if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "shop")
+        {
+            spaceContainer.css({ borderColor: "#" + (analyzerData["SpaceData"][spaceIndex]["DistrictIndex"] !== null ? analyzerData["DistrictData"][analyzerData["SpaceData"][spaceIndex]["DistrictIndex"]]["Color"] : "F2D4A9") });
+
+            if (analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] !== null)
+            {
+                spaceSquareIconContainer.css({ color: "#" + analyzerData["CharacterData"][analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"]]["ColorData"]["GameColor"] });
+
+                spaceSquareContainer.append
+                (
+                    "<div class=\"shop-owned-price\">" +
+                        "<div>" + analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["Price"] + "</div>" +
+                    "</div>"
+                );
+
+                spaceInformationPlaceholders["ShopData"]["MaxCapital"] =
+                    "<div>" +
+                        "<div>Max. capital</div>" +
+
+                        "<div>" + (2 * analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Value"]) + "</div>" +
+                    "</div>";
+            }
+            else
+            {
+                spaceSquareContainer.append
+                (
+                    "<div class=\"shop-unowned-value\">" +
+                        "<div>" + analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Value"] + "</div>" +
+                    "</div>"
+                );
+            }
+
+            spaceInformationPlaceholders["ShopData"]["ShopName"] = "<div>" + analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Name"] + "</div>";
+
+            spaceInformationPlaceholders["ShopData"]["ShopValue"] =
+                "<div>" +
+                    "<div>Shop value</div>" +
+
+                    "<div>" + analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Value"] + "</div>" +
+                "</div>";
+
+            spaceInformationPlaceholders["ShopData"]["ShopPrice"] =
+                "<div>" +
+                    "<div>Shop prices</div>" +
+
+                    "<div>" + analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["Price"] + "</div>" +
+                "</div>";
+        }
+        else if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "suit")
+        {
+            spaceSquareIconContainer.css({ color: "#" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] });
+
+            spaceInformationPlaceholders["SuitData"]["SuitIcon"] = "<span class=\"fas fa-" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"] + "\" style=\"color: #" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] + "\"></span>";
+        }
+
+        spaceSquareContainer.append("<div class=\"character-markers\"></div>");
+
+        spaceContainer.append
+        (
+            "<div class=\"popup-dialog space-information" + (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "shop" ? " space-shop" : "") + "\">" +
+                "<div></div>" +
+            "</div>"
+        );
+
+        let spaceInformationContainer = spaceContainer.children().last().children().first();
+
+        spaceInformationContainer.append("<div>" + (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] !== null ? analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] : "&nbsp;") + "</div>");
+
+        spaceInformationContainer.append("<div>" + analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
     }
 
     $("#stock-districts-subpanel").hide();
