@@ -722,7 +722,7 @@ $(document).ready(function ()
         {
             BankData:
             {
-                StockInformation: analyzerData["GameData"]["RuleData"]["Name"] === "Standard" ? ", and you can buy stocks as you pass through" : ""
+                StockInformation: ""
             },
             ShopData:
             {
@@ -736,6 +736,9 @@ $(document).ready(function ()
                 SuitIcon: ""
             }
         };
+
+        if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
+            spaceInformationPlaceholders["BankData"]["StockInformation"] = ", and you can buy stocks as you pass through";
 
         if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "shop")
         {
@@ -789,7 +792,7 @@ $(document).ready(function ()
         {
             spaceSquareIconContainer.css({ color: "#" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] });
 
-            spaceInformationPlaceholders["SuitData"]["SuitIcon"] = "<span class=\"fas fa-" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"] + "\" style=\"color: #" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] + "\"></span>";
+            spaceInformationPlaceholders["SuitData"]["SuitIcon"] = "<span class=\"fas fa-" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"] + "\" style=\"color: #" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] + ";\"></span>";
         }
 
         spaceSquareContainer.append("<div class=\"character-markers\"></div>");

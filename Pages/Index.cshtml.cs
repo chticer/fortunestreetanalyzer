@@ -157,7 +157,7 @@ namespace fortunestreetanalyzer.Pages
                                             "<div>" +
                                                 "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
 
-                                                "<div style=\"background-color: #" + color.SystemColor + "\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
+                                                "<div style=\"background-color: #" + color.SystemColor + ";\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
                                             "</div>"
                                     )) +
 
