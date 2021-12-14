@@ -70,6 +70,14 @@ namespace fortunestreetanalyzer
                 public byte TurnOrderValue { get; set; }
                 public ColorDataModel ColorData { get; set; }
                 public long SpaceIndex { get; set; }
+                public byte Level { get; set; }
+                public byte Placing { get; set; }
+                public int ReadyCash { get; set; }
+                public int TotalShopValue { get; set; }
+                public int TotalStockValue { get; set; }
+                public int NetWorth { get; set; }
+                public List<long> OwnedShopIndices { get; set; }
+                public List<bool> HasSuits { get; set; }
 
                 public class ColorDataModel
                 {

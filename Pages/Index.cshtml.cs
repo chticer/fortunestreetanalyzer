@@ -510,16 +510,27 @@ namespace fortunestreetanalyzer.Pages
                         DistrictData = district_result
                     }).ToList();
 
-                List<Global.AnalyzerDataModel.CharacterDataModel> characterData = new List<Global.AnalyzerDataModel.CharacterDataModel>();
+                List<Global.AnalyzerDataModel.CharacterDataModel> characterData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.CharacterDataModel
+                {
+                    Level = 1,
+                    Placing = 1,
+                    ReadyCash = boardCharacteristicResult.ReadyCashStart,
+                    TotalShopValue = 0,
+                    TotalStockValue = 0,
+                    NetWorth = boardCharacteristicResult.ReadyCashStart,
+                    OwnedShopIndices = new List<long>(),
+                    HasSuits = Enumerable.Range(0, 4).Select(value => false).ToList()
+                }).ToList();
+
                 List<Global.AnalyzerDataModel.SpaceDataModel> spaceData = new List<Global.AnalyzerDataModel.SpaceDataModel>();
 
                 foreach (Global.IndexDataModel.SpaceIndexDataModel currentSpaceIndexData in indexData.SpaceIndexData)
                 {
                     if (currentSpaceIndexData.SpaceData.SpaceType.Name.Equals("bank"))
-                        characterData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.CharacterDataModel
-                        {
-                            SpaceIndex = currentSpaceIndexData.Index
-                        }).ToList();
+                    {
+                        foreach (Global.AnalyzerDataModel.CharacterDataModel currentCharacterData in characterData)
+                            currentCharacterData.SpaceIndex = currentSpaceIndexData.Index;
+                    }
 
                     Global.IndexDataModel.ShopIndexDataModel currentShopIndexData = indexData.ShopIndexData.SingleOrDefault(shop_index_result => currentSpaceIndexData.SpaceData.ShopID != null && shop_index_result.ShopData.ID == (long) currentSpaceIndexData.SpaceData.ShopID);
                     Global.IndexDataModel.DistrictIndexDataModel currentDistrictIndexData = indexData.DistrictIndexData.SingleOrDefault(district_index_result => currentSpaceIndexData.SpaceData.DistrictID != null && district_index_result.DistrictData.ID == (long) currentSpaceIndexData.SpaceData.DistrictID);
@@ -552,7 +563,6 @@ namespace fortunestreetanalyzer.Pages
                             },
                             BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
                             {
-                                ReadyCashStart = boardCharacteristicResult.ReadyCashStart,
                                 SalaryStart = boardCharacteristicResult.SalaryStart,
                                 SalaryIncrease = boardCharacteristicResult.SalaryIncrease,
                                 MaxDieRoll = boardCharacteristicResult.MaxDieRoll

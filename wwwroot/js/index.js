@@ -137,6 +137,23 @@ $(document).ready(function ()
         }
     }
 
+    function ordinalNumberSuffix(number)
+    {
+        let onesPlace = number % 10;
+        let tensPlace = number % 100;
+
+        if (onesPlace == 1 && tensPlace != 11)
+            return "st";
+
+        if (onesPlace == 2 && tensPlace != 12)
+            return "nd";
+
+        if (onesPlace == 3 && tensPlace != 13)
+            return "rd";
+
+        return "th";
+    }
+
     function loadingDisplay()
     {
         return  "<div class=\"loading\">" +
@@ -512,7 +529,6 @@ $(document).ready(function ()
 			                },
 			                BoardData:
 			                {
-				                ReadyCashStart: JSONResponse["Data"]["GameData"]["BoardData"]["ReadyCashStart"],
 				                SalaryStart: JSONResponse["Data"]["GameData"]["BoardData"]["SalaryStart"],
 				                SalaryIncrease: JSONResponse["Data"]["GameData"]["BoardData"]["SalaryIncrease"],
 				                MaxDieRoll: JSONResponse["Data"]["GameData"]["BoardData"]["MaxDieRoll"]
@@ -526,7 +542,15 @@ $(document).ready(function ()
 				                true,
 				                value,
 				                {
-					                SpaceIndex: JSONResponse["Data"]["CharacterData"][index]["SpaceIndex"]
+                                    SpaceIndex: JSONResponse["Data"]["CharacterData"][index]["SpaceIndex"],
+                                    Level: JSONResponse["Data"]["CharacterData"][index]["Level"],
+                                    Placing: JSONResponse["Data"]["CharacterData"][index]["Placing"],
+                                    ReadyCash: JSONResponse["Data"]["CharacterData"][index]["ReadyCash"],
+                                    TotalShopValue: JSONResponse["Data"]["CharacterData"][index]["TotalShopValue"],
+                                    TotalStockValue: JSONResponse["Data"]["CharacterData"][index]["TotalStockValue"],
+                                    NetWorth: JSONResponse["Data"]["CharacterData"][index]["NetWorth"],
+                                    OwnedShopIndices: JSONResponse["Data"]["CharacterData"][index]["OwnedShopIndices"],
+                                    HasSuits: JSONResponse["Data"]["CharacterData"][index]["HasSuits"]
 				                }
 			                );
 		                }),
@@ -539,6 +563,8 @@ $(document).ready(function ()
                 );
 
                 renderMap();
+
+                renderStandings();
 
                 $(document).on("mousemove", function (e)
                 {
@@ -809,6 +835,85 @@ $(document).ready(function ()
         spaceInformationContainer.append("<div>" + (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] !== null ? analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] : "&nbsp;") + "</div>");
 
         spaceInformationContainer.append("<div>" + analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
+    }
+
+    function renderStandings()
+    {
+        let standingsContainer = $("#standings-subpanel > div:last-of-type");
+
+        standingsContainer.empty();
+
+        for (let currentCharacterData of analyzerData["CharacterData"])
+        {
+            standingsContainer.append
+            (
+                "<div style=\"background-color: #" + currentCharacterData["ColorData"]["GameColor"] + ";\">" +
+                    "<div class=\"character-portrait-icon small\">" +
+
+                        (
+                            currentCharacterData["PortraitURL"] !== null
+                            ?
+                            "<img src=\"" + currentCharacterData["PortraitURL"] + "\" alt=\"Character Portrait for " + currentCharacterData["Name"] + "\" />"
+                            :
+                            ""
+                        ) +
+
+                    "</div>" +
+
+                    "<div>" + (currentCharacterData["Name"] !== null ? currentCharacterData["Name"] : "You") + "</div>" +
+
+                    "<div>" +
+                        "<span>" + currentCharacterData["Placing"] + "</span>" +
+
+                        "<span>" +
+                            "<sup>" + ordinalNumberSuffix(currentCharacterData["Placing"]) + "</sup>" +
+                        "</span>" +
+                    "</div>" +
+
+                    "<div>" +
+                        "<div>" +
+                            "<div>Ready Cash</div>" +
+
+                            "<div>" + currentCharacterData["ReadyCash"] + "</div>" +
+                        "</div>" +
+
+                        "<div>" +
+                            "<div>Total Shop Value</div>" +
+
+                            "<div>" + currentCharacterData["TotalShopValue"] + "</div>" +
+                        "</div>" +
+
+                        (
+                            analyzerData["GameData"]["RuleData"]["Name"] === "Standard"
+                            ?
+                            "<div>" +
+                                "<div>Total Stock Value</div>" +
+
+                                "<div>" + currentCharacterData["TotalStockValue"] + "</div>" +
+                            "</div>"
+                            :
+                            ""
+                        ) +
+
+                        "<div>" +
+                            "<div>Net Worth</div>" +
+
+                            "<div>" + currentCharacterData["NetWorth"] + "</div>" +
+                        "</div>" +
+                    "</div>" +
+
+                    "<div></div>" +
+                "</div>"
+            );
+
+            for (let i = 0; i < currentCharacterData["HasSuits"].length; ++i)
+                standingsContainer.children().last().children().last().append
+                (
+                    "<div>" +
+                        "<span class=\"fas fa-" + SUIT_SQUARE_DATA[i]["Icon"] + "\" style=\"color: #" + (currentCharacterData["HasSuits"][i] ? SUIT_SQUARE_DATA[i]["Color"] : "333") + ";\"></span>" +
+                    "</div>"
+                );
+        }
     }
 
     $("#stock-districts-subpanel").hide();
