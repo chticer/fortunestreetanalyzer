@@ -333,11 +333,6 @@ body > div
     text-shadow: 0 0 3px #000;
 }
 
-#stock-districts-subpanel
-{
-    flex: 1;
-}
-
 #settings-panel
 {
     flex: 2;
@@ -439,13 +434,13 @@ body > div
     margin: 1%;
 }
 
-#board-subpanel, #stock-districts-subpanel, #standings-subpanel, #settings-panel
+#board-subpanel, #standings-subpanel, #settings-panel
 {
     display: flex;
     flex-direction: column;
 }
 
-#board-subpanel > div:last-of-type, #stock-districts-subpanel > div:last-of-type, #standings-subpanel > div:last-of-type, #settings-panel > div:last-of-type
+#board-subpanel > div:last-of-type, #standings-subpanel > div:last-of-type, #settings-panel > div:last-of-type
 {
     flex: 1;
 }

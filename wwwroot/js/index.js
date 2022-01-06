@@ -919,8 +919,6 @@ $(document).ready(function ()
         }
     }
 
-    $("#stock-districts-subpanel").hide();
-
     settingsContainer.append(loadingDisplay());
 
     ajaxCall
