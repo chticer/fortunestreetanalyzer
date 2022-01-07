@@ -566,6 +566,8 @@ $(document).ready(function ()
 
                 renderStandings();
 
+                $("#standings-subpanel").show();
+
                 $(document).on("mousemove", function (e)
                 {
                     mouseCoordinates["x"] = e.clientX;
@@ -851,26 +853,28 @@ $(document).ready(function ()
             standingsContainer.append
             (
                 "<div style=\"background-color: #" + currentCharacterData["ColorData"]["GameColor"] + ";\">" +
-                    "<div class=\"character-portrait-icon small\">" +
-
-                        (
-                            currentCharacterData["PortraitURL"] !== null
-                            ?
-                            "<img src=\"" + currentCharacterData["PortraitURL"] + "\" alt=\"Character Portrait for " + currentCharacterData["Name"] + "\" />"
-                            :
-                            ""
-                        ) +
-
-                    "</div>" +
-
-                    "<div>" + (currentCharacterData["Name"] !== null ? currentCharacterData["Name"] : "You") + "</div>" +
-
                     "<div>" +
                         "<span>" + currentCharacterData["Placing"] + "</span>" +
 
                         "<span>" +
                             "<sup>" + ordinalNumberSuffix(currentCharacterData["Placing"]) + "</sup>" +
                         "</span>" +
+                    "</div>" +
+
+                    "<div>" +
+                        "<div class=\"character-portrait-icon small\">" +
+
+                            (
+                                currentCharacterData["PortraitURL"] !== null
+                                ?
+                                "<img src=\"" + currentCharacterData["PortraitURL"] + "\" alt=\"Character Portrait for " + currentCharacterData["Name"] + "\" />"
+                                :
+                                ""
+                            ) +
+
+                        "</div>" +
+
+                        "<div>" + (currentCharacterData["Name"] !== null ? currentCharacterData["Name"] : "You") + "</div>" +
                     "</div>" +
 
                     "<div>" +
@@ -918,6 +922,8 @@ $(document).ready(function ()
                 );
         }
     }
+
+    $("#standings-subpanel").hide();
 
     settingsContainer.append(loadingDisplay());
 

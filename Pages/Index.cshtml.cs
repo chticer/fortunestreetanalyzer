@@ -149,7 +149,7 @@ namespace fortunestreetanalyzer.Pages
                                     "<h5>Mii Color</h5>" +
                                 "</div>" +
 
-                                "<div class=\"color-selection center-items\">" +
+                                "<div class=\"color-selection\">" +
 
                                     string.Join("", miiColors.Select
                                     (
