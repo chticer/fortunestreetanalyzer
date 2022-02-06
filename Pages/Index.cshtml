@@ -14,22 +14,50 @@
 
 <input type="hidden" name="__ApplicationURI" value="@Url.Content("~")" />
 
-<div>
-    <div id="output-panel">
-        <div id="board-subpanel">
-            <div>No board loaded.</div>
+<div id="header">
+    <div>
+        <div>
+            <h1>Fortune Street Analyzer</h1>
         </div>
 
-        <div id="standings-subpanel">
-            <div class="header">Standings</div>
+        <div>
+            <div>Ever wondered what hidden secrets and other unknown game mechanics are part of Fortune Street to be exploited and unveiled for speedruns, research, or fun? Wonder no more!</div>
 
-            <div>No standings loaded.</div>
+            <div>This tool allows you to contribute your own game experiences to allow others to predict outcomes. See the train and predict sections below to learn more and get started!</div>
         </div>
-    </div>
-
-    <div id="settings-panel">
-        <div class="header">Settings</div>
-
-        <div></div>
     </div>
 </div>
+
+<div id="alert-container"></div>
+
+<div id="program-description">
+    <div>
+        <div id="train-section">
+            <div>
+                <h2>Train</h2>
+            </div>
+
+            <div>
+                <div>The training part of Fortune Street Analyzer allows you to input data based on how events and outcomes occur in the game. Training data collected from users is used in the prediction part of the program.</div>
+
+                <div>Ready to start playing the game and input data for the program to use for training? Use the load options to resume a previous analyzer instance or create a new analyzer instance below to get started!</div>
+            </div>
+        </div>
+
+        <div id="predict-section">
+            <div>
+                <h2>Predict</h2>
+            </div>
+
+            <div>
+                <div>The prediction part of Fortune Street Analyzer allows you to receive predictive events and outcomes that the program believes may happen in real-time. This is a trial-and-error process that will be more accurate and correct as more training data becomes available.</div>
+
+                <div>
+                    <strong>Predict is not currently available.</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="footer"></div>
