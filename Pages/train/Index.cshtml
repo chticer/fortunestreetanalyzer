@@ -1,0 +1,36 @@
+﻿@page
+@model fortunestreetanalyzer.Pages.train.IndexModel
+@{
+    ViewData["Title"] = " - Train";
+}
+
+@section styles{
+    <link href="~/css/train-index.css" rel="stylesheet" type="text/css" asp-append-version="true" />
+}
+
+@section scripts{
+    <script src="~/js/train-index.js" type="text/javascript" asp-append-version="true"></script>
+}
+
+<input type="hidden" name="__ApplicationURI" value="@Url.Content("~")" />
+
+<div>
+    <div id="output-panel">
+        <div id="board-subpanel">
+            <div>No board loaded.</div>
+        </div>
+
+        <div id="standings-subpanel">
+            <div class="header">Standings</div>
+
+            <div>No standings loaded.</div>
+        </div>
+    </div>
+
+    <div id="settings-panel">
+        <div class="header">Settings</div>
+
+        <div></div>
+    </div>
+</div>
+
