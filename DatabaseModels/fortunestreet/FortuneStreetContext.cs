@@ -41,6 +41,8 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public virtual DbSet<SpaceTypes> SpaceTypes { get; set; }
         public virtual DbSet<TurnOrderDetermination> TurnOrderDetermination { get; set; }
         public virtual DbSet<CurrentAnalyzerInstancesTVF> CurrentAnalyzerInstancesTVF { get; set; }
+        public virtual DbSet<CurrentAnalyzerInstanceLogsTVF> CurrentAnalyzerInstanceLogsTVF { get; set; }
+        public virtual DbSet<GetAnalyzerInstancesInProgressTVF> GetAnalyzerInstancesInProgressTVF { get; set; }
         public virtual DbSet<GetBoardCharactersTVF> GetBoardCharactersTVF { get; set; }
         public virtual DbSet<GetCharacterColorsTVF> GetCharacterColorsTVF { get; set; }
 
@@ -61,6 +63,11 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasMaxLength(900)
                     .HasColumnName("ip_address");
 
+                entity.Property(e => e.Name)
+                    .HasMaxLength(900)
+                    .HasColumnName("name")
+                    .HasComment("The name of the analyzer instance.");
+
                 entity.Property(e => e.Status)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -70,6 +77,12 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasColumnType("datetime")
                     .HasColumnName("timestamp_added")
                     .HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("type")
+                    .HasComment("The type of the analyzer instance.");
             });
 
             modelBuilder.Entity<AnalyzerInstanceLogs>(entity =>
@@ -534,6 +547,10 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasMaxLength(900)
                     .HasColumnName("ip_address");
 
+                entity.Property(e => e.Name)
+                    .HasMaxLength(900)
+                    .HasColumnName("name");
+
                 entity.Property(e => e.Status)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -542,9 +559,48 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                 entity.Property(e => e.TimestampAdded)
                     .HasColumnType("datetime")
                     .HasColumnName("timestamp_added");
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("type");
             });
 
             modelBuilder.Entity<CurrentAnalyzerInstancesTVF>().HasNoKey();
+
+            modelBuilder.Entity<CurrentAnalyzerInstanceLogsTVF>(entity =>
+            {
+                entity.Property(e => e.ID).HasColumnName("id");
+
+                entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
+
+                entity.Property(e => e.Key)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("key");
+
+                entity.Property(e => e.TimestampAdded)
+                    .HasColumnType("datetime")
+                    .HasColumnName("timestamp_added");
+
+                entity.Property(e => e.Value)
+                    .IsRequired()
+                    .HasColumnName("value");
+            });
+
+            modelBuilder.Entity<CurrentAnalyzerInstancesTVF>().HasNoKey();
+
+            modelBuilder.Entity<GetAnalyzerInstancesInProgressTVF>(entity =>
+            {
+                entity.Property(e => e.ID).HasColumnName("id");
+
+                entity.Property(e => e.IPAddress)
+                    .IsRequired()
+                    .HasMaxLength(900)
+                    .HasColumnName("ip_address");
+            });
+
+            modelBuilder.Entity<GetAnalyzerInstancesInProgressTVF>().HasNoKey();
 
             modelBuilder.Entity<GetBoardCharactersTVF>(entity =>
             {
