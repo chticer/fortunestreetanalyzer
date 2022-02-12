@@ -592,13 +592,12 @@ namespace fortunestreetanalyzer.Pages.train
                 if (currentUserAnalyzerInstance == null)
                     throw new Exception();
 
-                foreach (PropertyInfo currentAnalyzerDataModelProperty in typeof(Global.AnalyzerDataModel).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(name => saveAnalyzerDataParameter.keys.Contains(name.Name)))
-                    _fortuneStreetAppContext.AnalyzerInstanceLogs.Add(new AnalyzerInstanceLogs
-                    {
-                        AnalyzerInstanceID = currentUserAnalyzerInstance.AnalyzerInstanceID,
-                        Key = currentAnalyzerDataModelProperty.Name,
-                        Value = JsonSerializer.Serialize(currentAnalyzerDataModelProperty.GetValue(saveAnalyzerDataParameter.analyzerData, null))
-                    });
+                _fortuneStreetAppContext.AnalyzerInstanceLogs.AddRange(typeof(Global.AnalyzerDataModel).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(name => saveAnalyzerDataParameter.keys.Contains(name.Name)).Select(property => new AnalyzerInstanceLogs
+                {
+                    AnalyzerInstanceID = currentUserAnalyzerInstance.AnalyzerInstanceID,
+                    Key = property.Name,
+                    Value = JsonSerializer.Serialize(property.GetValue(saveAnalyzerDataParameter.analyzerData, null))
+                }));
 
                 _fortuneStreetAppContext.SaveChanges();
 
