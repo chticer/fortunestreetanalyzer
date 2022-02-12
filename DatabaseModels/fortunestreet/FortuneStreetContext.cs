@@ -1,7 +1,4 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
 {
@@ -16,11 +13,6 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
     {
         public FortuneStreetContext(DbContextOptions options) : base(options)
         {
-            SqlConnection connection = (SqlConnection)Database.GetDbConnection();
-            connection.AccessToken = new DefaultAzureCredential().GetToken(new TokenRequestContext(new[]
-            {
-                "https://database.windows.net/.default"
-            })).Token;
         }
 
         public virtual DbSet<AnalyzerInstances> AnalyzerInstances { get; set; }

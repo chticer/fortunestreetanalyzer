@@ -1,3 +1,5 @@
+using Azure.Core;
+using Azure.Identity;
 using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -8,18 +10,26 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+SqlConnection fortuneStreetSqlConnection = new SqlConnection
+(
+    new SqlConnectionStringBuilder
+    {
+        DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
+        InitialCatalog = "fortunestreet",
+    }.ConnectionString
+);
+
+fortuneStreetSqlConnection.AccessToken = new DefaultAzureCredential().GetToken(new TokenRequestContext(new[]
+{
+    "https://database.windows.net/.default"
+})).Token;
+
 builder.Services.AddDbContext<FortuneStreetAppContext>
 (
     options => options.UseSqlServer
     (
-        new SqlConnection
-        (
-            new SqlConnectionStringBuilder
-            {
-                DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
-                InitialCatalog = "fortunestreet"
-            }.ConnectionString
-        )
+        fortuneStreetSqlConnection,
+        options => options.CommandTimeout(int.MaxValue)
     )
 );
 
