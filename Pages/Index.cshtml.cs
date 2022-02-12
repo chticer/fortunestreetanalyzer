@@ -1,9 +1,6 @@
 ﻿using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 
 namespace fortunestreetanalyzer.Pages

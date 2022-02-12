@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
+﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
 {
     public partial class Rules
     {

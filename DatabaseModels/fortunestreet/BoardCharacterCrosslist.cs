@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
+﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
 {
     public partial class BoardCharacterCrosslist
     {

@@ -16,8 +16,8 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
     {
         public FortuneStreetContext(DbContextOptions options) : base(options)
         {
-            SqlConnection connection = (SqlConnection) Database.GetDbConnection();
-            connection.AccessToken = new DefaultAzureCredential().GetToken(new TokenRequestContext(new []
+            SqlConnection connection = (SqlConnection)Database.GetDbConnection();
+            connection.AccessToken = new DefaultAzureCredential().GetToken(new TokenRequestContext(new[]
             {
                 "https://database.windows.net/.default"
             })).Token;

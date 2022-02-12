@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31129.286
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fortunestreetanalyzer", "fortunestreetanalyzer.csproj", "{4531F52A-2A4C-4C74-9007-AD1EB2A6B5F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fortunestreetanalyzer", "fortunestreetanalyzer.csproj", "{1217BC41-7C7C-49E8-8ADB-15EB05BAEA39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4531F52A-2A4C-4C74-9007-AD1EB2A6B5F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4531F52A-2A4C-4C74-9007-AD1EB2A6B5F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4531F52A-2A4C-4C74-9007-AD1EB2A6B5F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4531F52A-2A4C-4C74-9007-AD1EB2A6B5F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1217BC41-7C7C-49E8-8ADB-15EB05BAEA39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1217BC41-7C7C-49E8-8ADB-15EB05BAEA39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1217BC41-7C7C-49E8-8ADB-15EB05BAEA39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1217BC41-7C7C-49E8-8ADB-15EB05BAEA39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E3761295-7658-4C4A-A8D4-B25669171216}
+		SolutionGuid = {B0204F7B-FACF-49ED-8D2F-D56C01A268E6}
 	EndGlobalSection
 EndGlobal
