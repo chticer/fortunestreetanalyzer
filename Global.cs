@@ -302,9 +302,9 @@ namespace fortunestreetanalyzer
 
         private static string Hash(string input)
         {
-            byte[] saltBytes;
+            byte[] saltBytes = new byte[16];
 
-            new RNGCryptoServiceProvider().GetBytes(saltBytes = new byte[16]);
+            RandomNumberGenerator.Create().GetBytes(saltBytes);
 
             byte[] hashBytes = new Rfc2898DeriveBytes(input, saltBytes, 1000).GetBytes(32);
 
