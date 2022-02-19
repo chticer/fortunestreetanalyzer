@@ -10,6 +10,7 @@ namespace fortunestreetanalyzer.Pages.train
     public class IndexModel : PageModel
     {
         private readonly FortuneStreetAppContext _fortuneStreetAppContext;
+        private readonly FortuneStreetSaveAnalyzerInstanceLogContext _fortuneStreetSaveAnalyzerInstanceLogContext;
 
         public class StartupDataModel
         {
@@ -22,9 +23,10 @@ namespace fortunestreetanalyzer.Pages.train
             public Global.AnalyzerDataModel analyzerData { get; set; }
         }
 
-        public IndexModel(FortuneStreetAppContext fortuneStreetAppContext)
+        public IndexModel(FortuneStreetAppContext fortuneStreetAppContext, FortuneStreetSaveAnalyzerInstanceLogContext fortuneStreetSaveAnalyzerInstanceLogContext)
         {
             _fortuneStreetAppContext = fortuneStreetAppContext;
+            _fortuneStreetSaveAnalyzerInstanceLogContext = fortuneStreetSaveAnalyzerInstanceLogContext;
         }
 
         public JsonResult OnPostStartup([FromBody] StartupDataModel startupDataParameter)
@@ -587,19 +589,19 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = Global.FindUserAnalyzerInstances(saveAnalyzerDataParameter.analyzerData.AnalyzerInstanceID, _fortuneStreetAppContext).SingleOrDefault(type => Equals(type.Type, "train"));
+                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = Global.FindUserAnalyzerInstances(saveAnalyzerDataParameter.analyzerData.AnalyzerInstanceID, _fortuneStreetSaveAnalyzerInstanceLogContext).SingleOrDefault(type => Equals(type.Type, "train"));
 
                 if (currentUserAnalyzerInstance == null)
                     throw new Exception();
 
-                _fortuneStreetAppContext.AnalyzerInstanceLogs.AddRange(typeof(Global.AnalyzerDataModel).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(name => saveAnalyzerDataParameter.keys.Contains(name.Name)).Select(property => new AnalyzerInstanceLogs
+                _fortuneStreetSaveAnalyzerInstanceLogContext.AnalyzerInstanceLogs.AddRange(typeof(Global.AnalyzerDataModel).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(name => saveAnalyzerDataParameter.keys.Contains(name.Name)).Select(property => new AnalyzerInstanceLogs
                 {
                     AnalyzerInstanceID = currentUserAnalyzerInstance.AnalyzerInstanceID,
                     Key = property.Name,
                     Value = JsonSerializer.Serialize(property.GetValue(saveAnalyzerDataParameter.analyzerData, null))
                 }));
 
-                _fortuneStreetAppContext.SaveChanges();
+                _fortuneStreetSaveAnalyzerInstanceLogContext.SaveChanges();
 
                 response.HTMLResponse = JsonSerializer.Serialize(new
                 {

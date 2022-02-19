@@ -197,13 +197,13 @@ namespace fortunestreetanalyzer
             }
         }
 
-        public static List<CurrentAnalyzerInstancesTVF> FindUserAnalyzerInstances(long? analyzerInstanceID, FortuneStreetAppContext fortuneStreetAppContext)
+        public static List<CurrentAnalyzerInstancesTVF> FindUserAnalyzerInstances(long? analyzerInstanceID, FortuneStreetContext fortuneStreetContext)
         {
             try
             {
                 string userIPAddress = GetUserIPAddress();
 
-                List<GetAnalyzerInstancesInProgressTVF> getAnalyzerInstancesInProgressTVFResults = fortuneStreetAppContext.GetAnalyzerInstancesInProgressTVF.FromSqlRaw("SELECT * FROM getanalyzerinstancesinprogress_tvf()" + (analyzerInstanceID != null ? " WHERE id = " + analyzerInstanceID : "")).ToList();
+                List<GetAnalyzerInstancesInProgressTVF> getAnalyzerInstancesInProgressTVFResults = fortuneStreetContext.GetAnalyzerInstancesInProgressTVF.FromSqlRaw("SELECT * FROM getanalyzerinstancesinprogress_tvf()" + (analyzerInstanceID != null ? " WHERE id = " + analyzerInstanceID : "")).ToList();
 
                 List<long> userAnalyzerInstanceIDs = new List<long>();
 
@@ -216,7 +216,7 @@ namespace fortunestreetanalyzer
                 if (userAnalyzerInstanceIDs.Count == 0)
                     return new List<CurrentAnalyzerInstancesTVF>();
 
-                return fortuneStreetAppContext.CurrentAnalyzerInstancesTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstances_tvf() WHERE id IN (" + string.Join(",", userAnalyzerInstanceIDs) + ") ORDER BY id DESC").ToList();
+                return fortuneStreetContext.CurrentAnalyzerInstancesTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstances_tvf() WHERE id IN (" + string.Join(",", userAnalyzerInstanceIDs) + ") ORDER BY id DESC").ToList();
             }
             catch
             {

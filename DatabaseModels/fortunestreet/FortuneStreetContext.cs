@@ -9,6 +9,13 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         }
     }
 
+    public class FortuneStreetSaveAnalyzerInstanceLogContext : FortuneStreetContext
+    {
+        public FortuneStreetSaveAnalyzerInstanceLogContext(DbContextOptions<FortuneStreetSaveAnalyzerInstanceLogContext> options) : base(options)
+        {
+        }
+    }
+
     public partial class FortuneStreetContext : DbContext
     {
         public FortuneStreetContext(DbContextOptions options) : base(options)
