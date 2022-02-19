@@ -172,6 +172,17 @@ body > div
     width: 100%;
 }
 
+.alert > div:last-of-type > div:not(:last-of-type)
+{
+    margin-bottom: 10px;
+}
+
+.alert-dismissible .btn-close
+{
+    padding-top: 0;
+    top: auto;
+}
+
 .btn.disabled, .btn:disabled, fieldset:disabled .btn
 {
     pointer-events: all;

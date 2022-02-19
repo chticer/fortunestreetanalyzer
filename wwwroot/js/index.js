@@ -85,7 +85,7 @@
                         "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>" +
 
                         "<div>" +
-                            "<strong>" + alert["Title"] + "</strong>" +
+                            "<h2>" + alert["Title"] + "</h2>" +
                         "</div>" +
 
                         "<div>" + descriptions.join("") + "</div>" +

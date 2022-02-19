@@ -29,6 +29,12 @@ h1, h2
     margin-bottom: 15px;
 }
 
+.alert-dismissible .btn-close
+{
+    padding-top: 0;
+    top: auto;
+}
+
 body > div > div
 {
     margin: auto;
@@ -40,11 +46,6 @@ body > div > div
     background-color: #333;
     color: #FFF;
     font-size: 1.5rem;
-}
-
-#header > div > div:last-of-type > div:not(:last-of-type)
-{
-    margin-bottom: 25px;
 }
 
 #alert-container
@@ -63,12 +64,12 @@ body > div > div
     margin: 25px 0;
 }
 
-#train-section > div:last-of-type > div:not(:last-of-type), #predict-section > div:last-of-type > div:not(:last-of-type)
+#header > div > div:last-of-type > div:not(:last-of-type), #train-section > div:last-of-type > div:not(:last-of-type), #predict-section > div:last-of-type > div:not(:last-of-type)
 {
     margin-bottom: 25px;
 }
 
-#train-section > div:last-of-type > div > div:not(:last-of-type), #predict-section > div:last-of-type > div > div:not(:last-of-type)
+.alert > div:last-of-type > div:not(:last-of-type), #train-section > div:last-of-type > div > div:not(:last-of-type), #predict-section > div:last-of-type > div > div:not(:last-of-type)
 {
     margin-bottom: 10px;
 }
