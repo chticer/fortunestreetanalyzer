@@ -44,41 +44,6 @@ $(document).ready(function ()
         );
     }
 
-    function alertScroll()
-    {
-        let alertNotificationContainer = settingsContainer.find(".alert.notification");
-
-        if (alertNotificationContainer.length > 0)
-        {
-            alertNotificationContainer.removeClass("sticky");
-
-            alertNotificationContainer.css({ top: "" });
-
-            if (alertNotificationContainer.offset().top < $(window).scrollTop())
-            {
-                alertNotificationContainer.addClass("sticky");
-
-                alertNotificationContainer.css({ top: ($(window).scrollTop() - alertNotificationContainer.parent().offset().top) + "px" });
-            }
-        }
-
-        let alertSaveContainer = settingsContainer.find(".alert.save");
-
-        if (alertSaveContainer.length > 0)
-        {
-            alertSaveContainer.removeClass("sticky");
-
-            alertSaveContainer.css({ top: "" });
-
-            if (alertSaveContainer.offset().top + alertSaveContainer.innerHeight() > $(window).scrollTop() + $(window).innerHeight() - alertSaveContainer.innerHeight())
-            {
-                alertSaveContainer.addClass("sticky");
-
-                alertSaveContainer.css({ top: ($(window).scrollTop() + $(window).innerHeight() - alertSaveContainer.innerHeight() - alertSaveContainer.parent().offset().top) + "px" });
-            }
-        }
-    }
-
     function alertNotificationMessageDisplay(alert)
     {
         if (alert !== null)
@@ -89,25 +54,20 @@ $(document).ready(function ()
                     return "<div>" + value + "</div>";
             });
 
-            if (descriptions.length > 0)
-            {
-                settingsContainer.find(".alert.notification").remove();
+            settingsContainer.find(".alert.notification").remove();
 
-                settingsContainer.prepend
-                (
-                    "<div class=\"alert alert-dismissible " + alert["Type"] + " notification\">" +
-                        "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>" +
+            settingsContainer.prepend
+            (
+                "<div class=\"alert alert-dismissible " + alert["Type"] + " notification\">" +
+                    "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>" +
 
-                        "<div>" +
-                            "<strong>" + alert["Title"] + "</strong>" +
-                        "</div>" +
+                    "<div>" +
+                        "<strong>" + alert["Title"] + "</strong>" +
+                    "</div>" +
 
-                        "<div>" + descriptions.join("") + "</div>" +
-                    "</div>"
-                );
-
-                alertScroll();
-            }
+                    "<div>" + descriptions.join("") + "</div>" +
+                "</div>"
+            );
         }
     }
 
@@ -126,17 +86,12 @@ $(document).ready(function ()
                 "</div>"
             );
 
-            alertScroll();
-
             let alertSaveContainer = settingsContainer.find(".alert.save");
 
-            setTimeout(function ()
+            alertSaveContainer.animate({ opacity: 0 }, 3000, function ()
             {
-                alertSaveContainer.animate({ opacity: 0 }, 3000, function ()
-                {
-                    alertSaveContainer.remove();
-                });
-            }, 1000);
+                alertSaveContainer.remove();
+            });
         }
     }
 
@@ -324,8 +279,6 @@ $(document).ready(function ()
     function initializeDetermineCharacterSettings()
     {
         $("#settings-content").append("<div>" + loadingDisplay() + "</div>");
-
-        alertScroll();
 
         ajaxCall
         (
@@ -944,6 +897,4 @@ $(document).ready(function ()
             loadGameData();
         }
     });
-
-    $(window).on("scroll", alertScroll);
 });

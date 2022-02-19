@@ -155,23 +155,6 @@ body > div
     z-index: 1;
 }
 
-.alert.notification
-{
-    margin-bottom: 25px;
-}
-
-.alert.save
-{
-    margin-top: 25px;
-}
-
-.alert.sticky
-{
-    margin: 0;
-    position: absolute;
-    width: 100%;
-}
-
 .alert > div:last-of-type > div:not(:last-of-type)
 {
     margin-bottom: 10px;
@@ -437,6 +420,21 @@ body > div
 #settings-panel > div:last-of-type
 {
     position: relative;
+}
+
+#settings-panel > div:last-of-type > .alert
+{
+    position: sticky;
+}
+
+#settings-panel > div:last-of-type > .alert.notification
+{
+    top: 0;
+}
+
+#settings-panel > div:last-of-type > .alert.save
+{
+    bottom: 0;
 }
 
 #settings-content > div
