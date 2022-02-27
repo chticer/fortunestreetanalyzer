@@ -315,8 +315,6 @@
         {
             createAnalyzerInstanceTypeContainer.parent().find(".loading").parent().remove();
 
-            let JSONResponse = JSON.parse(response["HTMLResponse"]);
-
             if (response["AlertData"] !== null)
             {
                 let alertDataDescriptions = $.map(response["AlertData"]["Descriptions"], function (value)
@@ -334,7 +332,11 @@
             }
 
             if (!response["Error"])
+            {
+                let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
                 window.location.href = applicationURI + "/train?id=" + JSONResponse["Data"]["AnalyzerInstanceID"];
+            }
         });
     }
 
