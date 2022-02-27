@@ -315,14 +315,21 @@
         {
             createAnalyzerInstanceTypeContainer.parent().find(".loading").parent().remove();
 
-            let JSONResponse = JSON.parse(response["HTMLResponse"]);
+            let trainQueryParameters = [];
+
+            if (response["HTMLResponse"] !== "")
+            {
+                let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
+                trainQueryParameters.push("id=" + JSONResponse["Data"]["AnalyzerInstanceID"]);
+            }
 
             if (response["AlertData"] !== null)
             {
                 let alertDataDescriptions = $.map(response["AlertData"]["Descriptions"], function (value)
                 {
                     if (value !== null)
-                        return "<div>" + value.replace("{redirect-placeholder}", "<a href=\"" + applicationURI + "/train?id=" + JSONResponse["Data"]["AnalyzerInstanceID"] + "\">Click here</a>") + "</div>";
+                        return "<div>" + value.replace("{redirect-placeholder}", "<a href=\"" + applicationURI + "/train" + (trainQueryParameters.length > 0 ? "?" + trainQueryParameters.join("&") : "") + "\">Click here</a>") + "</div>";
                 });
 
                 createAnalyzerInstanceTypeContainer.parent().append
@@ -334,7 +341,7 @@
             }
 
             if (!response["Error"])
-                window.location.href = applicationURI + "/train?id=" + JSONResponse["Data"]["AnalyzerInstanceID"];
+                window.location.href = applicationURI + "/train" + (trainQueryParameters.length > 0 ? "?" + trainQueryParameters.join("&") : "");
         });
     }
 
