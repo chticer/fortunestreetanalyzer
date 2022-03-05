@@ -372,13 +372,9 @@
             {
                 let previousAnalyzerInstanceTrainContainer = $("#train-previous-analyzer-instances");
 
-                let previousAnalyzerInstanceTrainPreviousIcon = previousAnalyzerInstanceTrainContainer.find(".fa-arrow-left");
-
-                let previousAnalyzerInstanceTrainNextIcon = previousAnalyzerInstanceTrainContainer.find(".fa-arrow-right");
-
-                previousAnalyzerInstanceTrainPreviousIcon.on("click", function ()
+                previousAnalyzerInstanceTrainContainer.find(".fa-arrow-left").parent().on("click", function ()
                 {
-                    if (!$(this).hasClass("disabled") && previousAnalyzerInstanceCurrentPage["train"] !== 1)
+                    if (!$(this).children().first().hasClass("disabled") && previousAnalyzerInstanceCurrentPage["train"] !== 1)
                     {
                         --previousAnalyzerInstanceCurrentPage["train"];
 
@@ -386,9 +382,9 @@
                     }
                 });
 
-                previousAnalyzerInstanceTrainNextIcon.on("click", function ()
+                previousAnalyzerInstanceTrainContainer.find(".fa-arrow-right").parent().on("click", function ()
                 {
-                    if (!$(this).hasClass("disabled") && previousAnalyzerInstanceCurrentPage["train"] !== previousAnalyzerInstanceData["train"].length)
+                    if (!$(this).children().first().hasClass("disabled") && previousAnalyzerInstanceCurrentPage["train"] !== previousAnalyzerInstanceData["train"].length)
                     {
                         ++previousAnalyzerInstanceCurrentPage["train"];
 
