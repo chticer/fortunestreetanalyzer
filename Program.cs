@@ -10,19 +10,18 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+string fortuneStreetSQLConnectionString = new SqlConnectionStringBuilder
+{
+    DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
+    InitialCatalog = "fortunestreet"
+}.ConnectionString;
+
 string azureCredentialSQLToken = new DefaultAzureCredential().GetToken(new TokenRequestContext(new[]
 {
     "https://database.windows.net/.default"
 })).Token;
 
-SqlConnection fortuneStreetAppContextSQLConnection = new SqlConnection
-(
-    new SqlConnectionStringBuilder
-    {
-        DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
-        InitialCatalog = "fortunestreet"
-    }.ConnectionString
-);
+SqlConnection fortuneStreetAppContextSQLConnection = new SqlConnection(fortuneStreetSQLConnectionString);
 
 fortuneStreetAppContextSQLConnection.AccessToken = azureCredentialSQLToken;
 
@@ -35,14 +34,7 @@ builder.Services.AddDbContext<FortuneStreetAppContext>
     )
 );
 
-SqlConnection fortuneStreetSaveAnalyzerInstanceLogContextSQLConnection = new SqlConnection
-(
-    new SqlConnectionStringBuilder
-    {
-        DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
-        InitialCatalog = "fortunestreet"
-    }.ConnectionString
-);
+SqlConnection fortuneStreetSaveAnalyzerInstanceLogContextSQLConnection = new SqlConnection(fortuneStreetSQLConnectionString);
 
 fortuneStreetSaveAnalyzerInstanceLogContextSQLConnection.AccessToken = azureCredentialSQLToken;
 
