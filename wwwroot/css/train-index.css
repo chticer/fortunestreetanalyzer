@@ -236,6 +236,12 @@ body > div
     opacity: 0.75;
 }
 
+#board-subpanel > div:first-of-type > div > div:first-of-type > .space-icon > svg
+{
+    width: 80%;
+    height: 80%;
+}
+
 #board-subpanel > div:first-of-type > div > div:first-of-type > .shop-unowned-value
 {
     display: flex;

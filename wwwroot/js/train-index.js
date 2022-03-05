@@ -695,8 +695,6 @@ $(document).ready(function ()
 
         let spaceSquareIconContainer = spaceSquareContainer.find(".fa-" + spaceIconValue);
 
-        spaceSquareIconContainer.css({ fontSize: 0.80 * SPACE_SQUARE_SIZE / Math.max(spaceSquareIconContainer.width(), spaceSquareIconContainer.height()) + "em" });
-
         let spaceInformationPlaceholders =
         {
             BankData:
