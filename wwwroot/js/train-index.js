@@ -471,21 +471,6 @@ $(document).ready(function ()
 	                true,
 	                analyzerData,
 	                {
-		                GameData:
-		                {
-			                RuleData:
-			                {
-				                StandingThreshold: JSONResponse["Data"]["GameData"]["RuleData"]["StandingThreshold"],
-				                NetWorthThreshold: JSONResponse["Data"]["GameData"]["RuleData"]["NetWorthThreshold"]
-			                },
-			                BoardData:
-			                {
-				                SalaryStart: JSONResponse["Data"]["GameData"]["BoardData"]["SalaryStart"],
-				                SalaryIncrease: JSONResponse["Data"]["GameData"]["BoardData"]["SalaryIncrease"],
-				                MaxDieRoll: JSONResponse["Data"]["GameData"]["BoardData"]["MaxDieRoll"]
-			                },
-			                TurnData: JSONResponse["Data"]["GameData"]["TurnData"]
-		                },
 		                CharacterData: $.map($.extend(true, [], analyzerData["CharacterData"]), function (value, index)
 		                {
 			                return $.extend

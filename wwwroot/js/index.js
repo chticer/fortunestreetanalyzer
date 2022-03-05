@@ -146,6 +146,7 @@
 
     function updatePreviousAnalyzerInstance(type)
     {
+        console.log(previousAnalyzerInstanceData);
         let previousAnalyzerInstancesTypeContainer = $("#" + type + "-previous-analyzer-instances");
 
         let previousAnalyzerInstancesTypeNavigationItems = previousAnalyzerInstancesTypeContainer.children().first().children();
@@ -175,15 +176,9 @@
                     ?
                     "<div>Rule: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["Name"] + "</strong></div>" +
                     "<div>Board: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["BoardData"]["Name"] + "</strong></div>" +
-                    (
-                        previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["CharacterData"] !== null
-                        ?
-                            "<div>Standing Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"] + "<sup>" + ordinalNumberSuffix(previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"]) + "</sup> Place</strong></div>" +
-                            "<div>Net Worth Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["NetWorthThreshold"].toLocaleString() + "</strong></div>" +
-                            "<div>Turn: <strong>" + (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["TurnData"].length + 1).toLocaleString() + "</strong></div>"
-                        :
-                        ""
-                    )
+                    "<div>Standing Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"] + "<sup>" + ordinalNumberSuffix(previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"]) + "</sup> Place</strong></div>" +
+                    "<div>Net Worth Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["NetWorthThreshold"].toLocaleString() + "</strong></div>" +
+                    "<div>Turn: <strong>" + (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["TurnData"].length + 1).toLocaleString() + "</strong></div>"
                     :
                     "<div>" +
                         "<strong>No rule and board selection has been made for this analyzer instance.</strong>" +

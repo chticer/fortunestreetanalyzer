@@ -232,6 +232,8 @@ namespace fortunestreetanalyzer.Pages.train
 
                 _fortuneStreetAppContext.SaveChanges();
 
+                BoardCharacteristics boardCharacteristicResult = _fortuneStreetAppContext.BoardCharacteristics.SingleOrDefault(board_characteristic => board_characteristic.RuleID == rulesResult.ID && board_characteristic.BoardID == boardsResult.ID);
+
                 response.HTMLResponse = JsonSerializer.Serialize(new
                 {
                     Data = new Global.AnalyzerDataModel
@@ -241,12 +243,17 @@ namespace fortunestreetanalyzer.Pages.train
                             RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
                             {
                                 ID = rulesResult.ID,
-                                Name = rulesResult.Name
+                                Name = rulesResult.Name,
+                                StandingThreshold = boardCharacteristicResult.StandingThreshold,
+                                NetWorthThreshold = boardCharacteristicResult.NetWorthThreshold
                             },
                             BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
                             {
                                 ID = boardsResult.ID,
-                                Name = boardsResult.Name
+                                Name = boardsResult.Name,
+                                SalaryStart = boardCharacteristicResult.SalaryStart,
+                                SalaryIncrease = boardCharacteristicResult.SalaryIncrease,
+                                MaxDieRoll = boardCharacteristicResult.MaxDieRoll
                             },
                             ColorData = new Global.AnalyzerDataModel.GameDataModel.ColorDataModel
                             {
@@ -534,21 +541,6 @@ namespace fortunestreetanalyzer.Pages.train
                 {
                     Data = new Global.AnalyzerDataModel
                     {
-                        GameData = new Global.AnalyzerDataModel.GameDataModel
-                        {
-                            RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
-                            {
-                                StandingThreshold = boardCharacteristicResult.StandingThreshold,
-                                NetWorthThreshold = boardCharacteristicResult.NetWorthThreshold
-                            },
-                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
-                            {
-                                SalaryStart = boardCharacteristicResult.SalaryStart,
-                                SalaryIncrease = boardCharacteristicResult.SalaryIncrease,
-                                MaxDieRoll = boardCharacteristicResult.MaxDieRoll
-                            },
-                            TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>()
-                        },
                         CharacterData = characterData,
                         SpaceLayoutIndex = 0,
                         SpaceData = spaceData,
