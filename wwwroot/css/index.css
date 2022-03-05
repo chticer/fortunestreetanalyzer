@@ -93,7 +93,7 @@ body > div > div
     margin-right: 5px;
 }
 
-.loading > div:first-of-type > div:first-of-type > .fas
+.loading > div:first-of-type > div:first-of-type > .svg-inline--fa
 {
     font-size: 18px;
 }
@@ -120,12 +120,12 @@ body > div > div
     margin: 25px 0;
 }
 
-#train-previous-analyzer-instances .fas.disabled
+#train-previous-analyzer-instances .svg-inline--fa.disabled
 {
     cursor: not-allowed;
 }
 
-#train-previous-analyzer-instances .fas:not(.disabled)
+#train-previous-analyzer-instances .svg-inline--fa:not(.disabled)
 {
     cursor: pointer;
 }

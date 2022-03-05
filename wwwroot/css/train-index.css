@@ -571,7 +571,7 @@ body > div
     margin-right: 5px;
 }
 
-.loading > div:first-of-type > div:first-of-type > .fas
+.loading > div:first-of-type > div:first-of-type > .svg-inline--fa
 {
     font-size: 18px;
 }
