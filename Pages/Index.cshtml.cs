@@ -26,71 +26,59 @@ namespace fortunestreetanalyzer.Pages
 
             try
             {
-                List<CurrentAnalyzerInstancesTVF> currentAnalyzerInstancesTVFResults = Global.FindUserAnalyzerInstances(null, _fortuneStreetAppContext);
+                List<Global.RebuildAnalyzerInstance> analyzerTrainInstances = Global.RebuildAnalyzerInstanceDataResponse(true, false, null, new List<string> { "train" }, _fortuneStreetAppContext);
 
-                if (currentAnalyzerInstancesTVFResults == null)
+                if (analyzerTrainInstances == null)
                     throw new Exception("Cannot connect to the database.");
-
-                List<Global.AnalyzerDataModel> analyzerTrainData = new List<Global.AnalyzerDataModel>();
-
-                if (currentAnalyzerInstancesTVFResults.Count > 0)
-                {
-                    List<CurrentAnalyzerInstancesTVF> currentAnalyzerInstancesTVFTrainResults = currentAnalyzerInstancesTVFResults.Where(type => Equals(type.Type, "train")).ToList();
-
-                    analyzerTrainData = Global.RebuildAnalyzerData(currentAnalyzerInstancesTVFTrainResults, new List<string> { "GameData", "CharacterData" }, _fortuneStreetAppContext);
-
-                    if (analyzerTrainData == null)
-                        throw new Exception("Cannot connect to the database.");
-                }
 
                 response.HTMLResponse = JsonSerializer.Serialize(new
                 {
                     Data = new
                     {
-                        Train = analyzerTrainData
+                        Train = analyzerTrainInstances.Select(analyzertraininstance => analyzertraininstance.Data)
                     },
                     Response = new
                     {
                         Train =
-                            (
-                                analyzerTrainData.Count > 0
-                                ?
-                                "<div>" +
-                                    "<div>Select an analyzer instance then click the \"Load\" button below to continue a previous analyzer instance.</div>" +
+                        (
+                            analyzerTrainInstances.Count > 0
+                            ?
+                            "<div>" +
+                                "<div>Select an analyzer instance then click the \"Load\" button below to continue a previous analyzer instance.</div>" +
 
-                                    "<div id=\"train-previous-analyzer-instances\">" +
+                                "<div id=\"train-previous-analyzer-instances\">" +
+                                    "<div>" +
                                         "<div>" +
-                                            "<div>" +
-                                                (analyzerTrainData.Count > 1 ? "<span class=\"fas fa-arrow-left\"></span>" : "") +
-                                            "</div>" +
-
-                                            "<div>1 of " + analyzerTrainData.Count.ToString("N0") + "</div>" +
-
-                                            "<div>" +
-                                                (analyzerTrainData.Count > 1 ? "<span class=\"fas fa-arrow-right\"></span>" : "") +
-                                            "</div>" +
+                                            (analyzerTrainInstances.Count > 1 ? "<span class=\"fas fa-arrow-left\"></span>" : "") +
                                         "</div>" +
 
-                                        "<div></div>" +
+                                        "<div>1 of " + analyzerTrainInstances.Count.ToString("N0") + "</div>" +
+
+                                        "<div>" +
+                                            (analyzerTrainInstances.Count > 1 ? "<span class=\"fas fa-arrow-right\"></span>" : "") +
+                                        "</div>" +
                                     "</div>" +
-                                "</div>"
-                                :
-                                ""
-                            ) +
 
-                            "<div>" +
-                                "<div>Enter a name for the analyzer instance (optional) then click the \"Create\" button below to start a new analyzer instance.</div>" +
-
-                                "<div id=\"train-create-analyzer-instance\" class=\"create-analyzer-instance\">" +
-		                            "<div>" +
-			                            "<input type=\"text\" class=\"form-control form-control-lg\" name=\"train-create-analyzer-instance-name\" placeholder=\"Enter a name.\" />" +
-		                            "</div>" +
-
-		                            "<div>" +
-			                            "<button type=\"button\" class=\"btn btn-primary btn-lg\" name=\"train-create-analyzer-instance-create\">Create</button>" +
-		                            "</div>" +
+                                    "<div></div>" +
                                 "</div>" +
                             "</div>"
+                            :
+                            ""
+                        ) +
+
+                        "<div>" +
+                            "<div>Enter a name for the analyzer instance (optional) then click the \"Create\" button below to start a new analyzer instance.</div>" +
+
+                            "<div id=\"train-create-analyzer-instance\" class=\"create-analyzer-instance\">" +
+		                        "<div>" +
+			                        "<input type=\"text\" class=\"form-control form-control-lg\" name=\"train-create-analyzer-instance-name\" placeholder=\"Enter a name.\" />" +
+		                        "</div>" +
+
+		                        "<div>" +
+			                        "<button type=\"button\" class=\"btn btn-primary btn-lg\" name=\"train-create-analyzer-instance-create\">Create</button>" +
+		                        "</div>" +
+                            "</div>" +
+                        "</div>"
                     }
                 });
 

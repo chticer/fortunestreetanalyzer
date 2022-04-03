@@ -35,7 +35,7 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                List<CurrentAnalyzerInstancesTVF> userAnalyzerInstances = Global.FindUserAnalyzerInstances(startupDataParameter.id != null ? startupDataParameter.id : 0, _fortuneStreetAppContext);
+                List<CurrentAnalyzerInstancesTVF> userAnalyzerInstances = Global.FindUserAnalyzerInstances(startupDataParameter.id != null ? (long) startupDataParameter.id : 0, new List<string> { "train" }, _fortuneStreetAppContext);
 
                 if (userAnalyzerInstances == null)
                 {
@@ -49,24 +49,9 @@ namespace fortunestreetanalyzer.Pages.train
                     return new JsonResult(response);
                 }
 
-                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = null;
+                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = userAnalyzerInstances.FirstOrDefault();
 
-                if (startupDataParameter.id != null)
-                    currentUserAnalyzerInstance = userAnalyzerInstances.SingleOrDefault(result => Equals(result.Type, "train") && result.AnalyzerInstanceID == (long) startupDataParameter.id);
-
-                if (currentUserAnalyzerInstance == null)
-                {
-                    long analyzerInstanceID = (long) Global.CreateAnalyzerInstanceID("train", null, _fortuneStreetAppContext);
-
-                    userAnalyzerInstances = Global.FindUserAnalyzerInstances(analyzerInstanceID, _fortuneStreetAppContext);
-
-                    currentUserAnalyzerInstance = userAnalyzerInstances.SingleOrDefault(result => Equals(result.Type, "train") && result.AnalyzerInstanceID == analyzerInstanceID);
-                }
-
-                response.HTMLResponse = JsonSerializer.Serialize(new
-                {
-                    Data = Global.RebuildAnalyzerData(new List<CurrentAnalyzerInstancesTVF> { currentUserAnalyzerInstance }, null, _fortuneStreetAppContext).FirstOrDefault()
-                });
+                response.HTMLResponse = JsonSerializer.Serialize(Global.RebuildAnalyzerInstanceDataResponse(true, true, currentUserAnalyzerInstance != null ? currentUserAnalyzerInstance.AnalyzerInstanceID : (long) Global.CreateAnalyzerInstanceID("train", null, _fortuneStreetAppContext), new List<string> { "train" }, _fortuneStreetAppContext).FirstOrDefault());
 
                 return new JsonResult(response);
             }
@@ -82,89 +67,7 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                List<Rules> rules = _fortuneStreetAppContext.Rules.OrderBy(name => name.Name).ToList();
-
-                List<Boards> boards = _fortuneStreetAppContext.Boards.OrderBy(name => name.Name).ToList();
-
-                List<Colors> miiColors = _fortuneStreetAppContext.Colors.OrderBy(id => id.ID).ToList();
-
-                response.HTMLResponse = JsonSerializer.Serialize(new
-                {
-                    Data = new Global.AnalyzerDataModel
-                    {
-                        GameData = new Global.AnalyzerDataModel.GameDataModel
-                        {
-                            RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
-                            {
-                                ID = rules.FirstOrDefault().ID
-                            },
-                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
-                            {
-                                ID = boards.FirstOrDefault().ID
-                            },
-                            ColorData = new Global.AnalyzerDataModel.GameDataModel.ColorDataModel
-                            {
-                                ID = miiColors.FirstOrDefault().ID
-                            }
-                        }
-                    },
-                    Response =
-                        "<div id=\"game-selection\">" +
-                            "<div>" +
-                                "<div>" +
-                                    "<h5>Rules</h5>" +
-                                "</div>" +
-
-                                "<div>" +
-                                    "<select class=\"form-select\">" +
-
-                                        string.Join("", rules.Select(rule => "<option value=\"" + rule.ID + "\">" + rule.Name + "</option>")) +
-
-                                    "</select>" +
-                                "</div>" +
-                            "</div>" +
-
-                            "<div>" +
-                                "<div>" +
-                                    "<h5>Boards</h5>" +
-                                "</div>" +
-
-                                "<div>" +
-                                    "<select class=\"form-select\">" +
-
-                                        string.Join("", boards.Select(board => "<option value=\"" + board.ID + "\">" + board.Name + "</option>")) +
-
-                                    "</select>" +
-                                "</div>" +
-                            "</div>" +
-
-                            "<div>" +
-                                "<div>" +
-                                    "<h5>Mii Color</h5>" +
-                                "</div>" +
-
-                                "<div class=\"color-selection\">" +
-
-                                    string.Join("", miiColors.Select
-                                    (
-                                        (color, index) =>
-                                            "<div>" +
-                                                "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
-
-                                                "<div style=\"background-color: #" + color.SystemColor + ";\"" + (index == 0 ? " class=\"selected\"" : "") + "></div>" +
-                                            "</div>"
-                                    )) +
-
-                                "</div>" +
-                            "</div>" +
-
-                            Global.CreateConfirmationActions("center-items", new List<string>
-                            {
-                                "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
-                            }) +
-
-                        "</div>"
-                });
+                response.HTMLResponse = JsonSerializer.Serialize(RebuildAnalyzerInstanceHelper.LoadGameData(null, _fortuneStreetAppContext));
 
                 return new JsonResult(response);
             }
@@ -279,86 +182,20 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = _fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({loadCharactersParameter.ID})").ToList();
-
-                List<Global.AnalyzerDataModel.CharacterDataModel> characters = new List<Global.AnalyzerDataModel.CharacterDataModel>
-                {
-                    new Global.AnalyzerDataModel.CharacterDataModel
+                response.HTMLResponse = JsonSerializer.Serialize(RebuildAnalyzerInstanceHelper.LoadCharacters
+                (
+                    new Global.AnalyzerDataModel
                     {
-                        Name = "You"
-                    }
-                }.Union(getBoardCharactersTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel
-                {
-                    ID = result.CharacterID,
-                    PortraitURL = Global.AZURE_STORAGE_URL + result.CharacterPortraitURI,
-                    Name = result.Name
-                })).ToList();
-
-                response.HTMLResponse = JsonSerializer.Serialize(new
-                {
-                    Data = new Global.AnalyzerDataModel
-                    {
-                        CharacterData = characters
-                    },
-                    Response =
-                        "<div id=\"player-turn-determination\">" +
-                            "<div>" +
-
-                                string.Join("", characters.Select
-                                (
-                                    character =>
-                                        "<div>" +
-                                            "<div class=\"character-portrait-icon\">" +
-
-                                                (
-                                                    !string.IsNullOrWhiteSpace(character.PortraitURL)
-                                                    ?
-                                                    "<img src=\"" + character.PortraitURL + "\" alt=\"Character Portrait for " + character.Name + "\" />"
-                                                    :
-                                                    ""
-                                                ) +
-
-                                            "</div>" +
-
-                                            "<div>" + character.Name + "</div>" +
-
-                                            "<div>" +
-                                                "<div>" +
-
-                                                    string.Join("", Enumerable.Range(0, 10).Select
-                                                    (
-                                                        digit =>
-                                                            "<span>" +
-                                                                "<button type=\"button\" class=\"btn btn-outline-primary btn-lg\" value=\"" + (digit * 10) + "\">" + digit + "</button>" +
-                                                            "</span>"
-                                                    )) +
-
-                                                "</div>" +
-
-                                                "<div>" +
-
-                                                    string.Join("", Enumerable.Range(0, 10).Select
-                                                    (
-                                                        digit =>
-                                                            "<span>" +
-                                                                "<button type=\"button\" class=\"btn btn-outline-primary btn-lg\" value=\"" + digit + "\">" + digit + "</button>" +
-                                                            "</span>"
-                                                    )) +
-
-                                                "</div>" +
-                                            "</div>" +
-                                        "</div>"
-                                )) +
-
-                            "</div>" +
-
-                            Global.CreateConfirmationActions("center-items", new List<string>
+                        GameData = new Global.AnalyzerDataModel.GameDataModel
+                        {
+                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
                             {
-                                "<button type=\"button\" class=\"btn btn-lg btn-primary disabled\" name=\"confirm\" disabled=\"disabled\">Confirm</button>"
-                            }) +
-
-                        "</div>"
-                });
+                                ID = loadCharactersParameter.ID
+                            }
+                        }
+                    },
+                    _fortuneStreetAppContext
+                ));
 
                 return new JsonResult(response);
             }
@@ -587,7 +424,7 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = Global.FindUserAnalyzerInstances(saveAnalyzerDataParameter.analyzerData.AnalyzerInstanceID, _fortuneStreetSaveAnalyzerInstanceLogContext).SingleOrDefault(type => Equals(type.Type, "train"));
+                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = Global.FindUserAnalyzerInstances(saveAnalyzerDataParameter.analyzerData.AnalyzerInstanceID, new List<string> { "train" }, _fortuneStreetSaveAnalyzerInstanceLogContext).SingleOrDefault(type => Equals(type.Type, "train"));
 
                 if (currentUserAnalyzerInstance == null)
                     throw new Exception();

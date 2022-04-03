@@ -220,20 +220,41 @@ namespace fortunestreetanalyzer
             }
         }
 
-        public static List<CurrentAnalyzerInstancesTVF> FindUserAnalyzerInstances(long? analyzerInstanceID, FortuneStreetContext fortuneStreetContext)
+        public class RebuildAnalyzerInstance
+        {
+            public AnalyzerDataModel Data { get; set; }
+            public AnalyzerResponseDataModel Response { get; set; }
+
+            public class AnalyzerResponseDataModel
+            {
+                public string Settings { get; set; }
+                public string Board { get; set; }
+                public string Standings { get; set; }
+            }
+        }
+
+        public static List<CurrentAnalyzerInstancesTVF> FindUserAnalyzerInstances(long? analyzerInstanceID, List<string> analyzerInstanceTypes, FortuneStreetContext fortuneStreetContext)
         {
             try
             {
                 string userIPAddress = GetUserIPAddress();
 
-                List<GetAnalyzerInstancesInProgressTVF> getAnalyzerInstancesInProgressTVFResults = fortuneStreetContext.GetAnalyzerInstancesInProgressTVF.FromSqlRaw("SELECT * FROM getanalyzerinstancesinprogress_tvf()" + (analyzerInstanceID != null ? " WHERE id = " + analyzerInstanceID : "")).ToList();
+                List<string> whereClauses = new List<string>();
+
+                if (analyzerInstanceID != null)
+                    whereClauses.Add("id = " + analyzerInstanceID);
+
+                if (analyzerInstanceTypes != null)
+                    whereClauses.Add("type IN ('" + string.Join("','", analyzerInstanceTypes) + "')");
+
+                List<GetAnalyzerInstancesInProgressTVF> getAnalyzerInstancesInProgressTVFResults = fortuneStreetContext.GetAnalyzerInstancesInProgressTVF.FromSqlRaw("SELECT * FROM getanalyzerinstancesinprogress_tvf()" + (whereClauses.Count > 0 ? " WHERE " + string.Join(" AND ", whereClauses) : "")).ToList();
 
                 List<long> userAnalyzerInstanceIDs = new List<long>();
 
-                for (int i = 0; i < getAnalyzerInstancesInProgressTVFResults.Count; ++i)
+                foreach (GetAnalyzerInstancesInProgressTVF currentGetAnalyzerInstancesInProgressTVFResult in getAnalyzerInstancesInProgressTVFResults)
                 {
-                    if (HashComparison(userIPAddress, getAnalyzerInstancesInProgressTVFResults[i].IPAddress))
-                        userAnalyzerInstanceIDs.Add(getAnalyzerInstancesInProgressTVFResults[i].ID);
+                    if (HashComparison(userIPAddress, currentGetAnalyzerInstancesInProgressTVFResult.IPAddress))
+                        userAnalyzerInstanceIDs.Add(currentGetAnalyzerInstancesInProgressTVFResult.ID);
                 }
 
                 if (userAnalyzerInstanceIDs.Count == 0)
@@ -247,47 +268,62 @@ namespace fortunestreetanalyzer
             }
         }
 
-        public static List<AnalyzerDataModel> RebuildAnalyzerData(List<CurrentAnalyzerInstancesTVF> currentAnalyzerInstancesTVFResults, List<string> analyzerInstanceLogKeys, FortuneStreetAppContext fortuneStreetAppContext)
+        public static List<RebuildAnalyzerInstance> RebuildAnalyzerInstanceDataResponse(bool dataFlag, bool responseFlag, long? analyzerInstanceID, List<string> analyzerInstanceTypes, FortuneStreetAppContext fortuneStreetAppContext)
         {
             try
             {
-                List<long> analyzerInstanceIDs = currentAnalyzerInstancesTVFResults.Select(analyzerinstanceid => analyzerinstanceid.AnalyzerInstanceID).ToList();
+                if (!dataFlag && !responseFlag)
+                    throw new Exception();
 
-                List<CurrentAnalyzerInstanceLogsTVF> currentAnalyzerInstanceLogsTVFResults = fortuneStreetAppContext.CurrentAnalyzerInstanceLogsTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstancelogs_tvf() WHERE analyzer_instance_id IN (" + string.Join(",", analyzerInstanceIDs) + ")" + (analyzerInstanceLogKeys != null ? " AND [key] IN ('" + string.Join("','", analyzerInstanceLogKeys) + "')" : "")).ToList();
+                List<RebuildAnalyzerInstance> rebuildAnalyzerInstances = new List<RebuildAnalyzerInstance>();
 
-                List<AnalyzerDataModel> analyzerData = new List<AnalyzerDataModel>();
+                List<CurrentAnalyzerInstancesTVF> currentAnalyzerInstancesTVFResults = FindUserAnalyzerInstances(analyzerInstanceID, analyzerInstanceTypes, fortuneStreetAppContext);
 
-                foreach (CurrentAnalyzerInstancesTVF currentAnalyzerInstancesTVFResult in currentAnalyzerInstancesTVFResults)
+                if (currentAnalyzerInstancesTVFResults.Count > 0)
                 {
-                    AnalyzerDataModel currentAnalyzerData = new AnalyzerDataModel
+                    if (dataFlag)
                     {
-                        AnalyzerInstanceID = currentAnalyzerInstancesTVFResult.AnalyzerInstanceID,
-                        AnalyzerInstanceName = currentAnalyzerInstancesTVFResult.Name,
-                        AnalyzerInstanceStarted = currentAnalyzerInstancesTVFResult.TimestampAdded
-                    };
+                        List<long> analyzerInstanceIDs = currentAnalyzerInstancesTVFResults.Select(analyzerinstanceid => analyzerinstanceid.AnalyzerInstanceID).ToList();
 
-                    foreach (CurrentAnalyzerInstanceLogsTVF currentAnalyzerInstanceLogsTVFResult in currentAnalyzerInstanceLogsTVFResults.Where(analyzerinstanceid => analyzerinstanceid.AnalyzerInstanceID == currentAnalyzerInstancesTVFResult.AnalyzerInstanceID))
-                    {
-                        if (Equals(currentAnalyzerInstanceLogsTVFResult.Key, "GameData"))
-                            currentAnalyzerData.GameData = JsonSerializer.Deserialize<AnalyzerDataModel.GameDataModel>(currentAnalyzerInstanceLogsTVFResult.Value);
-                        else if (Equals(currentAnalyzerInstanceLogsTVFResult.Key, "CharacterData"))
-                            currentAnalyzerData.CharacterData = JsonSerializer.Deserialize<List<AnalyzerDataModel.CharacterDataModel>>(currentAnalyzerInstanceLogsTVFResult.Value);
-                        else if (Equals(currentAnalyzerInstanceLogsTVFResult.Key, "SpaceLayoutIndex"))
-                            currentAnalyzerData.SpaceLayoutIndex = long.Parse(currentAnalyzerInstanceLogsTVFResult.Value);
-                        else if (Equals(currentAnalyzerInstanceLogsTVFResult.Key, "SpaceData"))
-                            currentAnalyzerData.SpaceData = JsonSerializer.Deserialize<List<AnalyzerDataModel.SpaceDataModel>>(currentAnalyzerInstanceLogsTVFResult.Value);
-                        else if (Equals(currentAnalyzerInstanceLogsTVFResult.Key, "SpaceTypeData"))
-                            currentAnalyzerData.SpaceTypeData = JsonSerializer.Deserialize<List<AnalyzerDataModel.SpaceTypeDataModel>>(currentAnalyzerInstanceLogsTVFResult.Value);
-                        else if (Equals(currentAnalyzerInstanceLogsTVFResult.Key, "ShopData"))
-                            currentAnalyzerData.ShopData = JsonSerializer.Deserialize<List<AnalyzerDataModel.ShopDataModel>>(currentAnalyzerInstanceLogsTVFResult.Value);
-                        else if (Equals(currentAnalyzerInstanceLogsTVFResult.Key, "DistrictData"))
-                            currentAnalyzerData.DistrictData = JsonSerializer.Deserialize<List<AnalyzerDataModel.DistrictDataModel>>(currentAnalyzerInstanceLogsTVFResult.Value);
+                        List<CurrentAnalyzerInstanceLogsTVF> currentAnalyzerInstanceLogsTVFResults = fortuneStreetAppContext.CurrentAnalyzerInstanceLogsTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstancelogs_tvf() WHERE analyzer_instance_id IN (" + string.Join(",", analyzerInstanceIDs) + ")").ToList();
+
+                        foreach (CurrentAnalyzerInstancesTVF currentAnalyzerInstancesTVFResult in currentAnalyzerInstancesTVFResults)
+                        {
+                            Dictionary<string, object> currentAnalyzerInstanceData = new Dictionary<string, object>
+                            {
+                                { "AnalyzerInstanceID", currentAnalyzerInstancesTVFResult.AnalyzerInstanceID },
+                                { "AnalyzerInstanceName", currentAnalyzerInstancesTVFResult.Name },
+                                { "AnalyzerInstanceStarted", currentAnalyzerInstancesTVFResult.TimestampAdded }
+                            };
+
+                            foreach (CurrentAnalyzerInstanceLogsTVF currentAnalyzerInstanceLogsTVFResult in currentAnalyzerInstanceLogsTVFResults.Where(analyzerinstanceid => analyzerinstanceid.AnalyzerInstanceID == currentAnalyzerInstancesTVFResult.AnalyzerInstanceID))
+                                currentAnalyzerInstanceData.Add(currentAnalyzerInstanceLogsTVFResult.Key, JsonSerializer.Deserialize<object>(currentAnalyzerInstanceLogsTVFResult.Value));
+
+                            rebuildAnalyzerInstances.Add(new RebuildAnalyzerInstance
+                            {
+                                Data = JsonSerializer.Deserialize<AnalyzerDataModel>(JsonSerializer.Serialize(currentAnalyzerInstanceData))
+                            });
+                        }
                     }
 
-                    analyzerData.Add(currentAnalyzerData);
+                    if (responseFlag)
+                        foreach (RebuildAnalyzerInstance currentRebuildAnalyzerInstance in rebuildAnalyzerInstances)
+                        {
+                            currentRebuildAnalyzerInstance.Response = new RebuildAnalyzerInstance.AnalyzerResponseDataModel();
+
+                            if (currentRebuildAnalyzerInstance.Data.GameData != null)
+                            {
+                                currentRebuildAnalyzerInstance.Response.Settings += RebuildAnalyzerInstanceHelper.LoadGameData(currentRebuildAnalyzerInstance.Data.GameData, fortuneStreetAppContext).Response.Settings;
+
+                                if (currentRebuildAnalyzerInstance.Data.CharacterData != null)
+                                {
+                                    currentRebuildAnalyzerInstance.Response.Settings += RebuildAnalyzerInstanceHelper.LoadCharacters(currentRebuildAnalyzerInstance.Data, fortuneStreetAppContext).Response.Settings;
+                                }
+                            }
+                        }
                 }
 
-                return analyzerData.OrderBy(analyzerinstanceid => analyzerInstanceIDs.IndexOf(analyzerinstanceid.AnalyzerInstanceID)).ToList();
+                return rebuildAnalyzerInstances;
             }
             catch
             {
