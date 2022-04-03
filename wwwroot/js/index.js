@@ -146,7 +146,6 @@
 
     function updatePreviousAnalyzerInstance(type)
     {
-        console.log(previousAnalyzerInstanceData);
         let previousAnalyzerInstancesTypeContainer = $("#" + type + "-previous-analyzer-instances");
 
         let previousAnalyzerInstancesTypeNavigationItems = previousAnalyzerInstancesTypeContainer.children().first().children();

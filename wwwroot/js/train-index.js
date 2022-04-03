@@ -1,6 +1,6 @@
 ﻿const URL_QUERY_PARAMETERS = new URLSearchParams(window.location.search);
 const SPACE_SQUARE_SIZE = 100;
-const SUIT_SQUARE_DATA =
+const SUIT_DATA =
 [
     {
         Icon: "spade",
@@ -19,7 +19,7 @@ const SUIT_SQUARE_DATA =
         Color: "2DD936"
     }
 ];
-const SUIT_SQUARE_ORDER = [ "spade", "heart", "diamond", "club" ];
+const SUIT_ORDER = [ "spade", "heart", "diamond", "club" ];
 
 $(document).ready(function ()
 {
@@ -190,7 +190,7 @@ $(document).ready(function ()
 
                 analyzerData["GameData"] = JSONResponse["Data"]["GameData"];
 
-                $("#settings-content").append(JSONResponse["Response"]);
+                $("#settings-content").append(JSONResponse["Response"]["Settings"]);
 
                 $("#game-selection > div:first-of-type select").on("change", function ()
                 {
@@ -299,7 +299,7 @@ $(document).ready(function ()
 
                 analyzerData["CharacterData"] = JSONResponse["Data"]["CharacterData"];
 
-                $("#settings-content").append(JSONResponse["Response"]);
+                $("#settings-content").append(JSONResponse["Response"]["Settings"]);
 
                 let playerTurnDeterminationConfirmButton = $("#player-turn-determination > div:last-of-type button[name=\"confirm\"]");
 
@@ -443,6 +443,8 @@ $(document).ready(function ()
         });
     }
 
+    let spaceLayoutIndex = 0;
+
     let mouseCoordinates =
     {
         x: 0,
@@ -470,7 +472,15 @@ $(document).ready(function ()
                 (
 	                true,
 	                analyzerData,
-	                {
+                    {
+                        GameData: $.extend
+                        (
+                            true,
+                            analyzerData["GameData"],
+                            {
+                                TurnData: JSONResponse["Data"]["GameData"]["TurnData"]
+                            }
+                        ),
 		                CharacterData: $.map($.extend(true, [], analyzerData["CharacterData"]), function (value, index)
 		                {
 			                return $.extend
@@ -486,11 +496,10 @@ $(document).ready(function ()
                                     TotalStockValue: JSONResponse["Data"]["CharacterData"][index]["TotalStockValue"],
                                     NetWorth: JSONResponse["Data"]["CharacterData"][index]["NetWorth"],
                                     OwnedShopIndices: JSONResponse["Data"]["CharacterData"][index]["OwnedShopIndices"],
-                                    HasSuits: JSONResponse["Data"]["CharacterData"][index]["HasSuits"]
+                                    OwnedSuits: JSONResponse["Data"]["CharacterData"][index]["OwnedSuits"]
 				                }
 			                );
 		                }),
-		                SpaceLayoutIndex: JSONResponse["Data"]["SpaceLayoutIndex"],
 		                DistrictData: JSONResponse["Data"]["DistrictData"],
 		                ShopData: JSONResponse["Data"]["ShopData"],
 		                SpaceData: JSONResponse["Data"]["SpaceData"],
@@ -498,21 +507,30 @@ $(document).ready(function ()
 	                }
                 );
 
-                renderMap();
+                saveAnalyzerData([ "GameData", "CharacterData", "DistrictData", "ShopData", "SpaceData", "SpaceTypeData" ]);
 
-                renderStandings();
-
-                $("#standings-subpanel").show();
-
-                $(document).on("mousemove", function (e)
-                {
-                    mouseCoordinates["x"] = e.clientX;
-                    mouseCoordinates["y"] = e.clientY;
-                });
-
-                $(window).on("resize", renderMap);
+                initializeGameSetup();
             }
         });
+    }
+
+    function initializeGameSetup()
+    {
+        initializeStandings();
+
+        $("#standings-subpanel").show();
+
+        initializeMap();
+
+        $(document).on("mousemove", function (e)
+        {
+            mouseCoordinates["x"] = e.clientX;
+            mouseCoordinates["y"] = e.clientY;
+        });
+
+        $(window).on("resize", initializeMap);
+
+        initializeTurn();
     }
 
     function spacePopupDialog(element)
@@ -548,23 +566,23 @@ $(document).ready(function ()
         );
     }
 
-    function renderMap()
+    function initializeMap()
     {
         $("#board-subpanel").empty().append("<div></div>");
 
         let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
 
-        let maxCenterXFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterXFactor"];
-        let maxCenterYFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterYFactor"];
+        let maxCenterXFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"];
+        let maxCenterYFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"];
 
         for (let i = 1; i < analyzerData["SpaceData"].length; ++i)
         {
-            let currentCenterXFactor = analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterXFactor"];
+            let currentCenterXFactor = analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"];
 
             if (currentCenterXFactor > maxCenterXFactor)
                 maxCenterXFactor = currentCenterXFactor;
 
-            let currentCenterYFactor = analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterYFactor"];
+            let currentCenterYFactor = analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"];
 
             if (currentCenterYFactor > maxCenterYFactor)
                 maxCenterYFactor = currentCenterYFactor;
@@ -582,8 +600,8 @@ $(document).ready(function ()
             currentSpaceContainer.css
             (
                 {
-                    left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterXFactor"] - 0.5) + "px",
-                    top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][analyzerData["SpaceLayoutIndex"]]["CenterYFactor"] - 0.5) + "px",
+                    left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"] - 0.5) + "px",
+                    top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"] - 0.5) + "px",
                     width: SPACE_SQUARE_SIZE + "px",
                     height: SPACE_SQUARE_SIZE + "px"
                 }
@@ -668,7 +686,7 @@ $(document).ready(function ()
         if (spaceIconValue == null)
         {
             if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "suit")
-                spaceIconValue = SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"];
+                spaceIconValue = SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"];
         }
 
         spaceSquareContainer.append
@@ -752,9 +770,9 @@ $(document).ready(function ()
         }
         else if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "suit")
         {
-            spaceSquareIconContainer.css({ color: "#" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] });
+            spaceSquareIconContainer.css({ color: "#" + SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] });
 
-            spaceInformationPlaceholders["SuitData"]["SuitIcon"] = "<span class=\"fas fa-" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"] + "\" style=\"color: #" + SUIT_SQUARE_DATA[SUIT_SQUARE_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] + ";\"></span>";
+            spaceInformationPlaceholders["SuitData"]["SuitIcon"] = "<span class=\"fas fa-" + SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"] + "\" style=\"color: #" + SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] + ";\"></span>";
         }
 
         spaceSquareContainer.append("<div class=\"character-markers\"></div>");
@@ -773,70 +791,58 @@ $(document).ready(function ()
         spaceInformationContainer.append("<div>" + analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
     }
 
-    function renderStandings()
+    function initializeStandings()
     {
         let standingsContainer = $("#standings-subpanel > div:last-of-type");
 
         standingsContainer.empty();
 
-        for (let currentCharacterData of analyzerData["CharacterData"])
+        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
             standingsContainer.append
             (
-                "<div style=\"background-color: #" + currentCharacterData["ColorData"]["GameColor"] + ";\">" +
-                    "<div>" +
-                        "<span>" + currentCharacterData["Placing"] + "</span>" +
-
-                        "<span>" +
-                            "<sup>" + ordinalNumberSuffix(currentCharacterData["Placing"]) + "</sup>" +
-                        "</span>" +
-                    "</div>" +
+                "<div style=\"background-color: #" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"] + ";\">" +
+                    "<div></div>" +
 
                     "<div>" +
                         "<div class=\"character-portrait-icon small\">" +
 
-                            (
-                                currentCharacterData["PortraitURL"] !== null
-                                ?
-                                "<img src=\"" + currentCharacterData["PortraitURL"] + "\" alt=\"Character Portrait for " + currentCharacterData["Name"] + "\" />"
-                                :
-                                ""
-                            ) +
+                        (
+                            analyzerData["CharacterData"][i]["PortraitURL"] !== null
+                            ?
+                            "<img src=\"" + analyzerData["CharacterData"][i]["PortraitURL"] + "\" alt=\"Character Portrait for " + analyzerData["CharacterData"][i]["Name"] + "\" />"
+                            :
+                            ""
+                        ) +
 
                         "</div>" +
 
-                        "<div>" + (currentCharacterData["Name"] !== null ? currentCharacterData["Name"] : "You") + "</div>" +
+                        "<div>" + (analyzerData["CharacterData"][i]["Name"] !== null ? analyzerData["CharacterData"][i]["Name"] : "You") + "</div>" +
                     "</div>" +
 
                     "<div>" +
                         "<div>" +
                             "<div>Ready Cash</div>" +
 
-                            "<div>" + currentCharacterData["ReadyCash"] + "</div>" +
+                            "<div></div>" +
                         "</div>" +
 
                         "<div>" +
                             "<div>Total Shop Value</div>" +
 
-                            "<div>" + currentCharacterData["TotalShopValue"] + "</div>" +
+                            "<div></div>" +
                         "</div>" +
 
-                        (
-                            analyzerData["GameData"]["RuleData"]["Name"] === "Standard"
-                            ?
-                            "<div>" +
-                                "<div>Total Stock Value</div>" +
+                        "<div>" +
+                            "<div>Total Stock Value</div>" +
 
-                                "<div>" + currentCharacterData["TotalStockValue"] + "</div>" +
-                            "</div>"
-                            :
-                            ""
-                        ) +
+                            "<div></div>" +
+                        "</div>" +
 
                         "<div>" +
                             "<div>Net Worth</div>" +
 
-                            "<div>" + currentCharacterData["NetWorth"] + "</div>" +
+                            "<div></div>" +
                         "</div>" +
                     "</div>" +
 
@@ -844,14 +850,72 @@ $(document).ready(function ()
                 "</div>"
             );
 
-            for (let i = 0; i < currentCharacterData["HasSuits"].length; ++i)
-                standingsContainer.children().last().children().last().append
-                (
-                    "<div>" +
-                        "<span class=\"fas fa-" + SUIT_SQUARE_DATA[i]["Icon"] + "\" style=\"color: #" + (currentCharacterData["HasSuits"][i] ? SUIT_SQUARE_DATA[i]["Color"] : "333") + ";\"></span>" +
-                    "</div>"
-                );
+            let currentStandingsPlayerContainer = standingsContainer.children().last();
+
+            currentStandingsPlayerContainer.children().eq(2).children().eq(2).toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
+
+            updateStandingsPlayer(i);
         }
+    }
+
+    function updateStandingsPlayer(playerIndex)
+    {
+        let playerContainer = $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ")");
+
+        playerContainer.children().first().empty().append
+        (
+            "<span>" + analyzerData["CharacterData"][playerIndex]["Placing"] + "</span>" +
+
+            "<span>" +
+                "<sup>" + ordinalNumberSuffix(analyzerData["CharacterData"][playerIndex]["Placing"]) + "</sup>" +
+            "</span>"
+        );
+
+        let playerStatsContainer = playerContainer.children().eq(2);
+
+        playerStatsContainer.children().first().children().last().text(analyzerData["CharacterData"][playerIndex]["ReadyCash"]);
+        playerStatsContainer.children().eq(1).children().last().text(analyzerData["CharacterData"][playerIndex]["TotalShopValue"]);
+
+        if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
+            playerStatsContainer.children().eq(2).children().last().text(analyzerData["CharacterData"][playerIndex]["TotalStockValue"]);
+
+        playerStatsContainer.children().last().children().last().text(analyzerData["CharacterData"][playerIndex]["NetWorth"]);
+
+        playerContainer.children().last().empty().append
+        (
+            "<div class=\"suit-card\">" +
+                "<div>" +
+                    "<div></div>" +
+
+                    "<div>" + analyzerData["CharacterData"][playerIndex]["OwnedSuits"]["TotalSuitCards"] + "</div>" +
+                "</div>" +
+            "</div>"
+        );
+
+        let playerSuitCardContainer = playerContainer.children().last().find(".suit-card");
+
+        playerSuitCardContainer.children().first().toggle(analyzerData["CharacterData"][playerIndex]["OwnedSuits"]["TotalSuitCards"] > 0);
+
+        for (let currentSuitData of SUIT_DATA)
+        {
+            playerSuitCardContainer.children().first().children().first().append
+            (
+                "<div>" +
+                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + currentSuitData["Color"] + ";\"></span>" +
+                "</div>"
+            );
+
+            playerContainer.children().last().append
+            (
+                "<div>" +
+                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + (analyzerData["CharacterData"][playerIndex]["OwnedSuits"]["SuitNames"].indexOf(currentSuitData["Icon"]) > -1 ? currentSuitData["Color"] : "333") + ";\"></span>" +
+                "</div>"
+            );
+        }
+    }
+
+    function initializeTurn()
+    {
     }
 
     $("#standings-subpanel").hide();
@@ -877,7 +941,23 @@ $(document).ready(function ()
 
             analyzerData = JSONResponse["Data"];
 
-            loadGameData();
+            $("#settings-content").append(JSONResponse["Response"]["Settings"]);
+
+            if (analyzerData["GameData"] === null)
+            {
+                loadGameData();
+
+                return;
+            }
+
+            if (analyzerData["CharacterData"] === null)
+            {
+                initializeDetermineCharacterSettings();
+
+                return;
+            }
+
+            initializeGameSetup();
         }
     });
 });
