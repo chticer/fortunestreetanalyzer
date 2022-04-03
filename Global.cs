@@ -19,7 +19,6 @@ namespace fortunestreetanalyzer
             public DateTime AnalyzerInstanceStarted { get; set; }
             public GameDataModel GameData { get; set; }
             public List<CharacterDataModel> CharacterData { get; set; }
-            public long SpaceLayoutIndex { get; set; }
             public List<SpaceDataModel> SpaceData { get; set; }
             public List<SpaceTypeDataModel> SpaceTypeData { get; set; }
             public List<ShopDataModel> ShopData { get; set; }
@@ -59,6 +58,24 @@ namespace fortunestreetanalyzer
 
                 public class TurnDataModel
                 {
+                    public List<CharacterTurnDataModel> CharacterTurnData { get; set; }
+
+                    public class CharacterTurnDataModel
+                    {
+                        public CharacterDataModel CharacterData { get; set; }
+                        public byte SpaceLayoutIndex { get; set; }
+                        public byte DieRollValue { get; set; }
+                        public List<TradesDataModel> TradesData { get; set; }
+
+                        public class TradesDataModel
+                        {
+                            public bool Success { get; set; }
+                            public CharacterDataModel CharacterData { get; set; }
+                            public List<ShopDataModel> ShopDataExchangeFrom { get; set; }
+                            public List<ShopDataModel> ShopDataExchangeTo { get; set; }
+                            public List<int> ReadyCashExchangeOffers { get; set; }
+                        }
+                    }
                 }
             }
 
@@ -77,12 +94,18 @@ namespace fortunestreetanalyzer
                 public int TotalStockValue { get; set; }
                 public int NetWorth { get; set; }
                 public List<long> OwnedShopIndices { get; set; }
-                public List<bool> HasSuits { get; set; }
+                public SuitDataModel OwnedSuits { get; set; }
 
                 public class ColorDataModel
                 {
                     public long ID { get; set; }
                     public string GameColor { get; set; }
+                }
+
+                public class SuitDataModel
+                {
+                    public byte TotalSuitCards { get; set; }
+                    public List<string> SuitNames { get; set; }
                 }
             }
 

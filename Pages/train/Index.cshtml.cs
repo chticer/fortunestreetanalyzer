@@ -260,8 +260,7 @@ namespace fortunestreetanalyzer.Pages.train
                                 ID = colorsResult.ID,
                                 SystemColor = colorsResult.SystemColor,
                                 CharacterColor = colorsResult.CharacterColor
-                            },
-                            TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>()
+                            }
                         }
                     }
                 });
@@ -506,7 +505,11 @@ namespace fortunestreetanalyzer.Pages.train
                     TotalStockValue = 0,
                     NetWorth = boardCharacteristicResult.ReadyCashStart,
                     OwnedShopIndices = new List<long>(),
-                    HasSuits = Enumerable.Range(0, 4).Select(value => false).ToList()
+                    OwnedSuits = new Global.AnalyzerDataModel.CharacterDataModel.SuitDataModel
+                    {
+                        TotalSuitCards = 0,
+                        SuitNames = new List<string>()
+                    }
                 }).ToList();
 
                 List<Global.AnalyzerDataModel.SpaceDataModel> spaceData = new List<Global.AnalyzerDataModel.SpaceDataModel>();
@@ -541,8 +544,11 @@ namespace fortunestreetanalyzer.Pages.train
                 {
                     Data = new Global.AnalyzerDataModel
                     {
+                        GameData = new Global.AnalyzerDataModel.GameDataModel
+                        {
+                            TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>()
+                        },
                         CharacterData = characterData,
-                        SpaceLayoutIndex = 0,
                         SpaceData = spaceData,
                         SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
                         {
