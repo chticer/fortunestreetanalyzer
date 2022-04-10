@@ -1,5 +1,3 @@
-using Azure.Core;
-using Azure.Identity;
 using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -16,33 +14,20 @@ string fortuneStreetSQLConnectionString = new SqlConnectionStringBuilder
     InitialCatalog = "fortunestreet"
 }.ConnectionString;
 
-string azureCredentialSQLToken = new DefaultAzureCredential().GetToken(new TokenRequestContext(new[]
-{
-    "https://database.windows.net/.default"
-})).Token;
-
-SqlConnection fortuneStreetAppContextSQLConnection = new SqlConnection(fortuneStreetSQLConnectionString);
-
-fortuneStreetAppContextSQLConnection.AccessToken = azureCredentialSQLToken;
-
 builder.Services.AddDbContext<FortuneStreetAppContext>
 (
     options => options.UseSqlServer
     (
-        fortuneStreetAppContextSQLConnection,
+        new SqlConnection(fortuneStreetSQLConnectionString),
         options => options.CommandTimeout(int.MaxValue)
     )
 );
-
-SqlConnection fortuneStreetSaveAnalyzerInstanceLogContextSQLConnection = new SqlConnection(fortuneStreetSQLConnectionString);
-
-fortuneStreetSaveAnalyzerInstanceLogContextSQLConnection.AccessToken = azureCredentialSQLToken;
 
 builder.Services.AddDbContext<FortuneStreetSaveAnalyzerInstanceLogContext>
 (
     options => options.UseSqlServer
     (
-        fortuneStreetSaveAnalyzerInstanceLogContextSQLConnection,
+        new SqlConnection(fortuneStreetSQLConnectionString),
         options => options.CommandTimeout(int.MaxValue)
     )
 );
