@@ -190,7 +190,7 @@ $(document).ready(function ()
 
                 analyzerData["GameData"] = JSONResponse["Data"]["GameData"];
 
-                $("#settings-content").append(JSONResponse["Response"]["Settings"]);
+                $("#settings-content").append(JSONResponse["Response"]);
 
                 $("#game-selection > div:first-of-type select").on("change", function ()
                 {
@@ -299,7 +299,7 @@ $(document).ready(function ()
 
                 analyzerData["CharacterData"] = JSONResponse["Data"]["CharacterData"];
 
-                $("#settings-content").append(JSONResponse["Response"]["Settings"]);
+                $("#settings-content").append(JSONResponse["Response"]);
 
                 let playerTurnDeterminationConfirmButton = $("#player-turn-determination > div:last-of-type button[name=\"confirm\"]");
 
@@ -941,7 +941,7 @@ $(document).ready(function ()
 
             analyzerData = JSONResponse["Data"];
 
-            $("#settings-content").append(JSONResponse["Response"]["Settings"]);
+            $("#settings-content").append(JSONResponse["Response"]);
 
             if (analyzerData["GameData"] === null)
             {

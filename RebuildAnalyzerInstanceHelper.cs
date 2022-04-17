@@ -41,71 +41,68 @@ namespace fortunestreetanalyzer
 
             };
 
-            rebuildAnalyzerInstance.Response = new Global.RebuildAnalyzerInstance.AnalyzerResponseDataModel
-            {
-                Settings =
-                    "<div id=\"game-selection\">" +
+            rebuildAnalyzerInstance.Response =
+                "<div id=\"game-selection\">" +
+                    "<div>" +
                         "<div>" +
-                            "<div>" +
-                                "<h5>Rules</h5>" +
-                            "</div>" +
-
-                            "<div>" +
-                                "<select class=\"form-select" + (previousGameData != null ? " disabled" : "") + "\"" + (previousGameData != null ? " disabled=\"disabled\"" : "") + ">" +
-
-                                    string.Join("", rules.Select(rule => "<option value=\"" + rule.ID + "\"" + (rebuildAnalyzerInstance.Data.GameData.RuleData.ID == rule.ID ? " selected=\"selected\"" : "") + ">" + rule.Name + "</option>")) +
-
-                                "</select>" +
-                            "</div>" +
+                            "<h5>Rules</h5>" +
                         "</div>" +
 
                         "<div>" +
-                            "<div>" +
-                                "<h5>Boards</h5>" +
-                            "</div>" +
+                            "<select class=\"form-select" + (previousGameData != null ? " disabled" : "") + "\"" + (previousGameData != null ? " disabled=\"disabled\"" : "") + ">" +
 
-                            "<div>" +
-                                "<select class=\"form-select" + (previousGameData != null ? " disabled" : "") + "\"" + (previousGameData != null ? " disabled=\"disabled\"" : "") + ">" +
+                                string.Join("", rules.Select(rule => "<option value=\"" + rule.ID + "\"" + (rebuildAnalyzerInstance.Data.GameData.RuleData.ID == rule.ID ? " selected=\"selected\"" : "") + ">" + rule.Name + "</option>")) +
 
-                                    string.Join("", boards.Select(board => "<option value=\"" + board.ID + "\"" + (rebuildAnalyzerInstance.Data.GameData.BoardData.ID == board.ID ? " selected=\"selected\"" : "") + ">" + board.Name + "</option>")) +
+                            "</select>" +
+                        "</div>" +
+                    "</div>" +
 
-                                "</select>" +
-                            "</div>" +
+                    "<div>" +
+                        "<div>" +
+                            "<h5>Boards</h5>" +
                         "</div>" +
 
                         "<div>" +
-                            "<div>" +
-                                "<h5>Mii Color</h5>" +
-                            "</div>" +
+                            "<select class=\"form-select" + (previousGameData != null ? " disabled" : "") + "\"" + (previousGameData != null ? " disabled=\"disabled\"" : "") + ">" +
 
-                            "<div class=\"color-selection" + (previousGameData != null ? " disabled" : "") + "\">" +
+                                string.Join("", boards.Select(board => "<option value=\"" + board.ID + "\"" + (rebuildAnalyzerInstance.Data.GameData.BoardData.ID == board.ID ? " selected=\"selected\"" : "") + ">" + board.Name + "</option>")) +
 
-                                string.Join("", miiColors.Select
-                                (
-                                    color =>
-                                        "<div>" +
-                                            "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
+                            "</select>" +
+                        "</div>" +
+                    "</div>" +
 
-                                            "<div style=\"background-color: #" + color.SystemColor + ";\"" + (rebuildAnalyzerInstance.Data.GameData.ColorData.ID == color.ID ? " class=\"selected\"" : "") + "></div>" +
-                                        "</div>"
-                                )) +
-
-                            "</div>" +
+                    "<div>" +
+                        "<div>" +
+                            "<h5>Mii Color</h5>" +
                         "</div>" +
 
-                        (
-                            previousGameData == null
-                            ?
-                            Global.CreateConfirmationActions("center-items", new List<string>
-                            {
-                                "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
-                            })
-                            :
-                            ""
-                        ) +
+                        "<div class=\"color-selection" + (previousGameData != null ? " disabled" : "") + "\">" +
 
-                    "</div>"
-            };
+                            string.Join("", miiColors.Select
+                            (
+                                color =>
+                                    "<div>" +
+                                        "<input type=\"hidden\" data-colorid=\"" + color.ID + "\" />" +
+
+                                        "<div style=\"background-color: #" + color.SystemColor + ";\"" + (rebuildAnalyzerInstance.Data.GameData.ColorData.ID == color.ID ? " class=\"selected\"" : "") + "></div>" +
+                                    "</div>"
+                            )) +
+
+                        "</div>" +
+                    "</div>" +
+
+                    (
+                        previousGameData == null
+                        ?
+                        Global.CreateConfirmationActions("center-items", new List<string>
+                        {
+                            "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
+                        })
+                        :
+                        ""
+                    ) +
+
+                "</div>";
 
             return rebuildAnalyzerInstance;
         }
@@ -135,73 +132,70 @@ namespace fortunestreetanalyzer
                 }
             };
 
-            rebuildAnalyzerInstance.Response = new Global.RebuildAnalyzerInstance.AnalyzerResponseDataModel
-            {
-                Settings =
-                    "<div id=\"player-turn-determination\"" + (previousAnalyzerData.CharacterData != null ? " class=\"disabled\"" : "") + ">" +
-			            "<div>" +
+            rebuildAnalyzerInstance.Response =
+                "<div id=\"player-turn-determination\"" + (previousAnalyzerData.CharacterData != null ? " class=\"disabled\"" : "") + ">" +
+			        "<div>" +
 
-				            string.Join("", characters.Select
-				            (
-					            character =>
-						            "<div>" +
-							            "<div class=\"character-portrait-icon\">" +
+				        string.Join("", characters.Select
+				        (
+					        character =>
+						        "<div>" +
+							        "<div class=\"character-portrait-icon\">" +
 
-								            (
-									            !string.IsNullOrWhiteSpace(character.PortraitURL)
-									            ?
-									            "<img src=\"" + character.PortraitURL + "\" alt=\"Character Portrait for " + character.Name + "\" />"
-									            :
-									            ""
-								            ) +
+								        (
+									        !string.IsNullOrWhiteSpace(character.PortraitURL)
+									        ?
+									        "<img src=\"" + character.PortraitURL + "\" alt=\"Character Portrait for " + character.Name + "\" />"
+									        :
+									        ""
+								        ) +
 
-							            "</div>" +
+							        "</div>" +
 
-							            "<div>" + character.Name + "</div>" +
+							        "<div>" + character.Name + "</div>" +
 
-							            "<div>" +
-								            "<div>" +
+							        "<div>" +
+								        "<div>" +
 
-									            string.Join("", Enumerable.Range(0, 10).Select
-									            (
-										            digit =>
-											            "<span>" +
-												            "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue / 10 == digit ? " active" : "") + "\" value=\"" + (digit * 10) + "\">" + digit + "</button>" +
-											            "</span>"
-									            )) +
+									        string.Join("", Enumerable.Range(0, 10).Select
+									        (
+										        digit =>
+											        "<span>" +
+												        "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue / 10 == digit ? " active" : "") + "\" value=\"" + (digit * 10) + "\">" + digit + "</button>" +
+											        "</span>"
+									        )) +
 
-								            "</div>" +
+								        "</div>" +
 
-								            "<div>" +
+								        "<div>" +
 
-									            string.Join("", Enumerable.Range(0, 10).Select
-									            (
-										            digit =>
-											            "<span>" +
-												            "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue % 10 == digit ? " active" : "") + "\" value=\"" + digit + "\">" + digit + "</button>" +
-											            "</span>"
-									            )) +
+									        string.Join("", Enumerable.Range(0, 10).Select
+									        (
+										        digit =>
+											        "<span>" +
+												        "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue % 10 == digit ? " active" : "") + "\" value=\"" + digit + "\">" + digit + "</button>" +
+											        "</span>"
+									        )) +
 
-								            "</div>" +
-							            "</div>" +
-						            "</div>"
-				            )) +
+								        "</div>" +
+							        "</div>" +
+						        "</div>"
+				        )) +
 
-			            "</div>" +
+			        "</div>" +
 
-                        (
-                            previousAnalyzerData.CharacterData == null
-                            ?
-                            Global.CreateConfirmationActions("center-items", new List<string>
-                            {
-                                "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
-                            })
-                            :
-                            ""
-                        ) +
+                    (
+                        previousAnalyzerData.CharacterData == null
+                        ?
+                        Global.CreateConfirmationActions("center-items", new List<string>
+                        {
+                            "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"confirm\">Confirm</button>"
+                        })
+                        :
+                        ""
+                    ) +
 
-                    "</div>"
-            };
+                "</div>";
 
             return rebuildAnalyzerInstance;
         }

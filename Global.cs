@@ -223,14 +223,7 @@ namespace fortunestreetanalyzer
         public class RebuildAnalyzerInstance
         {
             public AnalyzerDataModel Data { get; set; }
-            public AnalyzerResponseDataModel Response { get; set; }
-
-            public class AnalyzerResponseDataModel
-            {
-                public string Settings { get; set; }
-                public string Board { get; set; }
-                public string Standings { get; set; }
-            }
+            public string Response { get; set; }
         }
 
         public static List<CurrentAnalyzerInstancesTVF> FindUserAnalyzerInstances(long? analyzerInstanceID, List<string> analyzerInstanceTypes, FortuneStreetContext fortuneStreetContext)
@@ -309,15 +302,15 @@ namespace fortunestreetanalyzer
                     if (responseFlag)
                         foreach (RebuildAnalyzerInstance currentRebuildAnalyzerInstance in rebuildAnalyzerInstances)
                         {
-                            currentRebuildAnalyzerInstance.Response = new RebuildAnalyzerInstance.AnalyzerResponseDataModel();
+                            currentRebuildAnalyzerInstance.Response = string.Empty;
 
                             if (currentRebuildAnalyzerInstance.Data.GameData != null)
                             {
-                                currentRebuildAnalyzerInstance.Response.Settings += RebuildAnalyzerInstanceHelper.LoadGameData(currentRebuildAnalyzerInstance.Data.GameData, fortuneStreetAppContext).Response.Settings;
+                                currentRebuildAnalyzerInstance.Response += RebuildAnalyzerInstanceHelper.LoadGameData(currentRebuildAnalyzerInstance.Data.GameData, fortuneStreetAppContext).Response;
 
                                 if (currentRebuildAnalyzerInstance.Data.CharacterData != null)
                                 {
-                                    currentRebuildAnalyzerInstance.Response.Settings += RebuildAnalyzerInstanceHelper.LoadCharacters(currentRebuildAnalyzerInstance.Data, fortuneStreetAppContext).Response.Settings;
+                                    currentRebuildAnalyzerInstance.Response += RebuildAnalyzerInstanceHelper.LoadCharacters(currentRebuildAnalyzerInstance.Data, fortuneStreetAppContext).Response;
                                 }
                             }
                         }
