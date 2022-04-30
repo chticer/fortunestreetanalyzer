@@ -95,6 +95,18 @@ $(document).ready(function ()
         }
     }
 
+    function createConfirmationActions(alignmentClass, buttonTags)
+    {
+        return  "<div class=\"confirmation-actions" + (alignmentClass !== null ? " " + alignmentClass : "") + "\">" +
+
+                    $.map(buttonTags, function (value)
+                    {
+                        return "<div>" + value + "</div>";
+                    }).join("") +
+
+                "</div>";
+    }
+
     function ordinalNumberSuffix(number)
     {
         let onesPlace = number % 10;
@@ -453,6 +465,25 @@ $(document).ready(function ()
 
     let spacePopupDialogScrollDebounce;
 
+    function renderPlayerContainer(playerIndex)
+    {
+        return  "<div>" +
+                    "<div class=\"character-portrait-icon small\">" +
+
+                    (
+                        analyzerData["CharacterData"][playerIndex]["PortraitURL"] !== null
+                        ?
+                        "<img src=\"" + analyzerData["CharacterData"][playerIndex]["PortraitURL"] + "\" alt=\"Character Portrait for " + analyzerData["CharacterData"][playerIndex]["Name"] + "\" />"
+                        :
+                        ""
+                    ) +
+
+                    "</div>" +
+
+                    "<div>" + (analyzerData["CharacterData"][playerIndex]["Name"] !== null ? analyzerData["CharacterData"][playerIndex]["Name"] : "You") + "</div>" +
+                "</div>";
+    }
+
     function initializeGameStartSettings()
     {
         ajaxCall
@@ -801,24 +832,10 @@ $(document).ready(function ()
         {
             standingsContainer.append
             (
-                "<div style=\"background-color: #" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"] + ";\">" +
+                "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"] + ";\">" +
                     "<div></div>" +
 
-                    "<div>" +
-                        "<div class=\"character-portrait-icon small\">" +
-
-                        (
-                            analyzerData["CharacterData"][i]["PortraitURL"] !== null
-                            ?
-                            "<img src=\"" + analyzerData["CharacterData"][i]["PortraitURL"] + "\" alt=\"Character Portrait for " + analyzerData["CharacterData"][i]["Name"] + "\" />"
-                            :
-                            ""
-                        ) +
-
-                        "</div>" +
-
-                        "<div>" + (analyzerData["CharacterData"][i]["Name"] !== null ? analyzerData["CharacterData"][i]["Name"] : "You") + "</div>" +
-                    "</div>" +
+                    renderPlayerContainer(i) +
 
                     "<div>" +
                         "<div>" +
@@ -850,9 +867,7 @@ $(document).ready(function ()
                 "</div>"
             );
 
-            let currentStandingsPlayerContainer = standingsContainer.children().last();
-
-            currentStandingsPlayerContainer.children().eq(2).children().eq(2).toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
+            standingsContainer.children().last().children().eq(2).children().eq(2).toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
 
             updateStandingsPlayer(i);
         }
@@ -958,6 +973,8 @@ $(document).ready(function ()
             }
 
             initializeGameSetup();
+
+            $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
         }
     });
 });

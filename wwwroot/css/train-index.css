@@ -382,14 +382,6 @@ body > div
 
 #standings-subpanel > div:last-of-type > div
 {
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    align-items: center;
-    width: 100%;
-    font-size: 24px;
-    color: #FFF;
-    text-shadow: 0 0 3px #000;
     border-radius: 10px;
 }
 
@@ -406,7 +398,7 @@ body > div
     align-items: center;
 }
 
-#standings-subpanel > div:last-of-type > div > div:nth-of-type(2) > div:first-of-type
+#standings-subpanel > div:last-of-type > div > div:nth-of-type(2) > .character-portrait-icon
 {
     margin-right: 10px;
     flex-basis: 48px;
@@ -719,7 +711,6 @@ body > div
 .confirmation-actions > div
 {
     margin: 5px;
-    flex-basis: 30%;
 }
 
 .center-items
@@ -729,6 +720,18 @@ body > div
     flex-wrap: wrap;
     justify-content: center;
     text-align: center;
+}
+
+.player-information
+{
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    align-items: center;
+    width: 100%;
+    font-size: 24px;
+    color: #FFF;
+    text-shadow: 0 0 3px #000;
 }
 
 .character-portrait-icon
