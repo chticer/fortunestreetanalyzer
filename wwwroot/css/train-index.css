@@ -601,6 +601,35 @@ body > div
     opacity: 0.65;
 }
 
+#turns > div > div:first-of-type
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#turns > div > div:first-of-type > div:first-of-type
+{
+    flex: 1;
+}
+
+#turns > div > div:first-of-type > div:not(:last-of-type)
+{
+    margin-right: 10px;
+}
+
+#turns > div > div:last-of-type > .player-information > div:first-of-type
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#turns > div > div:last-of-type > .player-information > div:first-of-type > .character-portrait-icon
+{
+    margin-right: 10px;
+}
+
 #output-panel, #settings-panel
 {
     padding: 0 10px;

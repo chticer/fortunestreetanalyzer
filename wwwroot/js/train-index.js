@@ -561,7 +561,7 @@ $(document).ready(function ()
 
         $(window).on("resize", initializeMap);
 
-        initializeTurn();
+        initializeTurns();
     }
 
     function spacePopupDialog(element)
@@ -929,8 +929,188 @@ $(document).ready(function ()
         }
     }
 
-    function initializeTurn()
+    function displayNewTurn(turnIndex)
     {
+        $("#turns").append
+        (
+            "<div>" +
+                "<div>" +
+                    "<div>" +
+                        "<h2>Turn " + (turnIndex + 1) + "</h2>" +
+                    "</div>" +
+
+                    "<div>" +
+                        "<button type=\"button\" class=\"btn btn-danger\" name=\"reset\">Reset To This Turn</button>" +
+                    "</div>" +
+                "</div>" +
+
+                "<div></div>" +
+            "</div>"
+        );
+
+        $("#turns > div:last-of-type button[name=\"reset\"]").on("click", function ()
+        {
+
+        });
+    }
+
+    function displayPlayerTurnOptions()
+    {
+        $("#player-turn-options").empty().append
+        (
+            createConfirmationActions
+            (
+                "center-items",
+                [
+                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"roll\">Roll</button>",
+                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"auction\">Auction</button>",
+                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"sell-shop\">Sell Shop</button>",
+                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"buy-shop\">Buy Shop</button>",
+                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"exchange-shops\">Exchange Shops</button>",
+                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"renovate-vacant-plot\">Renovate Vacant Plot</button>",
+                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"sell-stocks\">Sell Stocks</button>"
+                ]
+            )
+        );
+
+        $("#player-turn-options button[name=\"roll\"]").on("click", function ()
+        {
+
+        });
+
+        let playerOwnShopsFlag = analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["OwnedShopIndices"].length > 0;
+
+        let playerTurnOptionAuctionButton = $("#player-turn-options button[name=\"auction\"]");
+
+        let playerTurnOptionAuctionEnableFlag = playerOwnShopsFlag;
+
+        playerTurnOptionAuctionButton.prop("disabled", !playerTurnOptionAuctionEnableFlag);
+        playerTurnOptionAuctionButton.toggleClass("disabled", !playerTurnOptionAuctionEnableFlag);
+
+        playerTurnOptionAuctionButton.on("click", function ()
+        {
+
+        });
+
+        let playerTurnOptionSellShopButton = $("#player-turn-options button[name=\"sell-shop\"]");
+
+        let playerTurnOptionSellShopEnableFlag = playerOwnShopsFlag;
+
+        playerTurnOptionSellShopButton.prop("disabled", !playerTurnOptionSellShopEnableFlag);
+        playerTurnOptionSellShopButton.toggleClass("disabled", !playerTurnOptionSellShopEnableFlag);
+
+        playerTurnOptionSellShopButton.on("click", function ()
+        {
+
+        });
+
+        let opponentsOwnShopsFlag = false;
+
+        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        {
+            if (i !== analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1 && analyzerData["CharacterData"][i]["OwnedShopIndices"].length > 0)
+            {
+                opponentsOwnShopsFlag = true;
+
+                break;
+            }
+        }
+
+        let playerTurnOptionBuyShopButton = $("#player-turn-options button[name=\"buy-shop\"]");
+
+        let playerTurnOptionBuyShopEnableFlag = opponentsOwnShopsFlag && analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["ReadyCash"] + analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["TotalStockValue"] > 0;
+
+        playerTurnOptionBuyShopButton.prop("disabled", !playerTurnOptionBuyShopEnableFlag);
+        playerTurnOptionBuyShopButton.toggleClass("disabled", !playerTurnOptionBuyShopEnableFlag);
+
+        playerTurnOptionBuyShopButton.on("click", function ()
+        {
+
+        });
+
+        let playerTurnOptionExchangeShopsButton = $("#player-turn-options button[name=\"exchange-shops\"]");
+
+        let playerTurnOptionExchangeShopsEnableFlag = playerTurnOptionSellShopEnableFlag && playerTurnOptionBuyShopEnableFlag;
+
+        playerTurnOptionExchangeShopsButton.prop("disabled", !playerTurnOptionExchangeShopsEnableFlag);
+        playerTurnOptionExchangeShopsButton.toggleClass("disabled", !playerTurnOptionExchangeShopsEnableFlag);
+
+        playerTurnOptionExchangeShopsButton.on("click", function ()
+        {
+
+        });
+
+        let playerTurnOptionRenovateVacantPlotButton = $("#player-turn-options button[name=\"renovate-vacant-plot\"]");
+
+        let playerTurnOptionRenovateVacantPlotEnableFlag = false;
+
+        playerTurnOptionRenovateVacantPlotButton.prop("disabled", !playerTurnOptionRenovateVacantPlotEnableFlag);
+        playerTurnOptionRenovateVacantPlotButton.toggleClass("disabled", !playerTurnOptionRenovateVacantPlotEnableFlag);
+
+        playerTurnOptionRenovateVacantPlotButton.on("click", function ()
+        {
+
+        });
+
+        let playerTurnOptionSellStocksButton = $("#player-turn-options button[name=\"sell-stocks\"]");
+
+        playerTurnOptionSellStocksButton.parent().toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
+
+        if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
+        {
+            let playerTurnOptionSellStocksEnableFlag = analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["TotalStockValue"] > 0;
+
+            playerTurnOptionSellStocksButton.prop("disabled", !playerTurnOptionSellStocksEnableFlag);
+            playerTurnOptionSellStocksButton.toggleClass("disabled", !playerTurnOptionSellStocksEnableFlag);
+
+            playerTurnOptionSellShopButton.on("click", function ()
+            {
+
+            });
+        }
+    }
+
+    function initializeTurns()
+    {
+        $("#settings-content").append("<div id=\"turns\"></div>");
+
+        for (let i = 0; i < analyzerData["GameData"]["TurnData"].length; ++i)
+        {
+            displayNewTurn(i);
+
+            for (let j = 0; j < analyzerData["GameData"]["TurnData"][i].length; ++j)
+                $("#turns > div:last-of-type > div:last-of-type").append
+                (
+                    "<div>" +
+                        renderPlayerContainer(j) +
+
+                        
+                    "</div>"
+                );
+        }
+
+        startNextPlayerTurn();
+    }
+
+    function startNextPlayerTurn()
+    {
+        if (analyzerData["GameData"]["TurnData"].length === 0 || analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length === analyzerData["CharacterData"].length)
+        {
+            analyzerData["GameData"]["TurnData"].push([]);
+
+            displayNewTurn(analyzerData["GameData"]["TurnData"].length - 1);
+        }
+
+        analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].push([]);
+
+        $("#turns > div:last-of-type > div:last-of-type").append
+        (
+            "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1) + "</div>" +
+
+            "<div id=\"player-turn-options\"></div>"
+        );
+
+        displayPlayerTurnOptions();
     }
 
     $("#standings-subpanel").hide();
