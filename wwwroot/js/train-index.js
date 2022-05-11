@@ -958,7 +958,9 @@ $(document).ready(function ()
 
     function displayPlayerTurnOptions()
     {
-        $("#player-turn-options").empty().append
+        let playerTurnOptionsContainer = $("#turns > div:last-of-type > div:last-of-type > div:last-of-type");
+
+        playerTurnOptionsContainer.empty().append
         (
             createConfirmationActions
             (
@@ -975,7 +977,7 @@ $(document).ready(function ()
             )
         );
 
-        $("#player-turn-options button[name=\"roll\"]").on("click", function ()
+        playerTurnOptionsContainer.find("button[name=\"roll\"]").on("click", function ()
         {
 
             $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
@@ -983,7 +985,7 @@ $(document).ready(function ()
 
         let playerOwnShopsFlag = analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["OwnedShopIndices"].length > 0;
 
-        let playerTurnOptionAuctionButton = $("#player-turn-options button[name=\"auction\"]");
+        let playerTurnOptionAuctionButton = playerTurnOptionsContainer.find("button[name=\"auction\"]");
 
         let playerTurnOptionAuctionEnableFlag = playerOwnShopsFlag;
 
@@ -995,7 +997,7 @@ $(document).ready(function ()
 
         });
 
-        let playerTurnOptionSellShopButton = $("#player-turn-options button[name=\"sell-shop\"]");
+        let playerTurnOptionSellShopButton = playerTurnOptionsContainer.find("button[name=\"sell-shop\"]");
 
         let playerTurnOptionSellShopEnableFlag = playerOwnShopsFlag;
 
@@ -1019,7 +1021,7 @@ $(document).ready(function ()
             }
         }
 
-        let playerTurnOptionBuyShopButton = $("#player-turn-options button[name=\"buy-shop\"]");
+        let playerTurnOptionBuyShopButton = playerTurnOptionsContainer.find("button[name=\"buy-shop\"]");
 
         let playerTurnOptionBuyShopEnableFlag = opponentsOwnShopsFlag && analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["ReadyCash"] + analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["TotalStockValue"] > 0;
 
@@ -1031,7 +1033,7 @@ $(document).ready(function ()
 
         });
 
-        let playerTurnOptionExchangeShopsButton = $("#player-turn-options button[name=\"exchange-shops\"]");
+        let playerTurnOptionExchangeShopsButton = playerTurnOptionsContainer.find("button[name=\"exchange-shops\"]");
 
         let playerTurnOptionExchangeShopsEnableFlag = playerTurnOptionSellShopEnableFlag && playerTurnOptionBuyShopEnableFlag;
 
@@ -1043,7 +1045,7 @@ $(document).ready(function ()
 
         });
 
-        let playerTurnOptionRenovateVacantPlotButton = $("#player-turn-options button[name=\"renovate-vacant-plot\"]");
+        let playerTurnOptionRenovateVacantPlotButton = playerTurnOptionsContainer.find("button[name=\"renovate-vacant-plot\"]");
 
         let playerTurnOptionRenovateVacantPlotEnableFlag = false;
 
@@ -1055,7 +1057,7 @@ $(document).ready(function ()
 
         });
 
-        let playerTurnOptionSellStocksButton = $("#player-turn-options button[name=\"sell-stocks\"]");
+        let playerTurnOptionSellStocksButton = playerTurnOptionsContainer.find("button[name=\"sell-stocks\"]");
 
         playerTurnOptionSellStocksButton.parent().toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
 
@@ -1112,7 +1114,7 @@ $(document).ready(function ()
         (
             "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1) + "</div>" +
 
-            "<div id=\"player-turn-options\"></div>"
+            "<div></div>"
         );
 
         displayPlayerTurnOptions();
