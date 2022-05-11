@@ -19,7 +19,170 @@ const SUIT_DATA =
         Color: "2DD936"
     }
 ];
-const SUIT_ORDER = [ "spade", "heart", "diamond", "club" ];
+const SUIT_ORDER = ["spade", "heart", "diamond", "club"];
+const DIE_DOT_LOCATIONS_DATA =
+[
+    [
+        {
+            x: 0.5,
+            y: 0.5
+        }
+    ],
+    [
+        {
+            x: 0.1667,
+            y: 0.1667
+        },
+        {
+            x: 0.8333,
+            y: 0.8333
+        }
+    ],
+    [
+        {
+            x: 0.1667,
+            y: 0.1667
+        },
+        {
+            x: 0.5,
+            y: 0.5
+        },
+        {
+            x: 0.8333,
+            y: 0.8333
+        }
+    ],
+    [
+        {
+            x: 0.1667,
+            y: 0.1667
+        },
+        {
+            x: 0.8333,
+            y: 0.1667
+        },
+        {
+            x: 0.1667,
+            y: 0.8333
+        },
+        {
+            x: 0.8333,
+            y: 0.8333
+        }
+    ],
+    [
+        {
+            x: 0.1667,
+            y: 0.1667
+        },
+        {
+            x: 0.8333,
+            y: 0.1667
+        },
+        {
+            x: 0.5,
+            y: 0.5
+        },
+        {
+            x: 0.1667,
+            y: 0.8333
+        },
+        {
+            x: 0.8333,
+            y: 0.8333
+        }
+    ],
+    [
+        {
+            x: 0.1667,
+            y: 0.1667
+        },
+        {
+            x: 0.8333,
+            y: 0.1667
+        },
+        {
+            x: 0.1667,
+            y: 0.5
+        },
+        {
+            x: 0.8333,
+            y: 0.5
+        },
+        {
+            x: 0.1667,
+            y: 0.8333
+        },
+        {
+            x: 0.8333,
+            y: 0.8333
+        }
+    ],
+    [
+        {
+            x: 0.1667,
+            y: 0.1667
+        },
+        {
+            x: 0.8333,
+            y: 0.1667
+        },
+        {
+            x: 0.1667,
+            y: 0.5
+        },
+        {
+            x: 0.5,
+            y: 0.5
+        },
+        {
+            x: 0.8333,
+            y: 0.5
+        },
+        {
+            x: 0.1667,
+            y: 0.8333
+        },
+        {
+            x: 0.8333,
+            y: 0.8333
+        }
+    ],
+    [
+        {
+            x: 0.1667,
+            y: 0.1667
+        },
+        {
+            x: 0.8333,
+            y: 0.1667
+        },
+        {
+            x: 0.1667,
+            y: 0.5
+        },
+        {
+            x: 0.5,
+            y: 0.3333
+        },
+        {
+            x: 0.5,
+            y: 0.6667
+        },
+        {
+            x: 0.8333,
+            y: 0.5
+        },
+        {
+            x: 0.1667,
+            y: 0.8333
+        },
+        {
+            x: 0.8333,
+            y: 0.8333
+        }
+    ]
+];
 
 $(document).ready(function ()
 {
@@ -566,6 +729,14 @@ $(document).ready(function ()
         initializeTurns();
     }
 
+    function updateCirclePosition(element, centerPercentage)
+    {
+        return {
+            left: ((centerPercentage["x"] * $(element).parent().width() - $(element).outerWidth(true) / 2) / $(element).parent().width() * 100).toFixed(4) + "%",
+            top: ((centerPercentage["y"] * $(element).parent().height() - $(element).outerHeight(true) / 2) / $(element).parent().height() * 100).toFixed(4) + "%"
+        };
+    }
+
     function spacePopupDialog(element)
     {
         let currentSpaceInformationContainer = $(element);
@@ -665,11 +836,21 @@ $(document).ready(function ()
 
             currentCharacterMarkerContainer.css
             (
-                {
-                    left: ((i % 2) * currentSpaceInformationContainer.width() / 2) + "px",
-                    top: (Math.floor(i / 2) * currentSpaceInformationContainer.height() / 2) + "px",
-                    backgroundColor: "#" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"]
-                }
+                $.extend
+                (
+                    {},
+                    updateCirclePosition
+                    (
+                        currentCharacterMarkerContainer,
+                        {
+                            x: 0.25 + (i % 2) * 0.5,
+                            y: 0.25 + Math.floor(i / 2) * 0.5
+                        }
+                    ),
+                    {
+                        backgroundColor: "#" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"]
+                    }
+                )
             );
         }
 
@@ -979,6 +1160,43 @@ $(document).ready(function ()
 
         playerTurnOptionsContainer.find("button[name=\"roll\"]").on("click", function ()
         {
+            playerTurnOptionsContainer.empty().append
+            (
+                "<div class=\"roll-die-options\"></div>" +
+
+                createConfirmationActions
+                (
+                    "center-items",
+                    [
+                        "<button type=\"button\" class=\"btn btn-lg btn-primary disabled\" name=\"confirm\" disabled=\"disabled\">Confirm</button>",
+                        "<button type=\"button\" class=\"btn btn-lg btn-secondary\" name=\"cancel\">Cancel</button>"
+                    ]
+                )
+            );
+
+            let playerTurnRollDieOptionsContainer = playerTurnOptionsContainer.find(".roll-die-options");
+
+            for (let i = 0; i < analyzerData["GameData"]["BoardData"]["MaxDieRoll"]; ++i)
+            {
+                playerTurnRollDieOptionsContainer.append("<div></div>");
+
+                let currentPlayerTurnDieDotLocationContainer = playerTurnRollDieOptionsContainer.children().last();
+
+                for (let currentDieDotLocationDataPosition of DIE_DOT_LOCATIONS_DATA[i])
+                {
+                    currentPlayerTurnDieDotLocationContainer.append("<div></div>");
+
+                    let currentPlayerTurnDieDotLocationPositionContainer = currentPlayerTurnDieDotLocationContainer.children().last();
+
+                    currentPlayerTurnDieDotLocationPositionContainer.css(updateCirclePosition(currentPlayerTurnDieDotLocationPositionContainer, currentDieDotLocationDataPosition));
+                }
+            }
+
+            playerTurnOptionsContainer.find("button[name=\"confirm\"]").on("click", function ()
+            {
+            });
+
+            playerTurnOptionsContainer.find("button[name=\"cancel\"]").on("click", displayPlayerTurnOptions);
 
             $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
         });

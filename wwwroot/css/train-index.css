@@ -630,6 +630,38 @@ body > div
     margin-right: 10px;
 }
 
+#turns > div:last-of-type > div:last-of-type > div:last-of-type > .roll-die-options
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#turns > div:last-of-type > div:last-of-type > div:last-of-type > .roll-die-options > div
+{
+    position: relative;
+    width: 75px;
+    height: 75px;
+    border: 5px outset #000;
+    border-radius: 5px;
+}
+
+#turns > div:last-of-type > div:last-of-type > div:last-of-type > .roll-die-options > div:not(:last-of-type)
+{
+    margin-right: 5px;
+}
+
+#turns > div:last-of-type > div:last-of-type > div:last-of-type > .roll-die-options > div > div
+{
+    position: absolute;
+    margin: 8.33335%;
+    width: 16.6667%;
+    height: 16.6667%;
+    border-radius: 50%;
+    background-color: #000;
+}
+
 #output-panel, #settings-panel
 {
     padding: 0 10px;
