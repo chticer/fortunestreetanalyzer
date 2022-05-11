@@ -292,6 +292,8 @@ $(document).ready(function ()
     {
         $("#settings-content").append("<div>" + loadingDisplay() + "</div>");
 
+        $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
+
         ajaxCall
         (
             "POST",
@@ -976,6 +978,7 @@ $(document).ready(function ()
         $("#player-turn-options button[name=\"roll\"]").on("click", function ()
         {
 
+            $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
         });
 
         let playerOwnShopsFlag = analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["OwnedShopIndices"].length > 0;
@@ -1068,6 +1071,8 @@ $(document).ready(function ()
 
             });
         }
+
+        $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
     }
 
     function initializeTurns()
