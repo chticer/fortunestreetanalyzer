@@ -47,6 +47,8 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
         public virtual DbSet<SpaceLayouts> SpaceLayouts { get; set; }
         public virtual DbSet<SpaceTypes> SpaceTypes { get; set; }
         public virtual DbSet<TurnOrderDetermination> TurnOrderDetermination { get; set; }
+        public virtual DbSet<TurnAfterRoll> TurnAfterRoll { get; set; }
+        public virtual DbSet<TurnBeforeRoll> TurnBeforeRoll { get; set; }
         public virtual DbSet<CurrentAnalyzerInstancesTVF> CurrentAnalyzerInstancesTVF { get; set; }
         public virtual DbSet<CurrentAnalyzerInstanceLogsTVF> CurrentAnalyzerInstanceLogsTVF { get; set; }
         public virtual DbSet<GetAnalyzerInstancesInProgressTVF> GetAnalyzerInstancesInProgressTVF { get; set; }
@@ -525,6 +527,72 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasColumnName("title");
             });
 
+            modelBuilder.Entity<TurnAfterRoll>(entity =>
+            {
+                entity.ToTable("turnafterroll");
+
+                entity.Property(e => e.ID).HasColumnName("id");
+
+                entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
+
+                entity.Property(e => e.CharacterID).HasColumnName("character_id");
+
+                entity.Property(e => e.DieRollValue).HasColumnName("die_roll_value");
+
+                entity.Property(e => e.SpaceID).HasColumnName("space_id");
+
+                entity.Property(e => e.TimestampAdded)
+                    .HasColumnType("datetime")
+                    .HasColumnName("timestamp_added")
+                    .HasDefaultValueSql("(getutcdate())");
+            });
+
+            modelBuilder.Entity<TurnBeforeRoll>(entity =>
+            {
+                entity.ToTable("turnbeforeroll");
+
+                entity.Property(e => e.ID).HasColumnName("id");
+
+                entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
+
+                entity.Property(e => e.CharacterID).HasColumnName("character_id");
+
+                entity.Property(e => e.CollectedSuits)
+                    .IsRequired()
+                    .HasMaxLength(900)
+                    .HasColumnName("collected_suits");
+
+                entity.Property(e => e.Level).HasColumnName("level");
+
+                entity.Property(e => e.NetWorth).HasColumnName("net_worth");
+
+                entity.Property(e => e.OwnedShopIndices)
+                    .IsRequired()
+                    .HasMaxLength(900)
+                    .HasColumnName("owned_shop_indices");
+
+                entity.Property(e => e.Placing).HasColumnName("placing");
+
+                entity.Property(e => e.ReadyCash).HasColumnName("ready_cash");
+
+                entity.Property(e => e.SpaceIDCurrent).HasColumnName("space_id_current");
+
+                entity.Property(e => e.SpaceIDFrom).HasColumnName("space_id_from");
+
+                entity.Property(e => e.TimestampAdded)
+                    .HasColumnType("datetime")
+                    .HasColumnName("timestamp_added")
+                    .HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.TotalShopValue).HasColumnName("total_shop_value");
+
+                entity.Property(e => e.TotalStockValue).HasColumnName("total_stock_value");
+
+                entity.Property(e => e.TotalSuitCards).HasColumnName("total_suit_cards");
+
+                entity.Property(e => e.TurnNumber).HasColumnName("turn_number");
+            });
+
             modelBuilder.Entity<TurnOrderDetermination>(entity =>
             {
                 entity.ToTable("turnorderdetermination");
@@ -605,6 +673,11 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .IsRequired()
                     .HasMaxLength(900)
                     .HasColumnName("ip_address");
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("type");
             });
 
             modelBuilder.Entity<GetAnalyzerInstancesInProgressTVF>().HasNoKey();
