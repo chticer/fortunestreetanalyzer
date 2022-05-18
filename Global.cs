@@ -58,22 +58,33 @@ namespace fortunestreetanalyzer
 
                 public class TurnDataModel
                 {
-                    public List<CharacterTurnDataModel> CharacterTurnData { get; set; }
+                    public List<TurnCharacterDataModel> TurnCharacterData { get; set; }
 
-                    public class CharacterTurnDataModel
+                    public class TurnCharacterDataModel
                     {
-                        public CharacterDataModel CharacterData { get; set; }
-                        public byte SpaceLayoutIndex { get; set; }
-                        public byte DieRollValue { get; set; }
-                        public List<TradesDataModel> TradesData { get; set; }
+                        public TurnBeforeRollDataModel TurnBeforeRollStartData { get; set; }
+                        public TurnBeforeRollDataModel TurnBeforeRollCurrentData { get; set; }
+                        public TurnAfterRollDataModel TurnAfterRollData { get; set; }
 
-                        public class TradesDataModel
+                        public class TurnBeforeRollDataModel
                         {
-                            public bool Success { get; set; }
-                            public CharacterDataModel CharacterData { get; set; }
-                            public List<ShopDataModel> ShopDataExchangeFrom { get; set; }
-                            public List<ShopDataModel> ShopDataExchangeTo { get; set; }
-                            public List<int> ReadyCashExchangeOffers { get; set; }
+                            public long SpaceIndexCurrent { get; set; }
+                            public long? SpaceIndexFrom { get; set; }
+                            public byte Level { get; set; }
+                            public byte Placing { get; set; }
+                            public int ReadyCash { get; set; }
+                            public int TotalShopValue { get; set; }
+                            public int TotalStockValue { get; set; }
+                            public int NetWorth { get; set; }
+                            public List<long> OwnedShopIndices { get; set; }
+                            public byte TotalSuitCards { get; set; }
+                            public List<string> CollectedSuits { get; set; }
+                        }
+
+                        public class TurnAfterRollDataModel
+                        {
+                            public long SpaceIndex { get; set; }
+                            public byte DieRollValue { get; set; }
                         }
                     }
                 }
@@ -86,26 +97,11 @@ namespace fortunestreetanalyzer
                 public string Name { get; set; }
                 public byte TurnOrderValue { get; set; }
                 public ColorDataModel ColorData { get; set; }
-                public long SpaceIndex { get; set; }
-                public byte Level { get; set; }
-                public byte Placing { get; set; }
-                public int ReadyCash { get; set; }
-                public int TotalShopValue { get; set; }
-                public int TotalStockValue { get; set; }
-                public int NetWorth { get; set; }
-                public List<long> OwnedShopIndices { get; set; }
-                public SuitDataModel OwnedSuits { get; set; }
 
                 public class ColorDataModel
                 {
                     public long ID { get; set; }
                     public string GameColor { get; set; }
-                }
-
-                public class SuitDataModel
-                {
-                    public byte TotalSuitCards { get; set; }
-                    public List<string> SuitNames { get; set; }
                 }
             }
 

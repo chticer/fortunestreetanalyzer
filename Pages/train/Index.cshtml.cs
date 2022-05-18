@@ -154,6 +154,7 @@ namespace fortunestreetanalyzer.Pages.train
                             {
                                 ID = boardsResult.ID,
                                 Name = boardsResult.Name,
+                                ReadyCashStart = boardCharacteristicResult.ReadyCashStart,
                                 SalaryStart = boardCharacteristicResult.SalaryStart,
                                 SalaryIncrease = boardCharacteristicResult.SalaryIncrease,
                                 MaxDieRoll = boardCharacteristicResult.MaxDieRoll
@@ -333,20 +334,21 @@ namespace fortunestreetanalyzer.Pages.train
                         DistrictData = district_result
                     }).ToList();
 
-                List<Global.AnalyzerDataModel.CharacterDataModel> characterData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.CharacterDataModel
+                List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel> firstTurnCharacterData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel
                 {
-                    Level = 1,
-                    Placing = 1,
-                    ReadyCash = boardCharacteristicResult.ReadyCashStart,
-                    TotalShopValue = 0,
-                    TotalStockValue = 0,
-                    NetWorth = boardCharacteristicResult.ReadyCashStart,
-                    OwnedShopIndices = new List<long>(),
-                    OwnedSuits = new Global.AnalyzerDataModel.CharacterDataModel.SuitDataModel
+                    TurnBeforeRollCurrentData = new Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel.TurnBeforeRollDataModel
                     {
+                        Level = 1,
+                        Placing = 1,
+                        ReadyCash = boardCharacteristicResult.ReadyCashStart,
+                        TotalShopValue = 0,
+                        TotalStockValue = 0,
+                        NetWorth = boardCharacteristicResult.ReadyCashStart,
+                        OwnedShopIndices = new List<long>(),
                         TotalSuitCards = 0,
-                        SuitNames = new List<string>()
-                    }
+                        CollectedSuits = new List<string>()
+                    },
+                    TurnAfterRollData = null
                 }).ToList();
 
                 List<Global.AnalyzerDataModel.SpaceDataModel> spaceData = new List<Global.AnalyzerDataModel.SpaceDataModel>();
@@ -355,8 +357,8 @@ namespace fortunestreetanalyzer.Pages.train
                 {
                     if (currentSpaceIndexData.SpaceData.SpaceType.Name.Equals("bank"))
                     {
-                        foreach (Global.AnalyzerDataModel.CharacterDataModel currentCharacterData in characterData)
-                            currentCharacterData.SpaceIndex = currentSpaceIndexData.Index;
+                        foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel currentFirstTurnCharacterData in firstTurnCharacterData)
+                            currentFirstTurnCharacterData.TurnBeforeRollCurrentData.SpaceIndexCurrent = currentSpaceIndexData.Index;
                     }
 
                     Global.IndexDataModel.ShopIndexDataModel currentShopIndexData = indexData.ShopIndexData.SingleOrDefault(shop_index_result => currentSpaceIndexData.SpaceData.ShopID != null && shop_index_result.ShopData.ID == (long) currentSpaceIndexData.SpaceData.ShopID);
@@ -377,15 +379,23 @@ namespace fortunestreetanalyzer.Pages.train
                     });
                 }
 
+                foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel currentFirstTurnCharacterData in firstTurnCharacterData)
+                    currentFirstTurnCharacterData.TurnBeforeRollStartData = currentFirstTurnCharacterData.TurnBeforeRollCurrentData;
+
                 response.HTMLResponse = JsonSerializer.Serialize(new
                 {
                     Data = new Global.AnalyzerDataModel
                     {
                         GameData = new Global.AnalyzerDataModel.GameDataModel
                         {
-                            TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>()
+                            TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>
+                            {
+                                new Global.AnalyzerDataModel.GameDataModel.TurnDataModel
+                                {
+                                    TurnCharacterData = firstTurnCharacterData
+                                }
+                            }
                         },
-                        CharacterData = characterData,
                         SpaceData = spaceData,
                         SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
                         {
@@ -409,6 +419,40 @@ namespace fortunestreetanalyzer.Pages.train
                         }).ToList()
                     }
                 });
+
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                return Global.ServerErrorResponse(e);
+            }
+        }
+
+        public JsonResult OnPostSaveTurnBeforeRollData([FromBody] Global.AnalyzerDataModel saveTurnBeforeRollDataParameter)
+        {
+            Global.Response response = new Global.Response();
+
+            try
+            {
+                _fortuneStreetAppContext.TurnBeforeRoll.AddRange(saveTurnBeforeRollDataParameter.GameData.TurnData.LastOrDefault().TurnCharacterData.Select((turn_character_result, turn_character_index) => new TurnBeforeRoll
+                {
+                    AnalyzerInstanceID = saveTurnBeforeRollDataParameter.AnalyzerInstanceID,
+                    CharacterID = saveTurnBeforeRollDataParameter.CharacterData[turn_character_index].ID,
+                    SpaceIDCurrent = saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexCurrent].ID,
+                    SpaceIDFrom = turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom != null ? saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom].ID : null,
+                    TurnNumber = (byte) saveTurnBeforeRollDataParameter.GameData.TurnData.Count,
+                    Level = turn_character_result.TurnBeforeRollCurrentData.Level,
+                    Placing = turn_character_result.TurnBeforeRollCurrentData.Placing,
+                    ReadyCash = turn_character_result.TurnBeforeRollCurrentData.ReadyCash,
+                    TotalShopValue = turn_character_result.TurnBeforeRollCurrentData.TotalShopValue,
+                    TotalStockValue = turn_character_result.TurnBeforeRollCurrentData.TotalStockValue,
+                    NetWorth = turn_character_result.TurnBeforeRollCurrentData.NetWorth,
+                    OwnedShopIndices = JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.OwnedShopIndices),
+                    TotalSuitCards = turn_character_result.TurnBeforeRollCurrentData.TotalSuitCards,
+                    CollectedSuits = JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.CollectedSuits)
+                }));
+
+                _fortuneStreetAppContext.SaveChanges();
 
                 return new JsonResult(response);
             }

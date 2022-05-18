@@ -677,33 +677,14 @@ $(document).ready(function ()
                                 TurnData: JSONResponse["Data"]["GameData"]["TurnData"]
                             }
                         ),
-		                CharacterData: $.map($.extend(true, [], analyzerData["CharacterData"]), function (value, index)
-		                {
-			                return $.extend
-			                (
-				                true,
-				                value,
-				                {
-                                    SpaceIndex: JSONResponse["Data"]["CharacterData"][index]["SpaceIndex"],
-                                    Level: JSONResponse["Data"]["CharacterData"][index]["Level"],
-                                    Placing: JSONResponse["Data"]["CharacterData"][index]["Placing"],
-                                    ReadyCash: JSONResponse["Data"]["CharacterData"][index]["ReadyCash"],
-                                    TotalShopValue: JSONResponse["Data"]["CharacterData"][index]["TotalShopValue"],
-                                    TotalStockValue: JSONResponse["Data"]["CharacterData"][index]["TotalStockValue"],
-                                    NetWorth: JSONResponse["Data"]["CharacterData"][index]["NetWorth"],
-                                    OwnedShopIndices: JSONResponse["Data"]["CharacterData"][index]["OwnedShopIndices"],
-                                    OwnedSuits: JSONResponse["Data"]["CharacterData"][index]["OwnedSuits"]
-				                }
-			                );
-		                }),
-		                DistrictData: JSONResponse["Data"]["DistrictData"],
-		                ShopData: JSONResponse["Data"]["ShopData"],
 		                SpaceData: JSONResponse["Data"]["SpaceData"],
-		                SpaceTypeData: JSONResponse["Data"]["SpaceTypeData"]
+		                SpaceTypeData: JSONResponse["Data"]["SpaceTypeData"],
+		                ShopData: JSONResponse["Data"]["ShopData"],
+		                DistrictData: JSONResponse["Data"]["DistrictData"]
 	                }
                 );
 
-                saveAnalyzerData([ "GameData", "CharacterData", "DistrictData", "ShopData", "SpaceData", "SpaceTypeData" ]);
+                saveAnalyzerData(["GameData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData"]);
 
                 initializeGameSetup();
             }
