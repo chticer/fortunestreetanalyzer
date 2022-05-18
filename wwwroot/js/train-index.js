@@ -686,8 +686,38 @@ $(document).ready(function ()
 
                 saveAnalyzerData(["GameData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData"]);
 
-                initializeGameSetup();
+                saveTurnBeforeRollData(null, initializeGameSetup);
             }
+        });
+    }
+
+    function saveTurnBeforeRollData(characterIndices, callback)
+    {
+        let analyzerDataCopy = $.extend(true, {}, analyzerData);
+
+        if (characterIndices !== null)
+        {
+            analyzerDataCopy["CharacterData"] = [];
+            analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1]["TurnCharacterData"] = [];
+
+            for (let currentCharacterIndex of characterIndices)
+            {
+                analyzerDataCopy["CharacterData"].push(analyzerData["CharacterData"][currentCharacterIndex]);
+                analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1]["TurnCharacterData"].push(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][currentCharacterIndex]);
+            }
+        }
+
+        ajaxCall
+        (
+            "POST",
+            "SaveTurnBeforeRollData",
+            analyzerDataCopy
+        ).done(function (response)
+        {
+            alertNotificationMessageDisplay(response["AlertData"]);
+
+            if (!response["Error"])
+                callback();
         });
     }
 
@@ -708,6 +738,115 @@ $(document).ready(function ()
         $(window).on("resize", initializeMap);
 
         initializeTurns();
+    }
+
+    function initializeStandings()
+    {
+        let standingsContainer = $("#standings-subpanel > div:last-of-type");
+
+        standingsContainer.empty();
+
+        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        {
+            standingsContainer.append
+            (
+                "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"] + ";\">" +
+                    "<div></div>" +
+
+                    renderPlayerContainer(i) +
+
+                    "<div>" +
+                        "<div>" +
+                            "<div>Ready Cash</div>" +
+
+                            "<div></div>" +
+                        "</div>" +
+
+                        "<div>" +
+                            "<div>Total Shop Value</div>" +
+
+                            "<div></div>" +
+                        "</div>" +
+
+                        "<div>" +
+                            "<div>Total Stock Value</div>" +
+
+                            "<div></div>" +
+                        "</div>" +
+
+                        "<div>" +
+                            "<div>Net Worth</div>" +
+
+                            "<div></div>" +
+                        "</div>" +
+                    "</div>" +
+
+                    "<div></div>" +
+                "</div>"
+            );
+
+            standingsContainer.children().last().children().eq(2).children().eq(2).toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
+
+            updateStandingsPlayer(i);
+        }
+    }
+
+    function updateStandingsPlayer(playerIndex)
+    {
+        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][playerIndex]["TurnBeforeRollCurrentData"];
+
+        let playerContainer = $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ")");
+
+        playerContainer.children().first().empty().append
+        (
+            "<span>" + playerTurnCharacterData["Placing"] + "</span>" +
+
+            "<span>" +
+                "<sup>" + ordinalNumberSuffix(playerTurnCharacterData["Placing"]) + "</sup>" +
+            "</span>"
+        );
+
+        let playerStatsContainer = playerContainer.children().eq(2);
+
+        playerStatsContainer.children().first().children().last().text(playerTurnCharacterData["ReadyCash"]);
+        playerStatsContainer.children().eq(1).children().last().text(playerTurnCharacterData["TotalShopValue"]);
+
+        if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
+            playerStatsContainer.children().eq(2).children().last().text(playerTurnCharacterData["TotalStockValue"]);
+
+        playerStatsContainer.children().last().children().last().text(playerTurnCharacterData["NetWorth"]);
+
+        playerContainer.children().last().empty().append
+        (
+            "<div class=\"suit-card\">" +
+                "<div>" +
+                    "<div></div>" +
+
+                    "<div>" + playerTurnCharacterData["TotalSuitCards"] + "</div>" +
+                "</div>" +
+            "</div>"
+        );
+
+        let playerSuitCardContainer = playerContainer.children().last().find(".suit-card");
+
+        playerSuitCardContainer.children().first().toggle(playerTurnCharacterData["TotalSuitCards"] > 0);
+
+        for (let currentSuitData of SUIT_DATA)
+        {
+            playerSuitCardContainer.children().first().children().first().append
+            (
+                "<div>" +
+                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + currentSuitData["Color"] + ";\"></span>" +
+                "</div>"
+            );
+
+            playerContainer.children().last().append
+            (
+                "<div>" +
+                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + (playerTurnCharacterData["CollectedSuits"].indexOf(currentSuitData["Icon"]) > -1 ? currentSuitData["Color"] : "333") + ";\"></span>" +
+                "</div>"
+            );
+        }
     }
 
     function updateCirclePosition(element, centerPercentage)
@@ -807,7 +946,7 @@ $(document).ready(function ()
 
         for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
-            let currentSpaceInformationContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["CharacterData"][i]["SpaceIndex"] + 1) + ") > div:first-of-type");
+            let currentSpaceInformationContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type");
 
             let currentSpaceCharacterMarkersContainer = currentSpaceInformationContainer.find(".character-markers");
 
@@ -986,113 +1125,6 @@ $(document).ready(function ()
         spaceInformationContainer.append("<div>" + analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
     }
 
-    function initializeStandings()
-    {
-        let standingsContainer = $("#standings-subpanel > div:last-of-type");
-
-        standingsContainer.empty();
-
-        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
-        {
-            standingsContainer.append
-            (
-                "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"] + ";\">" +
-                    "<div></div>" +
-
-                    renderPlayerContainer(i) +
-
-                    "<div>" +
-                        "<div>" +
-                            "<div>Ready Cash</div>" +
-
-                            "<div></div>" +
-                        "</div>" +
-
-                        "<div>" +
-                            "<div>Total Shop Value</div>" +
-
-                            "<div></div>" +
-                        "</div>" +
-
-                        "<div>" +
-                            "<div>Total Stock Value</div>" +
-
-                            "<div></div>" +
-                        "</div>" +
-
-                        "<div>" +
-                            "<div>Net Worth</div>" +
-
-                            "<div></div>" +
-                        "</div>" +
-                    "</div>" +
-
-                    "<div></div>" +
-                "</div>"
-            );
-
-            standingsContainer.children().last().children().eq(2).children().eq(2).toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
-
-            updateStandingsPlayer(i);
-        }
-    }
-
-    function updateStandingsPlayer(playerIndex)
-    {
-        let playerContainer = $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ")");
-
-        playerContainer.children().first().empty().append
-        (
-            "<span>" + analyzerData["CharacterData"][playerIndex]["Placing"] + "</span>" +
-
-            "<span>" +
-                "<sup>" + ordinalNumberSuffix(analyzerData["CharacterData"][playerIndex]["Placing"]) + "</sup>" +
-            "</span>"
-        );
-
-        let playerStatsContainer = playerContainer.children().eq(2);
-
-        playerStatsContainer.children().first().children().last().text(analyzerData["CharacterData"][playerIndex]["ReadyCash"]);
-        playerStatsContainer.children().eq(1).children().last().text(analyzerData["CharacterData"][playerIndex]["TotalShopValue"]);
-
-        if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
-            playerStatsContainer.children().eq(2).children().last().text(analyzerData["CharacterData"][playerIndex]["TotalStockValue"]);
-
-        playerStatsContainer.children().last().children().last().text(analyzerData["CharacterData"][playerIndex]["NetWorth"]);
-
-        playerContainer.children().last().empty().append
-        (
-            "<div class=\"suit-card\">" +
-                "<div>" +
-                    "<div></div>" +
-
-                    "<div>" + analyzerData["CharacterData"][playerIndex]["OwnedSuits"]["TotalSuitCards"] + "</div>" +
-                "</div>" +
-            "</div>"
-        );
-
-        let playerSuitCardContainer = playerContainer.children().last().find(".suit-card");
-
-        playerSuitCardContainer.children().first().toggle(analyzerData["CharacterData"][playerIndex]["OwnedSuits"]["TotalSuitCards"] > 0);
-
-        for (let currentSuitData of SUIT_DATA)
-        {
-            playerSuitCardContainer.children().first().children().first().append
-            (
-                "<div>" +
-                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + currentSuitData["Color"] + ";\"></span>" +
-                "</div>"
-            );
-
-            playerContainer.children().last().append
-            (
-                "<div>" +
-                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + (analyzerData["CharacterData"][playerIndex]["OwnedSuits"]["SuitNames"].indexOf(currentSuitData["Icon"]) > -1 ? currentSuitData["Color"] : "333") + ";\"></span>" +
-                "</div>"
-            );
-        }
-    }
-
     function displayNewTurn(turnIndex)
     {
         $("#turns").append
@@ -1114,7 +1146,63 @@ $(document).ready(function ()
 
         $("#turns > div:last-of-type button[name=\"reset\"]").on("click", function ()
         {
+            $("body").prepend
+            (
+                "<div class=\"modal fade\" tabindex=\"-1\" role=\"dialog\">" +
+                    "<div class=\"modal-dialog modal-dialog-centered\">" +
+                        "<div class=\"modal-content\">" +
+                            "<div class=\"modal-body\">" +
+                                "<div class=\"alert alert-danger\">" +
+                                    "<div>" +
+                                        "<strong>You are about to reset to the beginning of turn " + (turnIndex + 1) + ". Any progress made during and after this turn will be lost and cannot be recovered.</strong>" +
+                                    "</div>" +
+                                "</div>" +
 
+                                "<div class=\"modal-confirmation\">" +
+                                    "<div>Do you wish to continue?</div>" +
+
+                                    "<div>" +
+                                        "<button type=\"button\" class=\"btn btn-danger\" name=\"modal-confirmation-reset-turn-danger-yes\" data-bs-dismiss=\"modal\">Yes</button>" +
+                                        "<button type=\"button\" class=\"btn btn-secondary\" name=\"modal-confirmation-reset-turn-danger-no\" data-bs-dismiss=\"modal\">No</button>" +
+                                    "</div>" +
+                                "</div>" +
+                            "</div>" +
+                        "</div>" +
+                    "</div>" +
+                "</div>"
+            );
+
+            let modalDialog = new bootstrap.Modal
+            (
+                $("body > .modal"),
+                {
+                    backdrop: "static",
+                    keyboard: false
+                }
+            );
+
+            modalDialog.show();
+
+            $("body > .modal").on("hidden.bs.modal", function ()
+            {
+                $(this).remove();
+            });
+
+            $("body > .modal button[name=\"modal-confirmation-reset-turn-danger-yes\"]").on("click", function ()
+            {
+                for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+                    analyzerData["GameData"]["TurnData"][turnIndex]["TurnCharacterData"][i]["TurnBeforeRollCurrentData"] = analyzerData["GameData"]["TurnData"][turnIndex]["TurnCharacterData"][i]["TurnBeforeRollStartData"];
+
+                analyzerData["GameData"]["TurnData"].length = turnIndex + 1;
+
+                initializeStandings();
+
+                initializeMap();
+
+                $("#turns").remove();
+
+                initializeTurns();
+            });
         });
     }
 
@@ -1182,7 +1270,21 @@ $(document).ready(function ()
             $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
         });
 
-        let playerOwnShopsFlag = analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["OwnedShopIndices"].length > 0;
+        let playerTurnCharacterData = null;
+
+        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        {
+            let currentPlayerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i];
+
+            if (currentPlayerTurnCharacterData["TurnAfterRollData"] === null)
+            {
+                playerTurnCharacterData = currentPlayerTurnCharacterData["TurnBeforeRollCurrentData"];
+
+                break;
+            }
+        }
+
+        let playerOwnShopsFlag = playerTurnCharacterData["OwnedShopIndices"].length > 0;
 
         let playerTurnOptionAuctionButton = playerTurnOptionsContainer.find("button[name=\"auction\"]");
 
@@ -1208,11 +1310,21 @@ $(document).ready(function ()
 
         });
 
+        let playerCurrentTurnFound = false;
         let opponentsOwnShopsFlag = false;
 
         for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
-            if (i !== analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1 && analyzerData["CharacterData"][i]["OwnedShopIndices"].length > 0)
+            let currentPlayerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i];
+
+            if (currentPlayerTurnCharacterData["TurnAfterRollData"] === null && !playerCurrentTurnFound)
+            {
+                playerCurrentTurnFound = true;
+
+                continue;
+            }
+
+            if (currentPlayerTurnCharacterData["TurnBeforeRollCurrentData"]["OwnedShopIndices"].length > 0)
             {
                 opponentsOwnShopsFlag = true;
 
@@ -1222,7 +1334,7 @@ $(document).ready(function ()
 
         let playerTurnOptionBuyShopButton = playerTurnOptionsContainer.find("button[name=\"buy-shop\"]");
 
-        let playerTurnOptionBuyShopEnableFlag = opponentsOwnShopsFlag && analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["ReadyCash"] + analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["TotalStockValue"] > 0;
+        let playerTurnOptionBuyShopEnableFlag = opponentsOwnShopsFlag && playerTurnCharacterData["ReadyCash"] + playerTurnCharacterData["TotalStockValue"] > 0;
 
         playerTurnOptionBuyShopButton.prop("disabled", !playerTurnOptionBuyShopEnableFlag);
         playerTurnOptionBuyShopButton.toggleClass("disabled", !playerTurnOptionBuyShopEnableFlag);
@@ -1262,7 +1374,7 @@ $(document).ready(function ()
 
         if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
         {
-            let playerTurnOptionSellStocksEnableFlag = analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length]["TotalStockValue"] > 0;
+            let playerTurnOptionSellStocksEnableFlag = playerTurnCharacterData["TotalStockValue"] > 0;
 
             playerTurnOptionSellStocksButton.prop("disabled", !playerTurnOptionSellStocksEnableFlag);
             playerTurnOptionSellStocksButton.toggleClass("disabled", !playerTurnOptionSellStocksEnableFlag);
@@ -1284,7 +1396,11 @@ $(document).ready(function ()
         {
             displayNewTurn(i);
 
-            for (let j = 0; j < analyzerData["GameData"]["TurnData"][i].length; ++j)
+            for (let j = 0; j < analyzerData["CharacterData"].length; ++j)
+            {
+                if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][j]["TurnAfterRollData"] === null)
+                    break;
+
                 $("#turns > div:last-of-type > div:last-of-type").append
                 (
                     "<div>" +
@@ -1293,6 +1409,7 @@ $(document).ready(function ()
                         
                     "</div>"
                 );
+            }
         }
 
         startNextPlayerTurn();
@@ -1300,18 +1417,21 @@ $(document).ready(function ()
 
     function startNextPlayerTurn()
     {
-        if (analyzerData["GameData"]["TurnData"].length === 0 || analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length === analyzerData["CharacterData"].length)
+        let playerTurnCharacterIndex = null;
+
+        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
-            analyzerData["GameData"]["TurnData"].push([]);
+            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i]["TurnAfterRollData"] === null)
+            {
+                playerTurnCharacterIndex = i;
 
-            displayNewTurn(analyzerData["GameData"]["TurnData"].length - 1);
+                break;
+            }
         }
-
-        analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].push([]);
 
         $("#turns > div:last-of-type > div:last-of-type").append
         (
-            "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1].length - 1) + "</div>" +
+            "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(playerTurnCharacterIndex) + "</div>" +
 
             "<div></div>"
         );
