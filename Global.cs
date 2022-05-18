@@ -228,15 +228,7 @@ namespace fortunestreetanalyzer
             {
                 string userIPAddress = GetUserIPAddress();
 
-                List<string> whereClauses = new List<string>();
-
-                if (analyzerInstanceID != null)
-                    whereClauses.Add("id = " + analyzerInstanceID);
-
-                if (analyzerInstanceTypes != null)
-                    whereClauses.Add("type IN ('" + string.Join("','", analyzerInstanceTypes) + "')");
-
-                List<GetAnalyzerInstancesInProgressTVF> getAnalyzerInstancesInProgressTVFResults = fortuneStreetContext.GetAnalyzerInstancesInProgressTVF.FromSqlRaw("SELECT * FROM getanalyzerinstancesinprogress_tvf()" + (whereClauses.Count > 0 ? " WHERE " + string.Join(" AND ", whereClauses) : "")).ToList();
+                List<GetAnalyzerInstancesInProgressTVF> getAnalyzerInstancesInProgressTVFResults = fortuneStreetContext.GetAnalyzerInstancesInProgressTVF.FromSqlRaw("SELECT * FROM getanalyzerinstancesinprogress_tvf()").Where(result => (analyzerInstanceID == null || result.ID == analyzerInstanceID) && (analyzerInstanceTypes == null || analyzerInstanceTypes.Contains(result.Type))).ToList();
 
                 List<long> userAnalyzerInstanceIDs = new List<long>();
 
@@ -249,7 +241,7 @@ namespace fortunestreetanalyzer
                 if (userAnalyzerInstanceIDs.Count == 0)
                     return new List<CurrentAnalyzerInstancesTVF>();
 
-                return fortuneStreetContext.CurrentAnalyzerInstancesTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstances_tvf() WHERE id IN (" + string.Join(",", userAnalyzerInstanceIDs) + ") ORDER BY id DESC").ToList();
+                return fortuneStreetContext.CurrentAnalyzerInstancesTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstances_tvf()").Where(analyzerinstanceid => userAnalyzerInstanceIDs.Contains(analyzerinstanceid.AnalyzerInstanceID)).OrderByDescending(id => id.ID).ToList();
             }
             catch
             {
@@ -274,7 +266,7 @@ namespace fortunestreetanalyzer
                     {
                         List<long> analyzerInstanceIDs = currentAnalyzerInstancesTVFResults.Select(analyzerinstanceid => analyzerinstanceid.AnalyzerInstanceID).ToList();
 
-                        List<CurrentAnalyzerInstanceLogsTVF> currentAnalyzerInstanceLogsTVFResults = fortuneStreetAppContext.CurrentAnalyzerInstanceLogsTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstancelogs_tvf() WHERE analyzer_instance_id IN (" + string.Join(",", analyzerInstanceIDs) + ")").ToList();
+                        List<CurrentAnalyzerInstanceLogsTVF> currentAnalyzerInstanceLogsTVFResults = fortuneStreetAppContext.CurrentAnalyzerInstanceLogsTVF.FromSqlRaw("SELECT * FROM currentanalyzerinstancelogs_tvf()").Where(analyzerinstanceid => analyzerInstanceIDs.Contains(analyzerinstanceid.AnalyzerInstanceID)).ToList();
 
                         foreach (CurrentAnalyzerInstancesTVF currentAnalyzerInstancesTVFResult in currentAnalyzerInstancesTVFResults)
                         {
