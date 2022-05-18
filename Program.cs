@@ -5,6 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+#if DEBUG
+    Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", builder.Configuration["AZURE_CLIENT_ID"]);
+    Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", builder.Configuration["AZURE_CLIENT_SECRET"]);
+    Environment.SetEnvironmentVariable("AZURE_TENANT_ID", builder.Configuration["AZURE_TENANT_ID"]);
+#endif
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 
