@@ -293,7 +293,9 @@ namespace fortunestreetanalyzer.Pages.train
 
                 List<long> spaceIDs = spaceResults.Select(id => id.ID).ToList();
 
-                List<SpaceLayouts> spaceLayoutResults = _fortuneStreetAppContext.SpaceLayouts.Where(space_id => spaceIDs.Contains(space_id.SpaceID)).OrderBy(layout_index => layout_index.LayoutIndex).ToList();
+                List<SpaceLayouts> spaceLayoutResults = _fortuneStreetAppContext.SpaceLayouts.Where(space_id => spaceIDs.Contains(space_id.SpaceID)).ToList();
+
+                List<SpaceConstraints> spaceConstraintResults = _fortuneStreetAppContext.SpaceConstraints.Where(space_id => spaceIDs.Contains(space_id.SpaceID)).ToList();
 
                 List<long> spaceTypeIDs = spaceResults.Select(space_type_id => space_type_id.SpaceTypeID).Distinct().ToList();
 
@@ -313,6 +315,11 @@ namespace fortunestreetanalyzer.Pages.train
                     {
                         Index = space_index,
                         SpaceData = space_result
+                    }).ToList(),
+                    SpaceConstraintIndexData = spaceConstraintResults.Select((space_constraint_result, space_constraint_index) => new Global.IndexDataModel.SpaceConstraintIndexDataModel
+                    {
+                        Index = space_constraint_index,
+                        SpaceConstraintData = space_constraint_result
                     }).ToList(),
                     SpaceTypeIndexData = spaceTypeResults.Select((space_type_result, space_type_index) => new Global.IndexDataModel.SpaceTypeIndexDataModel
                     {
@@ -338,6 +345,7 @@ namespace fortunestreetanalyzer.Pages.train
                 {
                     TurnBeforeRollCurrentData = new Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel.TurnBeforeRollDataModel
                     {
+                        SpaceLayoutIndex = 0,
                         Level = 1,
                         Placing = 1,
                         ReadyCash = boardCharacteristicResult.ReadyCashStart,
@@ -361,6 +369,8 @@ namespace fortunestreetanalyzer.Pages.train
                             currentFirstTurnCharacterData.TurnBeforeRollCurrentData.SpaceIndexCurrent = currentSpaceIndexData.Index;
                     }
 
+                    List<Global.IndexDataModel.SpaceConstraintIndexDataModel> currentSpaceConstraintIndexData = indexData.SpaceConstraintIndexData.Where(space_constraint_index_result => space_constraint_index_result.SpaceConstraintData.SpaceID == currentSpaceIndexData.SpaceData.ID).ToList();
+
                     Global.IndexDataModel.ShopIndexDataModel currentShopIndexData = indexData.ShopIndexData.SingleOrDefault(shop_index_result => currentSpaceIndexData.SpaceData.ShopID != null && shop_index_result.ShopData.ID == (long) currentSpaceIndexData.SpaceData.ShopID);
                     Global.IndexDataModel.DistrictIndexDataModel currentDistrictIndexData = indexData.DistrictIndexData.SingleOrDefault(district_index_result => currentSpaceIndexData.SpaceData.DistrictID != null && district_index_result.DistrictData.ID == (long) currentSpaceIndexData.SpaceData.DistrictID);
 
@@ -372,6 +382,12 @@ namespace fortunestreetanalyzer.Pages.train
                         {
                             CenterXFactor = space_layout_result.CenterXFactor,
                             CenterYFactor = space_layout_result.CenterYFactor
+                        }).ToList(),
+                        SpaceConstraintData = currentSpaceConstraintIndexData.GroupBy(space_constraint_index_result => new { space_constraint_index_result.SpaceConstraintData.SpaceIDFrom, space_constraint_index_result.SpaceConstraintData.SpaceLayoutIndex }).Select(space_constraint_groupby => new Global.AnalyzerDataModel.SpaceDataModel.SpaceConstraintDataModel
+                        {
+                            SpaceIndexFrom = indexData.SpaceIndexData.FirstOrDefault(space_index_result => space_index_result.SpaceData.ID == space_constraint_groupby.Key.SpaceIDFrom).Index,
+                            SpaceIndicesTo = indexData.SpaceIndexData.Where(space_index_result => currentSpaceConstraintIndexData.Where(space_constraint_index_result => space_constraint_index_result.SpaceConstraintData.SpaceIDFrom == space_constraint_groupby.Key.SpaceIDFrom).Select(space_constraint_index_result => space_constraint_index_result.SpaceConstraintData.SpaceIDTo).Contains(space_index_result.SpaceData.ID)).Select(index => index.Index).ToList(),
+                            SpaceLayoutIndex = space_constraint_groupby.Key.SpaceLayoutIndex
                         }).ToList(),
                         SpaceTypeIndex = indexData.SpaceTypeIndexData.SingleOrDefault(space_type_index_result => space_type_index_result.SpaceTypeData.ID == currentSpaceIndexData.SpaceData.SpaceTypeID).Index,
                         ShopIndex = currentShopIndexData?.Index,
@@ -441,6 +457,7 @@ namespace fortunestreetanalyzer.Pages.train
                     SpaceIDCurrent = saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexCurrent].ID,
                     SpaceIDFrom = turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom != null ? saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom].ID : null,
                     TurnNumber = (byte) saveTurnBeforeRollDataParameter.GameData.TurnData.Count,
+                    SpaceLayoutIndex = turn_character_result.TurnBeforeRollCurrentData.SpaceLayoutIndex,
                     Level = turn_character_result.TurnBeforeRollCurrentData.Level,
                     Placing = turn_character_result.TurnBeforeRollCurrentData.Placing,
                     ReadyCash = turn_character_result.TurnBeforeRollCurrentData.ReadyCash,
@@ -449,7 +466,8 @@ namespace fortunestreetanalyzer.Pages.train
                     NetWorth = turn_character_result.TurnBeforeRollCurrentData.NetWorth,
                     OwnedShopIndices = JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.OwnedShopIndices),
                     TotalSuitCards = turn_character_result.TurnBeforeRollCurrentData.TotalSuitCards,
-                    CollectedSuits = JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.CollectedSuits)
+                    CollectedSuits = JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.CollectedSuits),
+                    DieRollRestrictions = turn_character_result.TurnBeforeRollCurrentData.DieRollRestrictions != null ? JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.DieRollRestrictions) : null
                 }));
 
                 _fortuneStreetAppContext.SaveChanges();

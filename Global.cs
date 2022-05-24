@@ -70,6 +70,7 @@ namespace fortunestreetanalyzer
                         {
                             public long SpaceIndexCurrent { get; set; }
                             public long? SpaceIndexFrom { get; set; }
+                            public byte SpaceLayoutIndex { get; set; }
                             public byte Level { get; set; }
                             public byte Placing { get; set; }
                             public int ReadyCash { get; set; }
@@ -79,6 +80,7 @@ namespace fortunestreetanalyzer
                             public List<long> OwnedShopIndices { get; set; }
                             public byte TotalSuitCards { get; set; }
                             public List<string> CollectedSuits { get; set; }
+                            public List<byte> DieRollRestrictions { get; set; }
                         }
 
                         public class TurnAfterRollDataModel
@@ -110,6 +112,7 @@ namespace fortunestreetanalyzer
                 public long ID { get; set; }
                 public AdditionalPropertiesDataModel AdditionalPropertiesData { get; set; }
                 public List<SpaceLayoutDataModel> SpaceLayoutData { get; set; }
+                public List<SpaceConstraintDataModel> SpaceConstraintData { get; set; }
                 public long SpaceTypeIndex { get; set; }
                 public long? ShopIndex { get; set; }
                 public long? DistrictIndex { get; set; }
@@ -121,8 +124,11 @@ namespace fortunestreetanalyzer
 
                     public class ShopDataModel
                     {
-                        public short? OwnerCharacterIndex { get; set; }
-                        public short? Price { get; set; }
+                        public long? OwnerCharacterIndex { get; set; }
+                        public int? Price { get; set; }
+                        public decimal PriceFactor { get; set; }
+                        public int? PriceFixed { get; set; }
+                        public bool Closed { get; set; }
                     }
 
                     public class SuitDataModel
@@ -136,6 +142,13 @@ namespace fortunestreetanalyzer
                 {
                     public decimal CenterXFactor { get; set; }
                     public decimal CenterYFactor { get; set; }
+                }
+
+                public class SpaceConstraintDataModel
+                {
+                    public long SpaceIndexFrom { get; set; }
+                    public List<long> SpaceIndicesTo { get; set; }
+                    public long SpaceLayoutIndex { get; set; }
                 }
             }
 
@@ -166,6 +179,7 @@ namespace fortunestreetanalyzer
         public class IndexDataModel
         {
             public List<SpaceIndexDataModel> SpaceIndexData { get; set; }
+            public List<SpaceConstraintIndexDataModel> SpaceConstraintIndexData { get; set; }
             public List<SpaceTypeIndexDataModel> SpaceTypeIndexData { get; set; }
             public List<ShopIndexDataModel> ShopIndexData { get; set; }
             public List<DistrictIndexDataModel> DistrictIndexData { get; set; }
@@ -174,6 +188,12 @@ namespace fortunestreetanalyzer
             {
                 public long Index { get; set; }
                 public Spaces SpaceData { get; set; }
+            }
+
+            public class SpaceConstraintIndexDataModel
+            {
+                public long Index { get; set; }
+                public SpaceConstraints SpaceConstraintData { get; set; }
             }
 
             public class SpaceTypeIndexDataModel
