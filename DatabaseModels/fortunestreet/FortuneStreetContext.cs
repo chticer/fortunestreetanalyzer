@@ -439,15 +439,13 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
 
                 entity.Property(e => e.ID).HasColumnName("id");
 
-                entity.Property(e => e.InstanceCount).HasColumnName("instance_count");
-
-                entity.Property(e => e.LayoutIndex).HasColumnName("layout_index");
-
                 entity.Property(e => e.SpaceID).HasColumnName("space_id");
 
                 entity.Property(e => e.SpaceIDFrom).HasColumnName("space_id_from");
 
                 entity.Property(e => e.SpaceIDTo).HasColumnName("space_id_to");
+
+                entity.Property(e => e.SpaceLayoutIndex).HasColumnName("space_layout_index");
 
                 entity.Property(e => e.TimestampAdded)
                     .HasColumnType("datetime")
@@ -562,6 +560,11 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasMaxLength(900)
                     .HasColumnName("collected_suits");
 
+                entity.Property(e => e.DieRollRestrictions)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("die_roll_restrictions");
+
                 entity.Property(e => e.Level).HasColumnName("level");
 
                 entity.Property(e => e.NetWorth).HasColumnName("net_worth");
@@ -578,6 +581,8 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                 entity.Property(e => e.SpaceIDCurrent).HasColumnName("space_id_current");
 
                 entity.Property(e => e.SpaceIDFrom).HasColumnName("space_id_from");
+
+                entity.Property(e => e.SpaceLayoutIndex).HasColumnName("space_layout_index");
 
                 entity.Property(e => e.TimestampAdded)
                     .HasColumnType("datetime")

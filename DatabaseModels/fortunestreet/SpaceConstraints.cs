@@ -6,8 +6,7 @@
         public long SpaceID { get; set; }
         public long SpaceIDFrom { get; set; }
         public long SpaceIDTo { get; set; }
-        public byte LayoutIndex { get; set; }
-        public byte InstanceCount { get; set; }
+        public byte SpaceLayoutIndex { get; set; }
         public DateTime TimestampAdded { get; set; }
 
         public virtual Spaces Space { get; set; }

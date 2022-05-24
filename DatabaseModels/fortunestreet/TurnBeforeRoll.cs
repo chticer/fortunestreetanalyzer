@@ -8,6 +8,7 @@
         public long SpaceIDCurrent { get; set; }
         public long? SpaceIDFrom { get; set; }
         public byte TurnNumber { get; set; }
+        public byte SpaceLayoutIndex { get; set; }
         public byte Level { get; set; }
         public byte Placing { get; set; }
         public int ReadyCash { get; set; }
@@ -17,6 +18,7 @@
         public string OwnedShopIndices { get; set; }
         public byte TotalSuitCards { get; set; }
         public string CollectedSuits { get; set; }
+        public string DieRollRestrictions { get; set; }
         public DateTime TimestampAdded { get; set; }
     }
 }
