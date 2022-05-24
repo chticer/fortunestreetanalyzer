@@ -620,6 +620,7 @@ $(document).ready(function ()
         });
     }
 
+    let playerTurnCharacterIndex = 0;
     let spaceLayoutIndex = 0;
 
     let mouseCoordinates =
@@ -684,7 +685,7 @@ $(document).ready(function ()
 	                }
                 );
 
-                saveAnalyzerData(["GameData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData"]);
+                saveAnalyzerData([ "GameData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData" ]);
 
                 saveTurnBeforeRollData(null, initializeGameSetup);
             }
@@ -726,6 +727,18 @@ $(document).ready(function ()
         initializeStandings();
 
         $("#standings-subpanel").show();
+
+        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        {
+            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i]["TurnAfterRollData"] === null)
+            {
+                playerTurnCharacterIndex = i;
+
+                break;
+            }
+        }
+
+        spaceLayoutIndex = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][playerTurnCharacterIndex]["TurnBeforeRollStartData"]["SpaceLayoutIndex"];
 
         initializeMap();
 
@@ -1227,6 +1240,8 @@ $(document).ready(function ()
             )
         );
 
+        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
+
         playerTurnOptionsContainer.find("button[name=\"roll\"]").on("click", function ()
         {
             playerTurnOptionsContainer.empty().append
@@ -1243,15 +1258,20 @@ $(document).ready(function ()
                 )
             );
 
+            let playerTurnEligibleDieRolls = Array.from(Array(analyzerData["GameData"]["BoardData"]["MaxDieRoll"]).keys(), n => n + 1);
+
+            if (playerTurnCharacterData["DieRollRestrictions"] !== null)
+                playerTurnEligibleDieRolls = playerTurnCharacterData["DieRollRestrictions"];
+
             let playerTurnRollDieOptionsContainer = playerTurnOptionsContainer.find(".roll-die-options");
 
-            for (let i = 0; i < analyzerData["GameData"]["BoardData"]["MaxDieRoll"]; ++i)
+            for (let currentPlayerTurnEligibleDieRoll of playerTurnEligibleDieRolls)
             {
                 playerTurnRollDieOptionsContainer.append("<div></div>");
 
                 let currentPlayerTurnDieDotLocationContainer = playerTurnRollDieOptionsContainer.children().last();
 
-                for (let currentDieDotLocationDataPosition of DIE_DOT_LOCATIONS_DATA[i])
+                for (let currentDieDotLocationDataPosition of DIE_DOT_LOCATIONS_DATA[currentPlayerTurnEligibleDieRoll - 1])
                 {
                     currentPlayerTurnDieDotLocationContainer.append("<div></div>");
 
@@ -1269,20 +1289,6 @@ $(document).ready(function ()
 
             $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
         });
-
-        let playerTurnCharacterData = null;
-
-        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
-        {
-            let currentPlayerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i];
-
-            if (currentPlayerTurnCharacterData["TurnAfterRollData"] === null)
-            {
-                playerTurnCharacterData = currentPlayerTurnCharacterData["TurnBeforeRollCurrentData"];
-
-                break;
-            }
-        }
 
         let playerOwnShopsFlag = playerTurnCharacterData["OwnedShopIndices"].length > 0;
 
@@ -1310,21 +1316,15 @@ $(document).ready(function ()
 
         });
 
-        let playerCurrentTurnFound = false;
+        let opponentsCharacterIndices = Array.from(Array(analyzerData["CharacterData"].length).keys());
+
+        opponentsCharacterIndices.splice(playerTurnCharacterIndex, 1);
+
         let opponentsOwnShopsFlag = false;
 
-        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        for (let currentOpponentCharacterIndex of opponentsCharacterIndices)
         {
-            let currentPlayerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i];
-
-            if (currentPlayerTurnCharacterData["TurnAfterRollData"] === null && !playerCurrentTurnFound)
-            {
-                playerCurrentTurnFound = true;
-
-                continue;
-            }
-
-            if (currentPlayerTurnCharacterData["TurnBeforeRollCurrentData"]["OwnedShopIndices"].length > 0)
+            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][currentOpponentCharacterIndex]["TurnBeforeRollCurrentData"]["OwnedShopIndices"].length > 0)
             {
                 opponentsOwnShopsFlag = true;
 
@@ -1398,7 +1398,7 @@ $(document).ready(function ()
 
             for (let j = 0; j < analyzerData["CharacterData"].length; ++j)
             {
-                if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][j]["TurnAfterRollData"] === null)
+                if (analyzerData["GameData"]["TurnData"].length - 1 === i && playerTurnCharacterIndex === j)
                     break;
 
                 $("#turns > div:last-of-type > div:last-of-type").append
@@ -1417,18 +1417,6 @@ $(document).ready(function ()
 
     function startNextPlayerTurn()
     {
-        let playerTurnCharacterIndex = null;
-
-        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
-        {
-            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i]["TurnAfterRollData"] === null)
-            {
-                playerTurnCharacterIndex = i;
-
-                break;
-            }
-        }
-
         $("#turns > div:last-of-type > div:last-of-type").append
         (
             "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(playerTurnCharacterIndex) + "</div>" +
