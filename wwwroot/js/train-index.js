@@ -620,6 +620,7 @@ $(document).ready(function ()
         });
     }
 
+    let playerTurnCharacterTreeGraph = null;
     let playerTurnCharacterIndex = 0;
     let spaceLayoutIndex = 0;
 
@@ -903,9 +904,80 @@ $(document).ready(function ()
         );
     }
 
+    function createTreeGraphNode(data)
+    {
+        return {
+            Node: data,
+            Child: null,
+            NextPointer: null
+        };
+    }
+
     function initializeMap()
     {
         $("#board-subpanel").empty().append("<div></div>");
+
+        if (playerTurnCharacterTreeGraph === null)
+        {
+            let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
+
+            playerTurnCharacterTreeGraph = createTreeGraphNode
+            (
+                {
+                    SpaceIndexCurrent: playerTurnCharacterData["SpaceIndexCurrent"],
+                    SpaceIndexFrom: playerTurnCharacterData["SpaceIndexFrom"],
+                    DieRollValue: 0
+                }
+            );
+
+            let maxPlayerTurnEligibleDieRollValue = analyzerData["GameData"]["BoardData"]["MaxDieRoll"];
+
+            if (playerTurnCharacterData["DieRollRestrictions"] !== null)
+                maxPlayerTurnEligibleDieRollValue = playerTurnCharacterData["DieRollRestrictions"][playerTurnCharacterData["DieRollRestrictions"].length - 1];
+
+            let playerTurnCharacterTreeGraphPreviousParentNodes = [ playerTurnCharacterTreeGraph ];
+
+            for (let currentPlayerTurnEligibleDieRollValue = 1; currentPlayerTurnEligibleDieRollValue <= maxPlayerTurnEligibleDieRollValue; ++currentPlayerTurnEligibleDieRollValue)
+            {
+                let playerTurnCharacterTreeGraphCurrentParentNodes = [];
+
+                for (let currentPlayerTurnCharacterTreeGraphPreviousParentNode of playerTurnCharacterTreeGraphPreviousParentNodes)
+                {
+                    let currentSpaceConstraintData = $.grep(analyzerData["SpaceData"][currentPlayerTurnCharacterTreeGraphPreviousParentNode["Node"]["SpaceIndexCurrent"]]["SpaceConstraintData"], function (value)
+                    {
+                        return spaceLayoutIndex === value["SpaceLayoutIndex"] && (currentPlayerTurnCharacterTreeGraphPreviousParentNode["Node"]["SpaceIndexFrom"] === null || currentPlayerTurnCharacterTreeGraphPreviousParentNode["Node"]["SpaceIndexFrom"] === value["SpaceIndexFrom"]);
+                    });
+
+                    for (let currentSpaceIndexToValue of [...new Set([].concat(...currentSpaceConstraintData.map((value) => value["SpaceIndicesTo"])))])
+                    {
+                        let currentPlayerTurnCharacterTreeGraphNode = createTreeGraphNode
+                        (
+                            {
+                                SpaceIndexCurrent: currentSpaceIndexToValue,
+                                SpaceIndexFrom: currentPlayerTurnCharacterTreeGraphPreviousParentNode["Node"]["SpaceIndexCurrent"],
+                                DieRollValue: currentPlayerTurnEligibleDieRollValue
+                            }
+                        );
+
+                        playerTurnCharacterTreeGraphCurrentParentNodes.push(currentPlayerTurnCharacterTreeGraphNode);
+
+                        if (currentPlayerTurnCharacterTreeGraphPreviousParentNode["Child"] === null)
+                        {
+                            currentPlayerTurnCharacterTreeGraphPreviousParentNode["Child"] = currentPlayerTurnCharacterTreeGraphNode;
+
+                            continue;
+                        }
+
+                        while (currentPlayerTurnCharacterTreeGraphPreviousParentNode["NextPointer"] !== null)
+                            currentPlayerTurnCharacterTreeGraphPreviousParentNode = currentPlayerTurnCharacterTreeGraphPreviousParentNode["NextPointer"];
+
+                        currentPlayerTurnCharacterTreeGraphPreviousParentNode["NextPointer"] = currentPlayerTurnCharacterTreeGraphNode;
+                    }
+                }
+
+                playerTurnCharacterTreeGraphPreviousParentNodes = playerTurnCharacterTreeGraphCurrentParentNodes;
+            }
+        }
 
         let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
 
@@ -1209,6 +1281,8 @@ $(document).ready(function ()
                 analyzerData["GameData"]["TurnData"].length = turnIndex + 1;
 
                 initializeStandings();
+
+                playerTurnCharacterTreeGraph = null;
 
                 initializeMap();
 
