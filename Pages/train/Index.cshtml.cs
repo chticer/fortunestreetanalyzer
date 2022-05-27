@@ -341,9 +341,9 @@ namespace fortunestreetanalyzer.Pages.train
                         DistrictData = district_result
                     }).ToList();
 
-                List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel> firstTurnCharacterData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel
+                List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel> initialTurnData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.GameDataModel.TurnDataModel
                 {
-                    TurnBeforeRollCurrentData = new Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel.TurnBeforeRollDataModel
+                    TurnBeforeRollCurrentData = new Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnBeforeRollDataModel
                     {
                         SpaceLayoutIndex = 0,
                         Level = 1,
@@ -365,8 +365,8 @@ namespace fortunestreetanalyzer.Pages.train
                 {
                     if (currentSpaceIndexData.SpaceData.SpaceType.Name.Equals("bank"))
                     {
-                        foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel currentFirstTurnCharacterData in firstTurnCharacterData)
-                            currentFirstTurnCharacterData.TurnBeforeRollCurrentData.SpaceIndexCurrent = currentSpaceIndexData.Index;
+                        foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel currentInitialTurnData in initialTurnData)
+                            currentInitialTurnData.TurnBeforeRollCurrentData.SpaceIndexCurrent = currentSpaceIndexData.Index;
                     }
 
                     List<Global.IndexDataModel.SpaceConstraintIndexDataModel> currentSpaceConstraintIndexData = indexData.SpaceConstraintIndexData.Where(space_constraint_index_result => space_constraint_index_result.SpaceConstraintData.SpaceID == currentSpaceIndexData.SpaceData.ID).ToList();
@@ -395,8 +395,8 @@ namespace fortunestreetanalyzer.Pages.train
                     });
                 }
 
-                foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnCharacterDataModel currentFirstTurnCharacterData in firstTurnCharacterData)
-                    currentFirstTurnCharacterData.TurnBeforeRollStartData = currentFirstTurnCharacterData.TurnBeforeRollCurrentData;
+                foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel currentInitialTurnData in initialTurnData)
+                    currentInitialTurnData.TurnBeforeRollStartData = currentInitialTurnData.TurnBeforeRollCurrentData;
 
                 response.HTMLResponse = JsonSerializer.Serialize(new
                 {
@@ -404,13 +404,7 @@ namespace fortunestreetanalyzer.Pages.train
                     {
                         GameData = new Global.AnalyzerDataModel.GameDataModel
                         {
-                            TurnData = new List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>
-                            {
-                                new Global.AnalyzerDataModel.GameDataModel.TurnDataModel
-                                {
-                                    TurnCharacterData = firstTurnCharacterData
-                                }
-                            }
+                            TurnData = new List<List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>> { initialTurnData }
                         },
                         SpaceData = spaceData,
                         SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
@@ -450,7 +444,7 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                _fortuneStreetAppContext.TurnBeforeRoll.AddRange(saveTurnBeforeRollDataParameter.GameData.TurnData.LastOrDefault().TurnCharacterData.Select((turn_character_result, turn_character_index) => new TurnBeforeRoll
+                _fortuneStreetAppContext.TurnBeforeRoll.AddRange(saveTurnBeforeRollDataParameter.GameData.TurnData.LastOrDefault().Select((turn_character_result, turn_character_index) => new TurnBeforeRoll
                 {
                     AnalyzerInstanceID = saveTurnBeforeRollDataParameter.AnalyzerInstanceID,
                     CharacterID = saveTurnBeforeRollDataParameter.CharacterData[turn_character_index].ID,

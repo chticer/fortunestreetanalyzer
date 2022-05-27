@@ -699,12 +699,12 @@ $(document).ready(function ()
         if (characterIndices !== null)
         {
             analyzerDataCopy["CharacterData"] = [];
-            analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1]["TurnCharacterData"] = [];
+            analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1] = [];
 
             for (let currentCharacterIndex of characterIndices)
             {
                 analyzerDataCopy["CharacterData"].push(analyzerData["CharacterData"][currentCharacterIndex]);
-                analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1]["TurnCharacterData"].push(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][currentCharacterIndex]);
+                analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1].push(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][currentCharacterIndex]);
             }
         }
 
@@ -730,7 +730,7 @@ $(document).ready(function ()
 
         for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
-            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i]["TurnAfterRollData"] === null)
+            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnAfterRollData"] === null)
             {
                 playerTurnCharacterIndex = i;
 
@@ -738,7 +738,7 @@ $(document).ready(function ()
             }
         }
 
-        spaceLayoutIndex = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][playerTurnCharacterIndex]["TurnBeforeRollStartData"]["SpaceLayoutIndex"];
+        spaceLayoutIndex = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollStartData"]["SpaceLayoutIndex"];
 
         initializeMap();
 
@@ -806,7 +806,7 @@ $(document).ready(function ()
 
     function updateStandingsPlayer(playerIndex)
     {
-        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][playerIndex]["TurnBeforeRollCurrentData"];
+        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerIndex]["TurnBeforeRollCurrentData"];
 
         let playerContainer = $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ")");
 
@@ -959,7 +959,7 @@ $(document).ready(function ()
 
         for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
-            let currentSpaceInformationContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type");
+            let currentSpaceInformationContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type");
 
             let currentSpaceCharacterMarkersContainer = currentSpaceInformationContainer.find(".character-markers");
 
@@ -1204,7 +1204,7 @@ $(document).ready(function ()
             $("body > .modal button[name=\"modal-confirmation-reset-turn-danger-yes\"]").on("click", function ()
             {
                 for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
-                    analyzerData["GameData"]["TurnData"][turnIndex]["TurnCharacterData"][i]["TurnBeforeRollCurrentData"] = analyzerData["GameData"]["TurnData"][turnIndex]["TurnCharacterData"][i]["TurnBeforeRollStartData"];
+                    analyzerData["GameData"]["TurnData"][turnIndex][i]["TurnBeforeRollCurrentData"] = analyzerData["GameData"]["TurnData"][turnIndex][i]["TurnBeforeRollStartData"];
 
                 analyzerData["GameData"]["TurnData"].length = turnIndex + 1;
 
@@ -1240,7 +1240,7 @@ $(document).ready(function ()
             )
         );
 
-        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
+        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
 
         playerTurnOptionsContainer.find("button[name=\"roll\"]").on("click", function ()
         {
@@ -1324,7 +1324,7 @@ $(document).ready(function ()
 
         for (let currentOpponentCharacterIndex of opponentsCharacterIndices)
         {
-            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1]["TurnCharacterData"][currentOpponentCharacterIndex]["TurnBeforeRollCurrentData"]["OwnedShopIndices"].length > 0)
+            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][currentOpponentCharacterIndex]["TurnBeforeRollCurrentData"]["OwnedShopIndices"].length > 0)
             {
                 opponentsOwnShopsFlag = true;
 

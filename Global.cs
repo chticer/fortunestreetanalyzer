@@ -29,7 +29,7 @@ namespace fortunestreetanalyzer
                 public RuleDataModel RuleData { get; set; }
                 public BoardDataModel BoardData { get; set; }
                 public ColorDataModel ColorData { get; set; }
-                public List<TurnDataModel> TurnData { get; set; }
+                public List<List<TurnDataModel>> TurnData { get; set; }
 
                 public class RuleDataModel
                 {
@@ -58,36 +58,31 @@ namespace fortunestreetanalyzer
 
                 public class TurnDataModel
                 {
-                    public List<TurnCharacterDataModel> TurnCharacterData { get; set; }
+                    public TurnBeforeRollDataModel TurnBeforeRollStartData { get; set; }
+                    public TurnBeforeRollDataModel TurnBeforeRollCurrentData { get; set; }
+                    public TurnAfterRollDataModel TurnAfterRollData { get; set; }
 
-                    public class TurnCharacterDataModel
+                    public class TurnBeforeRollDataModel
                     {
-                        public TurnBeforeRollDataModel TurnBeforeRollStartData { get; set; }
-                        public TurnBeforeRollDataModel TurnBeforeRollCurrentData { get; set; }
-                        public TurnAfterRollDataModel TurnAfterRollData { get; set; }
+                        public long SpaceIndexCurrent { get; set; }
+                        public long? SpaceIndexFrom { get; set; }
+                        public byte SpaceLayoutIndex { get; set; }
+                        public byte Level { get; set; }
+                        public byte Placing { get; set; }
+                        public int ReadyCash { get; set; }
+                        public int TotalShopValue { get; set; }
+                        public int TotalStockValue { get; set; }
+                        public int NetWorth { get; set; }
+                        public List<long> OwnedShopIndices { get; set; }
+                        public byte TotalSuitCards { get; set; }
+                        public List<string> CollectedSuits { get; set; }
+                        public List<byte> DieRollRestrictions { get; set; }
+                    }
 
-                        public class TurnBeforeRollDataModel
-                        {
-                            public long SpaceIndexCurrent { get; set; }
-                            public long? SpaceIndexFrom { get; set; }
-                            public byte SpaceLayoutIndex { get; set; }
-                            public byte Level { get; set; }
-                            public byte Placing { get; set; }
-                            public int ReadyCash { get; set; }
-                            public int TotalShopValue { get; set; }
-                            public int TotalStockValue { get; set; }
-                            public int NetWorth { get; set; }
-                            public List<long> OwnedShopIndices { get; set; }
-                            public byte TotalSuitCards { get; set; }
-                            public List<string> CollectedSuits { get; set; }
-                            public List<byte> DieRollRestrictions { get; set; }
-                        }
-
-                        public class TurnAfterRollDataModel
-                        {
-                            public long SpaceIndex { get; set; }
-                            public byte DieRollValue { get; set; }
-                        }
+                    public class TurnAfterRollDataModel
+                    {
+                        public long SpaceIndex { get; set; }
+                        public byte DieRollValue { get; set; }
                     }
                 }
             }
