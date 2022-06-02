@@ -19,7 +19,7 @@ const SUIT_DATA =
         Color: "2DD936"
     }
 ];
-const SUIT_ORDER = ["spade", "heart", "diamond", "club"];
+const SUIT_ORDER = [ "spade", "heart", "diamond", "club" ];
 const DIE_DOT_LOCATIONS_DATA =
 [
     [
@@ -866,9 +866,25 @@ $(document).ready(function ()
     function updateCirclePosition(element, centerPercentage)
     {
         return {
-            left: ((centerPercentage["x"] * $(element).parent().width() - $(element).outerWidth(true) / 2) / $(element).parent().width() * 100).toFixed(4) + "%",
-            top: ((centerPercentage["y"] * $(element).parent().height() - $(element).outerHeight(true) / 2) / $(element).parent().height() * 100).toFixed(4) + "%"
+            left: ((centerPercentage["x"] * $(element).parent().innerWidth() - $(element).innerWidth() / 2) / $(element).parent().innerWidth() * 100).toFixed(4) + "%",
+            top: ((centerPercentage["y"] * $(element).parent().innerHeight() - $(element).innerHeight() / 2) / $(element).parent().innerHeight() * 100).toFixed(4) + "%"
         };
+    }
+
+    function renderDie(element, value)
+    {
+        $(element).append("<div></div>");
+
+        let dieDotLocationContainer = $(element).children().last();
+
+        for (let currentDieDotLocationData of DIE_DOT_LOCATIONS_DATA[value - 1])
+        {
+            dieDotLocationContainer.append("<div></div>");
+
+            let currentDieDotLocationContainer = dieDotLocationContainer.children().last();
+
+            currentDieDotLocationContainer.css(updateCirclePosition(currentDieDotLocationContainer, currentDieDotLocationData));
+        }
     }
 
     function spacePopupDialog(element)
@@ -1320,7 +1336,7 @@ $(document).ready(function ()
         {
             playerTurnOptionsContainer.empty().append
             (
-                "<div class=\"roll-die-options\"></div>" +
+                "<div class=\"die-roll-options\"></div>" +
 
                 createConfirmationActions
                 (
@@ -1337,23 +1353,8 @@ $(document).ready(function ()
             if (playerTurnCharacterData["DieRollRestrictions"] !== null)
                 playerTurnEligibleDieRolls = playerTurnCharacterData["DieRollRestrictions"];
 
-            let playerTurnRollDieOptionsContainer = playerTurnOptionsContainer.find(".roll-die-options");
-
             for (let currentPlayerTurnEligibleDieRoll of playerTurnEligibleDieRolls)
-            {
-                playerTurnRollDieOptionsContainer.append("<div></div>");
-
-                let currentPlayerTurnDieDotLocationContainer = playerTurnRollDieOptionsContainer.children().last();
-
-                for (let currentDieDotLocationDataPosition of DIE_DOT_LOCATIONS_DATA[currentPlayerTurnEligibleDieRoll - 1])
-                {
-                    currentPlayerTurnDieDotLocationContainer.append("<div></div>");
-
-                    let currentPlayerTurnDieDotLocationPositionContainer = currentPlayerTurnDieDotLocationContainer.children().last();
-
-                    currentPlayerTurnDieDotLocationPositionContainer.css(updateCirclePosition(currentPlayerTurnDieDotLocationPositionContainer, currentDieDotLocationDataPosition));
-                }
-            }
+                renderDie(playerTurnOptionsContainer.find(".die-roll-options"), currentPlayerTurnEligibleDieRoll);
 
             playerTurnOptionsContainer.find("button[name=\"confirm\"]").on("click", function ()
             {
