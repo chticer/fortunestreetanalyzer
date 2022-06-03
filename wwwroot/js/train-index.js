@@ -620,18 +620,6 @@ $(document).ready(function ()
         });
     }
 
-    let playerTurnCharacterTreeGraph = null;
-    let playerTurnCharacterIndex = 0;
-    let spaceLayoutIndex = 0;
-
-    let mouseCoordinates =
-    {
-        x: 0,
-        y: 0
-    };
-
-    let spacePopupDialogScrollDebounce;
-
     function renderPlayerContainer(playerIndex)
     {
         return  "<div>" +
@@ -723,6 +711,16 @@ $(document).ready(function ()
         });
     }
 
+    let playerTurnCharacterIndex = 0;
+
+    let spaceLayoutIndex = 0;
+
+    let mouseCoordinates =
+    {
+        x: 0,
+        y: 0
+    };
+
     function initializeGameSetup()
     {
         initializeStandings();
@@ -751,7 +749,7 @@ $(document).ready(function ()
             mouseCoordinates["y"] = e.clientY;
         });
 
-        $(window).on("resize", initializeMap);
+        $(window).on("resize", updateMapSizing);
 
         initializeTurns();
     }
@@ -956,6 +954,8 @@ $(document).ready(function ()
         }
     }
 
+    let playerTurnCharacterTreeGraph = null;
+
     function initializeTreeGraphPlayerTurnCharacter()
     {
         let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
@@ -1018,14 +1018,17 @@ $(document).ready(function ()
         }
     }
 
+    let maxCenterXFactor = 0;
+    let maxCenterYFactor = 0;
+
     function initializeMap()
     {
         $("#board-subpanel").empty().append("<div></div>");
 
         let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
 
-        let maxCenterXFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"];
-        let maxCenterYFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"];
+        maxCenterXFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"];
+        maxCenterYFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"];
 
         for (let i = 1; i < analyzerData["SpaceData"].length; ++i)
         {
@@ -1040,28 +1043,13 @@ $(document).ready(function ()
                 maxCenterYFactor = currentCenterYFactor;
         }
 
-        let boardSubpanelOffsetX = Math.max((boardSubpanelContainer.width() - SPACE_SQUARE_SIZE * (maxCenterXFactor + 0.5)) / 2, 0);
-        let boardSubpanelOffsetY = Math.max((boardSubpanelContainer.height() - SPACE_SQUARE_SIZE * (maxCenterYFactor + 0.5)) / 2, 0);
-
         for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
         {
             boardSubpanelContainer.append("<div></div>");
 
-            let currentSpaceContainer = boardSubpanelContainer.children().last();
-
-            currentSpaceContainer.css
-            (
-                {
-                    left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"] - 0.5) + "px",
-                    top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"] - 0.5) + "px",
-                    width: SPACE_SQUARE_SIZE + "px",
-                    height: SPACE_SQUARE_SIZE + "px"
-                }
-            );
-
             updateMapSpace(i);
 
-            currentSpaceContainer.on("mouseenter mousemove", function ()
+            boardSubpanelContainer.children().last().on("mouseenter mousemove", function ()
             {
                 let currentSpaceInformationContainer = $(this).find(".space-information");
 
@@ -1071,6 +1059,8 @@ $(document).ready(function ()
                 $(this).find(".space-information").hide();
             });
         }
+
+        updateMapSizing();
 
         for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
@@ -1103,6 +1093,27 @@ $(document).ready(function ()
         }
 
         traverseTreeGraphDieRollOptionsSpaceInformation(playerTurnCharacterTreeGraph);
+    }
+
+    let spacePopupDialogScrollDebounce;
+
+    function updateMapSizing()
+    {
+        let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
+
+        let boardSubpanelOffsetX = Math.max((boardSubpanelContainer.width() - SPACE_SQUARE_SIZE * (maxCenterXFactor + 0.5)) / 2, 0);
+        let boardSubpanelOffsetY = Math.max((boardSubpanelContainer.height() - SPACE_SQUARE_SIZE * (maxCenterYFactor + 0.5)) / 2, 0);
+
+        for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
+            boardSubpanelContainer.children().eq(i).css
+            (
+                {
+                    left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"] - 0.5) + "px",
+                    top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"] - 0.5) + "px",
+                    width: SPACE_SQUARE_SIZE + "px",
+                    height: SPACE_SQUARE_SIZE + "px"
+                }
+            );
 
         boardSubpanelContainer.css({ overflow: "" });
 
