@@ -480,6 +480,9 @@ $(document).ready(function ()
 
                 let playerTurnDeterminationConfirmButton = $("#player-turn-determination > div:last-of-type button[name=\"confirm\"]");
 
+                playerTurnDeterminationConfirmButton.prop("disabled", true);
+                playerTurnDeterminationConfirmButton.addClass("disabled");
+
                 let playerTurnDeterminationValues =
                 [
                     [ null, null ],
@@ -575,11 +578,8 @@ $(document).ready(function ()
 
                             playerTurnDeterminationConfirmButtonFlag = true;
 
-                            playerTurnDeterminationConfirmButton.each(function ()
-                            {
-                                $(this).prop("disabled", false);
-                                $(this).removeClass("disabled");
-                            });
+                            playerTurnDeterminationConfirmButton.prop("disabled", false);
+                            playerTurnDeterminationConfirmButton.removeClass("disabled");
                         }
                     }
                 });
