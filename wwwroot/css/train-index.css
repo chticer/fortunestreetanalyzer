@@ -177,7 +177,7 @@ body > div
     background-color: transparent;
 }
 
-.disabled:not(#player-turn-determination)
+.disabled:not(#player-turn-determination):not(.die-roll-options)
 {
     cursor: not-allowed;
 }
@@ -805,11 +805,22 @@ body > div
     background-color: #FFF;
     border: 5px solid #000;
     border-radius: 5px;
+    cursor: pointer;
+}
+
+.die-roll-options.disabled > div:not(.active), .die-roll-options:not(.disabled) > div:not(.active):not(:hover)
+{
+    opacity: 0.65;
 }
 
 .die-roll-options > div:not(:last-of-type)
 {
     margin-right: 5px;
+}
+
+.die-roll-options.disabled > div
+{
+    cursor: not-allowed;
 }
 
 .die-roll-options > div > div

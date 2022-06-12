@@ -1400,11 +1400,48 @@ $(document).ready(function ()
             if (playerTurnCharacterData["DieRollRestrictions"] !== null)
                 playerTurnEligibleDieRolls = playerTurnCharacterData["DieRollRestrictions"];
 
-            for (let currentPlayerTurnEligibleDieRoll of playerTurnEligibleDieRolls)
-                renderDie(playerTurnOptionsContainer.find(".die-roll-options"), currentPlayerTurnEligibleDieRoll);
+            let currentDieRollOptionsContainer = playerTurnOptionsContainer.find(".die-roll-options");
 
-            playerTurnOptionsContainer.find("button[name=\"confirm\"]").on("click", function ()
+            let playerTurnDieRollValue = null;
+
+            let playerTurnOptionsConfirmButtonContainer = playerTurnOptionsContainer.find("button[name=\"confirm\"]");
+
+            for (let i = 0; i < playerTurnEligibleDieRolls.length; ++i)
             {
+                let currentPlayerTurnEligibleDieRollValue = playerTurnEligibleDieRolls[i];
+
+                renderDie(currentDieRollOptionsContainer, currentPlayerTurnEligibleDieRollValue);
+
+                currentDieRollOptionsContainer.children().eq(i).on("click", function ()
+                {
+                    if (currentPlayerTurnEligibleDieRollValue !== playerTurnDieRollValue)
+                    {
+                        playerTurnDieRollValue = currentPlayerTurnEligibleDieRollValue;
+
+                        currentDieRollOptionsContainer.find(".active").removeClass("active");
+
+                        $(this).addClass("active");
+
+                        playerTurnOptionsConfirmButtonContainer.prop("disabled", false);
+                        playerTurnOptionsConfirmButtonContainer.removeClass("disabled");
+                    }
+                });
+            }
+
+            playerTurnOptionsConfirmButtonContainer.on("click", function ()
+            {
+                $(this).closest(".confirmation-actions").remove();
+
+                currentDieRollOptionsContainer.addClass("disabled");
+
+                currentDieRollOptionsContainer.children().off("click");
+
+                analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnAfterRollData"].push
+                (
+                    {
+                        DieRollValue: playerTurnDieRollValue
+                    }
+                );
             });
 
             playerTurnOptionsContainer.find("button[name=\"cancel\"]").on("click", displayPlayerTurnOptions);
@@ -1539,6 +1576,8 @@ $(document).ready(function ()
 
     function startNextPlayerTurn()
     {
+        analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnAfterRollData"] = [];
+
         $("#turns > div:last-of-type > div:last-of-type").append
         (
             "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(playerTurnCharacterIndex) + "</div>" +
