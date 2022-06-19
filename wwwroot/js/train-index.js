@@ -1064,9 +1064,7 @@ $(document).ready(function ()
 
         for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
-            let currentSpaceInformationContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type");
-
-            let currentSpaceCharacterMarkersContainer = currentSpaceInformationContainer.find(".character-markers");
+            let currentSpaceCharacterMarkersContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers");
 
             currentSpaceCharacterMarkersContainer.append("<div></div>");
 
@@ -1273,6 +1271,18 @@ $(document).ready(function ()
         spaceInformationContainer.append("<div>" + analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
     }
 
+    let animateCharacterMarkerFlag = false;
+
+    function animateCurrentPlayerCharacterMarker()
+    {
+        let playerCharacterMarkerContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type");
+
+        playerCharacterMarkerContainer.css({ opacity: 1 });
+
+        if (animateCharacterMarkerFlag)
+            playerCharacterMarkerContainer.animate({ opacity: 0.25 }, 1500, animateCurrentPlayerCharacterMarker);
+    }
+
     function displayNewTurn(turnIndex)
     {
         $("#turns").append
@@ -1348,6 +1358,8 @@ $(document).ready(function ()
                 initializeTreeGraphPlayerTurnCharacter();
 
                 initializeMap();
+
+                animateCharacterMarkerFlag = false;
 
                 $("#turns").remove();
 
@@ -1577,6 +1589,10 @@ $(document).ready(function ()
     function startNextPlayerTurn()
     {
         analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnAfterRollData"] = [];
+
+        animateCharacterMarkerFlag = true;
+
+        animateCurrentPlayerCharacterMarker();
 
         $("#turns > div:last-of-type > div:last-of-type").append
         (
