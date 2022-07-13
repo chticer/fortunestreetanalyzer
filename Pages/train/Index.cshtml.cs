@@ -354,7 +354,8 @@ namespace fortunestreetanalyzer.Pages.train
                         NetWorth = boardCharacteristicResult.ReadyCashStart,
                         OwnedShopIndices = new List<long>(),
                         TotalSuitCards = 0,
-                        CollectedSuits = new List<string>()
+                        CollectedSuits = new List<string>(),
+                        ArcadeIndex = 0
                     },
                     TurnAfterRollData = null
                 }).ToList();

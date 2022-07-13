@@ -76,6 +76,7 @@ namespace fortunestreetanalyzer
                         public List<long> OwnedShopIndices { get; set; }
                         public byte TotalSuitCards { get; set; }
                         public List<string> CollectedSuits { get; set; }
+                        public byte ArcadeIndex { get; set; }
                         public List<byte> DieRollRestrictions { get; set; }
                     }
 
