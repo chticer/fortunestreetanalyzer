@@ -18,6 +18,7 @@
         public string OwnedShopIndices { get; set; }
         public byte TotalSuitCards { get; set; }
         public string CollectedSuits { get; set; }
+        public byte ArcadeIndex { get; set; }
         public string DieRollRestrictions { get; set; }
         public DateTime TimestampAdded { get; set; }
     }

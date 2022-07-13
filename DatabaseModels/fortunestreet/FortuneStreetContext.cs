@@ -553,6 +553,8 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
 
                 entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
 
+                entity.Property(e => e.ArcadeIndex).HasColumnName("arcade_index");
+
                 entity.Property(e => e.CharacterID).HasColumnName("character_id");
 
                 entity.Property(e => e.CollectedSuits)
