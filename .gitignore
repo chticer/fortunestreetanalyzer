@@ -273,3 +273,8 @@ __pycache__/
 # tools/
 
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore
+
+wwwroot/fontawesome/webfonts/fa-regular-400.*
+wwwroot/fontawesome/webfonts/fa-light-300.*
+wwwroot/fontawesome/webfonts/fa-thin-100.*
+wwwroot/fontawesome/webfonts/fa-duotone-900.*
