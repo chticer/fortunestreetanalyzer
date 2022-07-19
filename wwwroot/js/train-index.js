@@ -1021,9 +1021,29 @@ $(document).ready(function ()
 
     function initializeMap()
     {
-        $("#board-subpanel").empty().append("<div></div>");
+        $("#board-subpanel").empty().append
+        (
+            "<div>" +
+                "<div id=\"board-subpanel-spaces\"></div>" +
+            "</div>"
+        );
 
-        let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
+        for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
+        {
+            $("#board-subpanel-spaces").append("<div></div>");
+
+            updateMapSpace(i);
+
+            $("#board-subpanel-spaces > div:last-of-type").on("mouseenter mousemove", function ()
+            {
+                let currentSpaceInformationContainer = $(this).find(".space-information");
+
+                spacePopupDialog(currentSpaceInformationContainer);
+            }).on("mouseleave", function ()
+            {
+                $(this).find(".space-information").hide();
+            });
+        }
 
         maxCenterXFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"];
         maxCenterYFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"];
@@ -1039,23 +1059,6 @@ $(document).ready(function ()
 
             if (currentCenterYFactor > maxCenterYFactor)
                 maxCenterYFactor = currentCenterYFactor;
-        }
-
-        for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
-        {
-            boardSubpanelContainer.append("<div></div>");
-
-            updateMapSpace(i);
-
-            boardSubpanelContainer.children().last().on("mouseenter mousemove", function ()
-            {
-                let currentSpaceInformationContainer = $(this).find(".space-information");
-
-                spacePopupDialog(currentSpaceInformationContainer);
-            }).on("mouseleave", function ()
-            {
-                $(this).find(".space-information").hide();
-            });
         }
 
         updateMapSizing();
