@@ -889,33 +889,31 @@ $(document).ready(function ()
 
     function spacePopupDialog(element)
     {
-        let currentSpaceInformationContainer = $(element);
-
-        currentSpaceInformationContainer.show();
+        $(element).show();
 
         let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
 
         let boardSubpanelOffset = boardSubpanelContainer.offset();
 
-        let currentSpaceOffset = currentSpaceInformationContainer.parent().offset();
+        let currentSpaceOffset = $(element).parent().offset();
 
         let currentSpacePopupDialogOffsetX = $(document).scrollLeft() + mouseCoordinates["x"] + 10;
 
-        if (currentSpacePopupDialogOffsetX + currentSpaceInformationContainer.outerWidth() > boardSubpanelContainer.width())
-            currentSpacePopupDialogOffsetX = $(document).scrollLeft() + mouseCoordinates["x"] - 10 - currentSpaceInformationContainer.outerWidth();
+        if (currentSpacePopupDialogOffsetX + $(element).outerWidth() > boardSubpanelContainer.width())
+            currentSpacePopupDialogOffsetX = $(document).scrollLeft() + mouseCoordinates["x"] - 10 - $(element).outerWidth();
 
-        let currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"] - currentSpaceInformationContainer.outerHeight() / 2;
+        let currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"] - $(element).outerHeight() / 2;
 
         if (currentSpacePopupDialogOffsetY < boardSubpanelOffset.top)
             currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"];
-        else if (currentSpacePopupDialogOffsetY + currentSpaceInformationContainer.outerHeight() > boardSubpanelContainer.height())
-            currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"] - currentSpaceInformationContainer.outerHeight();
+        else if (currentSpacePopupDialogOffsetY + $(element).outerHeight() > boardSubpanelContainer.height())
+            currentSpacePopupDialogOffsetY = $(document).scrollTop() + mouseCoordinates["y"] - $(element).outerHeight();
 
-        currentSpaceInformationContainer.css
+        $(element).css
         (
             {
-                left: (currentSpacePopupDialogOffsetX - currentSpaceOffset.left - parseInt(currentSpaceInformationContainer.parent().css("border-left-width"), 10)) + "px",
-                top: (currentSpacePopupDialogOffsetY - currentSpaceOffset.top - parseInt(currentSpaceInformationContainer.parent().css("border-top-width"), 10)) + "px"
+                left: (currentSpacePopupDialogOffsetX - currentSpaceOffset.left - parseInt($(element).parent().css("border-left-width"), 10)) + "px",
+                top: (currentSpacePopupDialogOffsetY - currentSpaceOffset.top - parseInt($(element).parent().css("border-top-width"), 10)) + "px"
             }
         );
     }
@@ -938,7 +936,7 @@ $(document).ready(function ()
         {
             if (root["Node"]["DieRollValue"] > 0)
             {
-                let currentSpaceInformationContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (root["Node"]["SpaceIndexCurrent"] + 1) + ") > .space-information");
+                let currentSpaceInformationContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (root["Node"]["SpaceIndexCurrent"] + 1) + ") > .space-information");
 
                 currentSpaceInformationContainer.show();
 
@@ -1064,7 +1062,7 @@ $(document).ready(function ()
 
         for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
         {
-            let currentSpaceCharacterMarkersContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers");
+            let currentSpaceCharacterMarkersContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers");
 
             currentSpaceCharacterMarkersContainer.append("<div></div>");
 
@@ -1103,7 +1101,7 @@ $(document).ready(function ()
         let boardSubpanelOffsetY = Math.max((boardSubpanelContainer.height() - SPACE_SQUARE_SIZE * (maxCenterYFactor + 0.5)) / 2, 0);
 
         for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
-            boardSubpanelContainer.children().eq(i).css
+            $("#board-subpanel-spaces > div:nth-of-type(" + (i + 1) + ")").css
             (
                 {
                     left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (analyzerData["SpaceData"][i]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"] - 0.5) + "px",
@@ -1129,7 +1127,7 @@ $(document).ready(function ()
                 {
                     let currentSpaceInformationContainer = null;
 
-                    boardSubpanelContainer.children().each(function ()
+                    $("#board-subpanel-spaces > div").each(function ()
                     {
                         if ($(this).is(":hover"))
                         {
@@ -1148,7 +1146,7 @@ $(document).ready(function ()
 
     function updateMapSpace(spaceIndex)
     {
-        let spaceContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (spaceIndex + 1) + ")");
+        let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (spaceIndex + 1) + ")");
 
         spaceContainer.empty().append("<div></div>");
 
@@ -1275,12 +1273,17 @@ $(document).ready(function ()
 
     function animateCurrentPlayerCharacterMarker()
     {
-        let playerCharacterMarkerContainer = $("#board-subpanel > div:first-of-type > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type");
+        if (!animateCharacterMarkerFlag)
+            return;
 
-        playerCharacterMarkerContainer.css({ opacity: 1 });
+        $("#board-subpanel-spaces > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type").animate({ opacity: 0.25 }, 1500, function ()
+        {
+            $(this).css({ opacity: 1 });
 
-        if (animateCharacterMarkerFlag)
-            playerCharacterMarkerContainer.animate({ opacity: 0.25 }, 1500, animateCurrentPlayerCharacterMarker);
+            animateCurrentPlayerCharacterMarker();
+        });
+
+
     }
 
     function displayNewTurn(turnIndex)

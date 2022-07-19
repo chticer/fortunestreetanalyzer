@@ -213,19 +213,19 @@ body > div
     border-radius: 5px;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type
+#board-subpanel-spaces > div > div:first-of-type
 {
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > div
+#board-subpanel-spaces > div > div:first-of-type > div
 {
     position: absolute;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .space-icon
+#board-subpanel-spaces > div > div:first-of-type > .space-icon
 {
     display: flex;
     flex-direction: row;
@@ -236,7 +236,7 @@ body > div
     opacity: 0.75;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .space-icon > span[data-fa-i2svg]
+#board-subpanel-spaces > div > div:first-of-type > .space-icon > span[data-fa-i2svg]
 {
     width: 80%;
     height: 80%;
@@ -248,7 +248,7 @@ body > div
     height: 100%;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .shop-unowned-value
+#board-subpanel-spaces > div > div:first-of-type > .shop-unowned-value
 {
     display: flex;
     flex-direction: row;
@@ -259,7 +259,7 @@ body > div
     font-size: 24px;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .shop-unowned-value > div:first-of-type
+#board-subpanel-spaces > div > div:first-of-type > .shop-unowned-value > div:first-of-type
 {
     width: 100%;
     background-color: #000;
@@ -268,7 +268,7 @@ body > div
     text-align: center;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .shop-owned-price
+#board-subpanel-spaces > div > div:first-of-type > .shop-owned-price
 {
     display: flex;
     flex-direction: row;
@@ -279,7 +279,7 @@ body > div
     font-size: 24px;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .shop-owned-price > div:first-of-type
+#board-subpanel-spaces > div > div:first-of-type > .shop-owned-price > div:first-of-type
 {
     width: 100%;
     background-color: #000;
@@ -288,14 +288,14 @@ body > div
     text-align: right;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .character-markers
+#board-subpanel-spaces > div > div:first-of-type > .character-markers
 {
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-#board-subpanel > div:first-of-type > div > div:first-of-type > .character-markers > div
+#board-subpanel-spaces > div > div:first-of-type > .character-markers > div
 {
     position: absolute;
     width: 25%;
@@ -303,14 +303,14 @@ body > div
     border-radius: 50%;
 }
 
-#board-subpanel > div:first-of-type > div > .popup-dialog
+#board-subpanel-spaces > div > .popup-dialog
 {
     display: none;
     position: absolute;
     z-index: 1;
 }
 
-#board-subpanel > div:first-of-type > div > .popup-dialog.space-information
+#board-subpanel-spaces > div > .popup-dialog.space-information
 {
     width: 400px;
     height: 300px;
@@ -319,24 +319,24 @@ body > div
     border-bottom: 5px solid #888;
 }
 
-#board-subpanel > div:first-of-type > div > .popup-dialog.space-information.space-shop
+#board-subpanel-spaces > div > .popup-dialog.space-information.space-shop
 {
     width: 345px;
 }
 
-#board-subpanel > div:first-of-type > div > .popup-dialog > div:first-of-type
+#board-subpanel-spaces > div > .popup-dialog > div:first-of-type
 {
     position: absolute;
     width: 100%;
     height: 100%;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information > div:first-of-type > div
+#board-subpanel-spaces > div > .space-information > div:first-of-type > div
 {
     padding: 3px 10px 3px 3px;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information > div:first-of-type > div:first-of-type > .die-roll-options > div
+#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type > .die-roll-options > div
 {
     width: 36px;
     height: 36px;
@@ -344,19 +344,19 @@ body > div
     border-radius: 3px;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information > div:first-of-type > div:last-of-type
+#board-subpanel-spaces > div > .space-information > div:first-of-type > div:last-of-type
 {
     padding: 0 25px;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information.space-shop > div:first-of-type > div:last-of-type
+#board-subpanel-spaces > div > .space-information.space-shop > div:first-of-type > div:last-of-type
 {
     padding-left: 0;
     padding-top: 0;
     padding-right: 10px;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information > div:first-of-type > div:first-of-type
+#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type
 {
     display: flex;
     flex-direction: row;
@@ -365,18 +365,18 @@ body > div
     font-size: 1.50em;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information > div:first-of-type > div:last-of-type
+#board-subpanel-spaces > div > .space-information > div:first-of-type > div:last-of-type
 {
     padding-top: 50px;
     font-size: 1.25em;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information.space-shop > div:first-of-type > div:last-of-type
+#board-subpanel-spaces > div > .space-information.space-shop > div:first-of-type > div:last-of-type
 {
     text-align: right;
 }
 
-#board-subpanel > div:first-of-type > div > .space-information.space-shop > div:first-of-type > div:last-of-type > div > div:last-of-type
+#board-subpanel-spaces > div > .space-information.space-shop > div:first-of-type > div:last-of-type > div > div:last-of-type
 {
     font-size: 1.25em;
 }
