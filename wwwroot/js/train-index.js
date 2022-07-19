@@ -942,6 +942,8 @@ $(document).ready(function ()
 
                 renderDie(currentSpaceInformationContainer.find(".die-roll-options"), root["Node"]["DieRollValue"]);
 
+                currentSpaceInformationContainer.find(".die-roll-options").children().addClass("active");
+
                 currentSpaceInformationContainer.hide();
             }
 
