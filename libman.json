@@ -11,7 +11,7 @@
       ]
     },
     {
-      "library": "twitter-bootstrap@5.1.3",
+      "library": "twitter-bootstrap@5.2.0",
       "destination": "wwwroot/lib/twitter-bootstrap/",
       "files": [
         "js/bootstrap.min.js",
@@ -21,7 +21,7 @@
       ]
     },
     {
-      "library": "moment.js@2.29.3",
+      "library": "moment.js@2.29.4",
       "destination": "wwwroot/lib/moment.js/",
       "files": [
         "moment.min.js",
