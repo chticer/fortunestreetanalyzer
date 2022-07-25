@@ -954,6 +954,22 @@ $(document).ready(function ()
         }
     }
 
+    function traverseTreeGraphMovePlayerAroundMapSpaces(root)
+    {
+        let spaceTreeGraphs = [ root["Child"] ];
+
+        root = root["NextPointer"];
+
+        while (root !== null)
+        {
+            spaceTreeGraphs.push(root);
+
+            root = root["NextPointer"];
+        }
+
+        return spaceTreeGraphs;
+    }
+
     let playerTurnCharacterTreeGraph = null;
 
     function initializeTreeGraphPlayerTurnCharacter()
@@ -1297,8 +1313,123 @@ $(document).ready(function ()
 
             animateCurrentPlayerCharacterMarker();
         });
+    }
 
+    function movePlayerAroundMap(characterTreeGraph, dieRollRemaining)
+    {
+        if (dieRollRemaining === 0)
+            return;
 
+        let spaceTreeGraphPlayerEvents = function (spaceTreeGraph)
+        {
+            analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexFrom"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
+
+            let spaceTypeName = analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceTypeIndex"]]["Name"];
+
+            if (spaceTypeName === "suit")
+            {
+                let spaceSuitAdditionalProperties = analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["AdditionalPropertiesData"]["SuitData"];
+
+                let suitName = spaceSuitAdditionalProperties["Name"];
+
+                if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["CollectedSuits"].indexOf(suitName) === -1)
+                {
+                    analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["CollectedSuits"].push(suitName);
+
+                    updateStandingsPlayer(playerTurnCharacterIndex);
+                }
+
+                if (spaceSuitAdditionalProperties["Rotate"])
+                {
+                    analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["AdditionalPropertiesData"]["SuitData"]["Name"] = SUIT_ORDER[(SUIT_ORDER.indexOf(suitName) + 1) % SUIT_ORDER.length];
+
+                    updateMapSpace(spaceTreeGraph["Node"]["SpaceIndexCurrent"]);
+                }
+            }
+
+            movePlayerAroundMap(spaceTreeGraph, dieRollRemaining - 1);
+        };
+
+        let playerSpaceTreeGraphs = traverseTreeGraphMovePlayerAroundMapSpaces(characterTreeGraph);
+
+        if (playerSpaceTreeGraphs.length > 1)
+        {
+            if (characterTreeGraph["Node"]["SpaceIndexCurrent"] !== analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"])
+            {
+                let spaceIndexCurrentCopy = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"];
+
+                analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
+
+                updateMapSpace(spaceIndexCurrentCopy);
+                updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
+
+                traverseTreeGraphDieRollOptionsSpaceInformation(characterTreeGraph);
+            }
+
+            $("#board-subpanel > div:first-of-type").append("<div id=\"board-subpanel-direction-choices\"></div>");
+
+            let sourceSpaceLayoutData = analyzerData["SpaceData"][characterTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceLayoutData"][spaceLayoutIndex];
+
+            for (let currentPlayerSpaceTreeGraph of playerSpaceTreeGraphs)
+            {
+                $("#board-subpanel-direction-choices").append
+                (
+                    "<div>" +
+                        "<span class=\"fas fa-right\"></span>" +
+                    "</div>"
+                );
+                
+                let currentArrowContainer = $("#board-subpanel-direction-choices > div:last-of-type");
+
+                let destinationSpaceLayoutData = analyzerData["SpaceData"][currentPlayerSpaceTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceLayoutData"][spaceLayoutIndex];
+
+                let arrowAngle = Math.atan2(destinationSpaceLayoutData["CenterYFactor"] - sourceSpaceLayoutData["CenterYFactor"], destinationSpaceLayoutData["CenterXFactor"] - sourceSpaceLayoutData["CenterXFactor"]) * 180 / Math.PI;
+
+                currentArrowContainer.css
+                (
+                    {
+                        left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (sourceSpaceLayoutData["CenterXFactor"] - 0.5) - SPACE_SQUARE_SIZE / 180 * Math.abs(arrowAngle) + SPACE_SQUARE_SIZE / 2 + "px",
+                        top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (sourceSpaceLayoutData["CenterYFactor"] - 0.5) + ((arrowAngle > 0 ? 1 : -1) * (-SPACE_SQUARE_SIZE / 180 * Math.abs(((arrowAngle > 0 ? 1 : -1) * 90) - arrowAngle) + SPACE_SQUARE_SIZE / 2)) + "px",
+                        width: SPACE_SQUARE_SIZE + "px",
+                        height: SPACE_SQUARE_SIZE + "px",
+                        transform: "rotateZ(" + arrowAngle + "deg)"
+                    }
+                );
+
+                setTimeout(function ()
+                {
+                    let currentArrowIcon = currentArrowContainer.find("path");
+
+                    currentArrowIcon.css({ fill: "#" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] });
+
+                    let currentArrowIconCopy = currentArrowIcon.clone();
+
+                    currentArrowIconCopy.prependTo(currentArrowIcon.parent());
+
+                    currentArrowIconCopy.css
+                    (
+                        {
+                            fill: "transparent",
+                            stroke: "#" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"],
+                            strokeWidth: "10px",
+                            filter: "brightness(0.25)"
+                        }
+                    );
+
+                    currentArrowIcon.on("click", function ()
+                    {
+                        $("#board-subpanel-direction-choices").remove();
+
+                        spaceTreeGraphPlayerEvents(currentPlayerSpaceTreeGraph);
+                    })
+                }, 100);
+            }
+
+            return;
+        }
+
+        spaceTreeGraphPlayerEvents(playerSpaceTreeGraphs[0]);
+    }
     }
 
     function displayNewTurn(turnIndex)
@@ -1474,6 +1605,8 @@ $(document).ready(function ()
                         DieRollValue: playerTurnDieRollValue
                     }
                 );
+
+                movePlayerAroundMap(playerTurnCharacterTreeGraph, playerTurnDieRollValue);
             });
 
             playerTurnContainer.find("button[name=\"cancel\"]").on("click", displayPlayerTurnOptions);

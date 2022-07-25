@@ -380,6 +380,16 @@ body > div
     font-size: 1.25em;
 }
 
+#board-subpanel-direction-choices > div
+{
+    padding: 10px;
+}
+
+#board-subpanel-direction-choices > div > span[data-fa-i2svg] > .svg-inline--fa > path
+{
+    cursor: pointer;
+}
+
 #board-subpanel-spaces > div > div:first-of-type > .space-icon > span[data-fa-i2svg] > .svg-inline--fa, #board-subpanel-direction-choices > div > span[data-fa-i2svg] > .svg-inline--fa
 {
     width: 100%;
