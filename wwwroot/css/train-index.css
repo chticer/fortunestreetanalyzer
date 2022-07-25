@@ -634,16 +634,21 @@ body > div
     margin-right: 10px;
 }
 
-#turns > div > div:last-of-type > .player-information > div:first-of-type
+#turns > div > div:not(:first-of-type) > .player-information > div:first-of-type
 {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-#turns > div > div:last-of-type > .player-information > div:first-of-type > .character-portrait-icon
+#turns > div > div:not(:first-of-type) > .player-information > div:first-of-type > .character-portrait-icon
 {
     margin-right: 10px;
+}
+
+#turns > div > div:not(:first-of-type):not(:last-of-type)
+{
+    margin-bottom: 25px;
 }
 
 #output-panel, #settings-panel

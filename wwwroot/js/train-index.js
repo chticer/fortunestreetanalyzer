@@ -1026,26 +1026,9 @@ $(document).ready(function ()
         $("#board-subpanel").empty().append
         (
             "<div>" +
-                "<div id=\"board-subpanel-spaces\"></div>" +
+                "<div id=\"board-subpanel-spaces\">" + new Array(analyzerData["SpaceData"].length).fill("<div></div>").join("") + "</div>" +
             "</div>"
         );
-
-        for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
-        {
-            $("#board-subpanel-spaces").append("<div></div>");
-
-            updateMapSpace(i);
-
-            $("#board-subpanel-spaces > div:last-of-type").on("mouseenter mousemove", function ()
-            {
-                let currentSpaceInformationContainer = $(this).find(".space-information");
-
-                spacePopupDialog(currentSpaceInformationContainer);
-            }).on("mouseleave", function ()
-            {
-                $(this).find(".space-information").hide();
-            });
-        }
 
         maxCenterXFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterXFactor"];
         maxCenterYFactor = analyzerData["SpaceData"][0]["SpaceLayoutData"][spaceLayoutIndex]["CenterYFactor"];
@@ -1065,36 +1048,26 @@ $(document).ready(function ()
 
         updateMapSizing();
 
-        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
         {
-            let currentSpaceCharacterMarkersContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers");
+            updateMapSpace(i);
 
-            currentSpaceCharacterMarkersContainer.append("<div></div>");
+            $("#board-subpanel-spaces > div:nth-of-type(" + (i + 1) + ")").on("mouseenter mousemove", function ()
+            {
+                let currentSpaceInformationContainer = $(this).find(".space-information");
 
-            let currentCharacterMarkerContainer = currentSpaceCharacterMarkersContainer.children().last();
-
-            currentCharacterMarkerContainer.css
-            (
-                $.extend
-                (
-                    {},
-                    updateCirclePosition
-                    (
-                        currentCharacterMarkerContainer,
-                        {
-                            x: 0.25 + (i % 2) * 0.5,
-                            y: 0.25 + Math.floor(i / 2) * 0.5
-                        }
-                    ),
-                    {
-                        backgroundColor: "#" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"]
-                    }
-                )
-            );
+                spacePopupDialog(currentSpaceInformationContainer);
+            }).on("mouseleave", function ()
+            {
+                $(this).find(".space-information").hide();
+            });
         }
 
         traverseTreeGraphDieRollOptionsSpaceInformation(playerTurnCharacterTreeGraph);
     }
+
+    let boardSubpanelOffsetX = 0;
+    let boardSubpanelOffsetY = 0;
 
     let spacePopupDialogScrollDebounce;
 
@@ -1102,8 +1075,8 @@ $(document).ready(function ()
     {
         let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
 
-        let boardSubpanelOffsetX = Math.max((boardSubpanelContainer.width() - SPACE_SQUARE_SIZE * (maxCenterXFactor + 0.5)) / 2, 0);
-        let boardSubpanelOffsetY = Math.max((boardSubpanelContainer.height() - SPACE_SQUARE_SIZE * (maxCenterYFactor + 0.5)) / 2, 0);
+        boardSubpanelOffsetX = Math.max((boardSubpanelContainer.width() - SPACE_SQUARE_SIZE * (maxCenterXFactor + 0.5)) / 2, 0);
+        boardSubpanelOffsetY = Math.max((boardSubpanelContainer.height() - SPACE_SQUARE_SIZE * (maxCenterYFactor + 0.5)) / 2, 0);
 
         for (let i = 0; i < analyzerData["SpaceData"].length; ++i)
             $("#board-subpanel-spaces > div:nth-of-type(" + (i + 1) + ")").css
@@ -1253,6 +1226,43 @@ $(document).ready(function ()
 
         spaceSquareContainer.append("<div class=\"character-markers\"></div>");
 
+        let spaceCharacterMarkerIndices = $.map(analyzerData["CharacterData"], function (value, index)
+        {
+            if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][index]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] === spaceIndex)
+                return index;
+        });
+
+        if (spaceCharacterMarkerIndices.length > 0)
+        {
+            let spaceCharacterMarkersContainer = spaceSquareContainer.find(".character-markers");
+
+            for (let i = 0; i < spaceCharacterMarkerIndices.length; ++i)
+            {
+                spaceCharacterMarkersContainer.append("<div></div>");
+
+                let currentSpaceCharacterMarkerContainer = spaceCharacterMarkersContainer.children().last();
+
+                currentSpaceCharacterMarkerContainer.css
+                (
+                    $.extend
+                    (
+                        {},
+                        updateCirclePosition
+                        (
+                            currentSpaceCharacterMarkerContainer,
+                            {
+                                x: 0.25 + (i % 2) * 0.5,
+                                y: 0.25 + Math.floor(i / 2) * 0.5
+                            }
+                        ),
+                        {
+                            backgroundColor: "#" + analyzerData["CharacterData"][spaceCharacterMarkerIndices[i]]["ColorData"]["GameColor"]
+                        }
+                    )
+                );
+            }
+        }
+
         spaceContainer.append
         (
             "<div class=\"popup-dialog space-information" + (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "shop" ? " space-shop" : "") + "\">" +
@@ -1378,9 +1388,11 @@ $(document).ready(function ()
 
     function displayPlayerTurnOptions()
     {
-        let playerTurnOptionsContainer = $("#turns > div:last-of-type > div:last-of-type > div:last-of-type");
+        let playerTurnContainer = $("#turns > div:last-of-type > div:last-of-type");
 
-        playerTurnOptionsContainer.empty().append
+        playerTurnContainer.find(".logs").nextAll().remove();
+
+        playerTurnContainer.append
         (
             createConfirmationActions
             (
@@ -1397,11 +1409,15 @@ $(document).ready(function ()
             )
         );
 
+        let playerTurnConfirmationActionsContainer = playerTurnContainer.find(".confirmation-actions");
+
         let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
 
-        playerTurnOptionsContainer.find("button[name=\"roll\"]").on("click", function ()
+        playerTurnConfirmationActionsContainer.find("button[name=\"roll\"]").on("click", function ()
         {
-            playerTurnOptionsContainer.empty().append
+            playerTurnConfirmationActionsContainer.remove();
+
+            playerTurnContainer.append
             (
                 "<div class=\"die-roll-options\"></div>" +
 
@@ -1420,11 +1436,11 @@ $(document).ready(function ()
             if (playerTurnCharacterData["DieRollRestrictions"] !== null)
                 playerTurnEligibleDieRolls = playerTurnCharacterData["DieRollRestrictions"];
 
-            let currentDieRollOptionsContainer = playerTurnOptionsContainer.find(".die-roll-options");
+            let currentDieRollOptionsContainer = playerTurnContainer.find(".die-roll-options");
 
             let playerTurnDieRollValue = null;
 
-            let playerTurnOptionsConfirmButtonContainer = playerTurnOptionsContainer.find("button[name=\"confirm\"]");
+            let playerTurnOptionsConfirmButtonContainer = playerTurnContainer.find("button[name=\"confirm\"]");
 
             for (let i = 0; i < playerTurnEligibleDieRolls.length; ++i)
             {
@@ -1450,11 +1466,7 @@ $(document).ready(function ()
 
             playerTurnOptionsConfirmButtonContainer.on("click", function ()
             {
-                $(this).closest(".confirmation-actions").remove();
-
-                currentDieRollOptionsContainer.addClass("disabled");
-
-                currentDieRollOptionsContainer.children().off("click");
+                currentDieRollOptionsContainer.prev().nextAll().remove();
 
                 analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnAfterRollData"].push
                 (
@@ -1464,14 +1476,14 @@ $(document).ready(function ()
                 );
             });
 
-            playerTurnOptionsContainer.find("button[name=\"cancel\"]").on("click", displayPlayerTurnOptions);
+            playerTurnContainer.find("button[name=\"cancel\"]").on("click", displayPlayerTurnOptions);
 
             $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
         });
 
         let playerOwnShopsFlag = playerTurnCharacterData["OwnedShopIndices"].length > 0;
 
-        let playerTurnOptionAuctionButton = playerTurnOptionsContainer.find("button[name=\"auction\"]");
+        let playerTurnOptionAuctionButton = playerTurnConfirmationActionsContainer.find("button[name=\"auction\"]");
 
         let playerTurnOptionAuctionEnableFlag = playerOwnShopsFlag;
 
@@ -1480,10 +1492,10 @@ $(document).ready(function ()
 
         playerTurnOptionAuctionButton.on("click", function ()
         {
-
+            playerTurnConfirmationActionsContainer.remove();
         });
 
-        let playerTurnOptionSellShopButton = playerTurnOptionsContainer.find("button[name=\"sell-shop\"]");
+        let playerTurnOptionSellShopButton = playerTurnConfirmationActionsContainer.find("button[name=\"sell-shop\"]");
 
         let playerTurnOptionSellShopEnableFlag = playerOwnShopsFlag;
 
@@ -1492,7 +1504,7 @@ $(document).ready(function ()
 
         playerTurnOptionSellShopButton.on("click", function ()
         {
-
+            playerTurnConfirmationActionsContainer.remove();
         });
 
         let opponentsCharacterIndices = Array.from(Array(analyzerData["CharacterData"].length).keys());
@@ -1511,7 +1523,7 @@ $(document).ready(function ()
             }
         }
 
-        let playerTurnOptionBuyShopButton = playerTurnOptionsContainer.find("button[name=\"buy-shop\"]");
+        let playerTurnOptionBuyShopButton = playerTurnConfirmationActionsContainer.find("button[name=\"buy-shop\"]");
 
         let playerTurnOptionBuyShopEnableFlag = opponentsOwnShopsFlag && playerTurnCharacterData["ReadyCash"] + playerTurnCharacterData["TotalStockValue"] > 0;
 
@@ -1520,10 +1532,10 @@ $(document).ready(function ()
 
         playerTurnOptionBuyShopButton.on("click", function ()
         {
-
+            playerTurnConfirmationActionsContainer.remove();
         });
 
-        let playerTurnOptionExchangeShopsButton = playerTurnOptionsContainer.find("button[name=\"exchange-shops\"]");
+        let playerTurnOptionExchangeShopsButton = playerTurnConfirmationActionsContainer.find("button[name=\"exchange-shops\"]");
 
         let playerTurnOptionExchangeShopsEnableFlag = playerTurnOptionSellShopEnableFlag && playerTurnOptionBuyShopEnableFlag;
 
@@ -1532,10 +1544,10 @@ $(document).ready(function ()
 
         playerTurnOptionExchangeShopsButton.on("click", function ()
         {
-
+            playerTurnConfirmationActionsContainer.remove();
         });
 
-        let playerTurnOptionRenovateVacantPlotButton = playerTurnOptionsContainer.find("button[name=\"renovate-vacant-plot\"]");
+        let playerTurnOptionRenovateVacantPlotButton = playerTurnConfirmationActionsContainer.find("button[name=\"renovate-vacant-plot\"]");
 
         let playerTurnOptionRenovateVacantPlotEnableFlag = false;
 
@@ -1544,10 +1556,10 @@ $(document).ready(function ()
 
         playerTurnOptionRenovateVacantPlotButton.on("click", function ()
         {
-
+            playerTurnConfirmationActionsContainer.remove();
         });
 
-        let playerTurnOptionSellStocksButton = playerTurnOptionsContainer.find("button[name=\"sell-stocks\"]");
+        let playerTurnOptionSellStocksButton = playerTurnConfirmationActionsContainer.find("button[name=\"sell-stocks\"]");
 
         playerTurnOptionSellStocksButton.parent().toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
 
@@ -1558,9 +1570,9 @@ $(document).ready(function ()
             playerTurnOptionSellStocksButton.prop("disabled", !playerTurnOptionSellStocksEnableFlag);
             playerTurnOptionSellStocksButton.toggleClass("disabled", !playerTurnOptionSellStocksEnableFlag);
 
-            playerTurnOptionSellShopButton.on("click", function ()
+            playerTurnOptionSellStocksButton.on("click", function ()
             {
-
+                playerTurnConfirmationActionsContainer.remove();
             });
         }
 
