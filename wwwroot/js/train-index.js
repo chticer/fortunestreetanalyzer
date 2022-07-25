@@ -1336,6 +1336,8 @@ $(document).ready(function ()
                 {
                     analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["CollectedSuits"].push(suitName);
 
+                    addLogEntry("Picked up " + suitName + ".");
+
                     updateStandingsPlayer(playerTurnCharacterIndex);
                 }
 
@@ -1430,6 +1432,12 @@ $(document).ready(function ()
 
         spaceTreeGraphPlayerEvents(playerSpaceTreeGraphs[0]);
     }
+
+    function addLogEntry(entry)
+    {
+        analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["Logs"].push(entry);
+
+        $("#turns > div:last-of-type > div:last-of-type > .logs").append("<div>" + entry + "</div>");
     }
 
     function displayNewTurn(turnIndex)
@@ -1606,6 +1614,8 @@ $(document).ready(function ()
                     }
                 );
 
+                addLogEntry("Rolled " + playerTurnDieRollValue + ".");
+
                 movePlayerAroundMap(playerTurnCharacterTreeGraph, playerTurnDieRollValue);
             });
 
@@ -1727,10 +1737,15 @@ $(document).ready(function ()
 
                 $("#turns > div:last-of-type > div:last-of-type").append
                 (
-                    "<div>" +
-                        renderPlayerContainer(j) +
+                    renderPlayerContainer(j) +
 
-                        
+                    "<div class=\"logs\">" +
+
+                        $.map(analyzerData["GameData"]["TurnData"][i][j]["Logs"], function (value)
+                        {
+                            return "<div>" + value + "</div>";
+                        }).join("") +
+
                     "</div>"
                 );
             }
@@ -1751,7 +1766,7 @@ $(document).ready(function ()
         (
             "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(playerTurnCharacterIndex) + "</div>" +
 
-            "<div></div>"
+            "<div class=\"logs\"></div>"
         );
 
         displayPlayerTurnOptions();
