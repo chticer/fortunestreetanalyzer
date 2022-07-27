@@ -927,28 +927,26 @@ $(document).ready(function ()
         };
     }
 
-    function traverseTreeGraphDieRollOptionsSpaceInformation(root)
+    function traverseTreeGraphDieRollOptionsSpaceInformation(root, spacesTraversed)
     {
         if (root === null)
             return;
 
         while (root !== null)
         {
-            if (root["Node"]["DieRollValue"] > 0)
+            if (root["Node"]["DieRollValue"] - spacesTraversed > 0)
             {
                 let currentSpaceInformationContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (root["Node"]["SpaceIndexCurrent"] + 1) + ") > .space-information");
 
                 currentSpaceInformationContainer.show();
 
-                renderDie(currentSpaceInformationContainer.find(".die-roll-options"), root["Node"]["DieRollValue"]);
-
-                currentSpaceInformationContainer.find(".die-roll-options").children().addClass("active");
+                renderDie(currentSpaceInformationContainer.find(".die-rolls"), root["Node"]["DieRollValue"] - spacesTraversed);
 
                 currentSpaceInformationContainer.hide();
             }
 
             if (root["Child"] !== null)
-                traverseTreeGraphDieRollOptionsSpaceInformation(root["Child"]);
+                traverseTreeGraphDieRollOptionsSpaceInformation(root["Child"], spacesTraversed);
 
             root = root["NextPointer"];
         }
@@ -1079,7 +1077,7 @@ $(document).ready(function ()
             });
         }
 
-        traverseTreeGraphDieRollOptionsSpaceInformation(playerTurnCharacterTreeGraph);
+        traverseTreeGraphDieRollOptionsSpaceInformation(playerTurnCharacterTreeGraph, 0);
     }
 
     let boardSubpanelOffsetX = 0;
@@ -1367,7 +1365,6 @@ $(document).ready(function ()
                 updateMapSpace(spaceIndexCurrentCopy);
                 updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
 
-                traverseTreeGraphDieRollOptionsSpaceInformation(characterTreeGraph);
                 let boardSubpanelSpacesRemainingDieRollsContainer = $("#board-subpanel-spaces-remaining > .die-rolls");
 
                 boardSubpanelSpacesRemainingDieRollsContainer.empty();
@@ -1376,6 +1373,7 @@ $(document).ready(function ()
 
                 $("#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type > .die-rolls").empty();
 
+                traverseTreeGraphDieRollOptionsSpaceInformation(characterTreeGraph, playerTurnCharacterData["TurnAfterRollData"][playerTurnCharacterData["TurnAfterRollData"].length - 1]["DieRollValue"] - spacesRemaining);
             }
 
             $("#board-subpanel > div:first-of-type").append("<div id=\"board-subpanel-direction-choices\"></div>");
