@@ -396,6 +396,13 @@ body > div
     height: 100%;
 }
 
+#board-subpanel-spaces-remaining
+{
+    position: fixed;
+    left: 1.5%;
+    top: 1.5%;
+}
+
 #standings-subpanel > div:last-of-type
 {
     display: flex;
