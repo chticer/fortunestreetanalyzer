@@ -1318,7 +1318,26 @@ $(document).ready(function ()
         let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex];
 
         if (spacesRemaining === 0)
+        {
+            let spaceIndexCurrentCopy = playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"];
+
+            playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
+
+            updateMapSpace(spaceIndexCurrentCopy);
+            updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
+
+            animateCharacterMarkerFlag = false;
+
+            $("#board-subpanel-spaces-remaining").remove();
+
+            playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"].length;
+
+            $("#turns > div:last-of-type").append("<div></div>");
+
+            startNextPlayerTurn();
+
             return;
+        }
 
         let spaceTreeGraphPlayerEvents = function (spaceTreeGraph)
         {
