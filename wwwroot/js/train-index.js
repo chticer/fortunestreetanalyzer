@@ -1326,6 +1326,8 @@ $(document).ready(function ()
 
             addLogEntry("Landed on " + spaceContainer.find(".space-icon").html() + ".");
 
+            saveAnalyzerData([ "GameData" ]);
+
             animateCharacterMarkerFlag = false;
 
             $("#board-subpanel-spaces-remaining").remove();
