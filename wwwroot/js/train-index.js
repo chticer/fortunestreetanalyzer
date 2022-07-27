@@ -1770,12 +1770,14 @@ $(document).ready(function ()
 
             for (let j = 0; j < analyzerData["CharacterData"].length; ++j)
             {
+                $("#turns > div:last-of-type").append("<div></div>");
+
                 if (analyzerData["GameData"]["TurnData"].length - 1 === i && playerTurnCharacterIndex === j)
                     break;
 
                 $("#turns > div:last-of-type > div:last-of-type").append
                 (
-                    renderPlayerContainer(j) +
+                    "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][j]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(j) + "</div>" +
 
                     "<div class=\"logs\">" +
 
