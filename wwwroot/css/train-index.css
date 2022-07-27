@@ -177,7 +177,7 @@ body > div
     background-color: transparent;
 }
 
-.disabled:not(#player-turn-determination):not(.die-roll-options)
+.disabled:not(#player-turn-determination):not(.die-roll-selection)
 {
     cursor: not-allowed;
 }
@@ -335,7 +335,7 @@ body > div
     padding: 3px 10px 3px 3px;
 }
 
-#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type > .die-roll-options > div
+#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type > .die-rolls > div
 {
     width: 36px;
     height: 36px;
@@ -809,7 +809,7 @@ body > div
     height: 96px;
 }
 
-.die-roll-options
+.die-rolls
 {
     display: flex;
     flex-direction: row;
@@ -817,7 +817,7 @@ body > div
     flex-wrap: wrap;
 }
 
-.die-roll-options > div
+.die-rolls > div
 {
     position: relative;
     width: 64px;
@@ -825,29 +825,28 @@ body > div
     background-color: #FFF;
     border: 5px solid #000;
     border-radius: 5px;
-    cursor: pointer;
 }
 
-.die-roll-options.disabled > div:not(.active), .die-roll-options:not(.disabled) > div:not(.active):not(:hover)
-{
-    opacity: 0.65;
-}
-
-.die-roll-options > div:not(:last-of-type)
+.die-rolls > div:not(:last-of-type)
 {
     margin-right: 5px;
 }
 
-.die-roll-options.disabled > div
-{
-    cursor: not-allowed;
-}
-
-.die-roll-options > div > div
+.die-rolls > div > div
 {
     position: absolute;
     width: 16.6667%;
     height: 16.6667%;
     border-radius: 50%;
     background-color: #000;
+}
+
+.die-roll-selection > div
+{
+    cursor: pointer;
+}
+
+.die-roll-selection > div:not(.active):not(:hover)
+{
+    opacity: 0.65;
 }

@@ -974,21 +974,21 @@ $(document).ready(function ()
 
     function initializeTreeGraphPlayerTurnCharacter()
     {
-        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
+        let playerTurnCharacterBeforeRollData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
 
         playerTurnCharacterTreeGraph = createTreeGraphNode
         (
             {
-                SpaceIndexCurrent: playerTurnCharacterData["SpaceIndexCurrent"],
-                SpaceIndexFrom: playerTurnCharacterData["SpaceIndexFrom"],
+                SpaceIndexCurrent: playerTurnCharacterBeforeRollData["SpaceIndexCurrent"],
+                SpaceIndexFrom: playerTurnCharacterBeforeRollData["SpaceIndexFrom"],
                 DieRollValue: 0
             }
         );
 
         let maxPlayerTurnEligibleDieRollValue = analyzerData["GameData"]["BoardData"]["MaxDieRoll"];
 
-        if (playerTurnCharacterData["DieRollRestrictions"] !== null)
-            maxPlayerTurnEligibleDieRollValue = playerTurnCharacterData["DieRollRestrictions"][playerTurnCharacterData["DieRollRestrictions"].length - 1];
+        if (playerTurnCharacterBeforeRollData["DieRollRestrictions"] !== null)
+            maxPlayerTurnEligibleDieRollValue = playerTurnCharacterBeforeRollData["DieRollRestrictions"][playerTurnCharacterBeforeRollData["DieRollRestrictions"].length - 1];
 
         let playerTurnCharacterTreeGraphPreviousParentNodes = [ playerTurnCharacterTreeGraph ];
 
@@ -1291,7 +1291,7 @@ $(document).ready(function ()
         spaceInformationContainer.append
         (
             "<div>" +
-                "<div class=\"die-roll-options\"></div>" +
+                "<div class=\"die-rolls\"></div>" +
 
                 "<div>" + (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] !== null ? analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] : "") + "</div>" +
             "</div>"
@@ -1315,14 +1315,16 @@ $(document).ready(function ()
         });
     }
 
-    function movePlayerAroundMap(characterTreeGraph, dieRollRemaining)
+    function movePlayerAroundMap(characterTreeGraph, spacesRemaining)
     {
-        if (dieRollRemaining === 0)
+        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex];
+
+        if (spacesRemaining === 0)
             return;
 
         let spaceTreeGraphPlayerEvents = function (spaceTreeGraph)
         {
-            analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexFrom"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
+            playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexFrom"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
 
             let spaceTypeName = analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceTypeIndex"]]["Name"];
 
@@ -1332,9 +1334,9 @@ $(document).ready(function ()
 
                 let suitName = spaceSuitAdditionalProperties["Name"];
 
-                if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["CollectedSuits"].indexOf(suitName) === -1)
+                if (playerTurnCharacterData["TurnBeforeRollCurrentData"]["CollectedSuits"].indexOf(suitName) === -1)
                 {
-                    analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["CollectedSuits"].push(suitName);
+                    playerTurnCharacterData["TurnBeforeRollCurrentData"]["CollectedSuits"].push(suitName);
 
                     addLogEntry("Picked up " + suitName + ".");
 
@@ -1349,18 +1351,18 @@ $(document).ready(function ()
                 }
             }
 
-            movePlayerAroundMap(spaceTreeGraph, dieRollRemaining - 1);
+            movePlayerAroundMap(spaceTreeGraph, spacesRemaining - 1);
         };
 
         let playerSpaceTreeGraphs = traverseTreeGraphMovePlayerAroundMapSpaces(characterTreeGraph);
 
         if (playerSpaceTreeGraphs.length > 1)
         {
-            if (characterTreeGraph["Node"]["SpaceIndexCurrent"] !== analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"])
+            if (characterTreeGraph["Node"]["SpaceIndexCurrent"] !== playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"])
             {
-                let spaceIndexCurrentCopy = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"];
+                let spaceIndexCurrentCopy = playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"];
 
-                analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
+                playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
 
                 updateMapSpace(spaceIndexCurrentCopy);
                 updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
@@ -1550,7 +1552,7 @@ $(document).ready(function ()
 
         let playerTurnConfirmationActionsContainer = playerTurnContainer.find(".confirmation-actions");
 
-        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
+        let playerTurnCharacterBeforeRollData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollCurrentData"];
 
         playerTurnConfirmationActionsContainer.find("button[name=\"roll\"]").on("click", function ()
         {
@@ -1558,7 +1560,7 @@ $(document).ready(function ()
 
             playerTurnContainer.append
             (
-                "<div class=\"die-roll-options\"></div>" +
+                "<div class=\"die-rolls die-roll-selection\"></div>" +
 
                 createConfirmationActions
                 (
@@ -1572,10 +1574,10 @@ $(document).ready(function ()
 
             let playerTurnEligibleDieRolls = Array.from(Array(analyzerData["GameData"]["BoardData"]["MaxDieRoll"]).keys(), n => n + 1);
 
-            if (playerTurnCharacterData["DieRollRestrictions"] !== null)
-                playerTurnEligibleDieRolls = playerTurnCharacterData["DieRollRestrictions"];
+            if (playerTurnCharacterBeforeRollData["DieRollRestrictions"] !== null)
+                playerTurnEligibleDieRolls = playerTurnCharacterBeforeRollData["DieRollRestrictions"];
 
-            let currentDieRollOptionsContainer = playerTurnContainer.find(".die-roll-options");
+            let currentDieRollsContainer = playerTurnContainer.find(".die-rolls");
 
             let playerTurnDieRollValue = null;
 
@@ -1585,15 +1587,15 @@ $(document).ready(function ()
             {
                 let currentPlayerTurnEligibleDieRollValue = playerTurnEligibleDieRolls[i];
 
-                renderDie(currentDieRollOptionsContainer, currentPlayerTurnEligibleDieRollValue);
+                renderDie(currentDieRollsContainer, currentPlayerTurnEligibleDieRollValue);
 
-                currentDieRollOptionsContainer.children().eq(i).on("click", function ()
+                currentDieRollsContainer.children().eq(i).on("click", function ()
                 {
                     if (currentPlayerTurnEligibleDieRollValue !== playerTurnDieRollValue)
                     {
                         playerTurnDieRollValue = currentPlayerTurnEligibleDieRollValue;
 
-                        currentDieRollOptionsContainer.find(".active").removeClass("active");
+                        currentDieRollsContainer.find(".active").removeClass("active");
 
                         $(this).addClass("active");
 
@@ -1605,7 +1607,7 @@ $(document).ready(function ()
 
             playerTurnOptionsConfirmButtonContainer.on("click", function ()
             {
-                currentDieRollOptionsContainer.prev().nextAll().remove();
+                currentDieRollsContainer.prev().nextAll().remove();
 
                 analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnAfterRollData"].push
                 (
@@ -1624,7 +1626,7 @@ $(document).ready(function ()
             $("#settings-panel").scrollTop($("#settings-panel").prop("scrollHeight"));
         });
 
-        let playerOwnShopsFlag = playerTurnCharacterData["OwnedShopIndices"].length > 0;
+        let playerOwnShopsFlag = playerTurnCharacterBeforeRollData["OwnedShopIndices"].length > 0;
 
         let playerTurnOptionAuctionButton = playerTurnConfirmationActionsContainer.find("button[name=\"auction\"]");
 
@@ -1668,7 +1670,7 @@ $(document).ready(function ()
 
         let playerTurnOptionBuyShopButton = playerTurnConfirmationActionsContainer.find("button[name=\"buy-shop\"]");
 
-        let playerTurnOptionBuyShopEnableFlag = opponentsOwnShopsFlag && playerTurnCharacterData["ReadyCash"] + playerTurnCharacterData["TotalStockValue"] > 0;
+        let playerTurnOptionBuyShopEnableFlag = opponentsOwnShopsFlag && playerTurnCharacterBeforeRollData["ReadyCash"] + playerTurnCharacterBeforeRollData["TotalStockValue"] > 0;
 
         playerTurnOptionBuyShopButton.prop("disabled", !playerTurnOptionBuyShopEnableFlag);
         playerTurnOptionBuyShopButton.toggleClass("disabled", !playerTurnOptionBuyShopEnableFlag);
@@ -1708,7 +1710,7 @@ $(document).ready(function ()
 
         if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
         {
-            let playerTurnOptionSellStocksEnableFlag = playerTurnCharacterData["TotalStockValue"] > 0;
+            let playerTurnOptionSellStocksEnableFlag = playerTurnCharacterBeforeRollData["TotalStockValue"] > 0;
 
             playerTurnOptionSellStocksButton.prop("disabled", !playerTurnOptionSellStocksEnableFlag);
             playerTurnOptionSellStocksButton.toggleClass("disabled", !playerTurnOptionSellStocksEnableFlag);
