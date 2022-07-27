@@ -739,8 +739,6 @@ $(document).ready(function ()
 
         spaceLayoutIndex = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnBeforeRollStartData"]["SpaceLayoutIndex"];
 
-        initializeTreeGraphPlayerTurnCharacter();
-
         initializeMap();
 
         $(document).on("mousemove", function (e)
@@ -1076,8 +1074,6 @@ $(document).ready(function ()
                 $(this).find(".space-information").hide();
             });
         }
-
-        traverseTreeGraphDieRollOptionsSpaceInformation(playerTurnCharacterTreeGraph, 0);
     }
 
     let boardSubpanelOffsetX = 0;
@@ -1539,8 +1535,6 @@ $(document).ready(function ()
 
                 initializeStandings();
 
-                initializeTreeGraphPlayerTurnCharacter();
-
                 initializeMap();
 
                 animateCharacterMarkerFlag = false;
@@ -1792,6 +1786,12 @@ $(document).ready(function ()
 
     function startNextPlayerTurn()
     {
+        initializeTreeGraphPlayerTurnCharacter();
+
+        $("#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type > .die-rolls").empty();
+
+        traverseTreeGraphDieRollOptionsSpaceInformation(playerTurnCharacterTreeGraph, 0);
+
         analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnAfterRollData"] = [];
 
         animateCharacterMarkerFlag = true;
