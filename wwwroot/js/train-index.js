@@ -1315,12 +1315,16 @@ $(document).ready(function ()
 
         if (spacesRemaining === 0)
         {
+            let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (characterTreeGraph["Node"]["SpaceIndexCurrent"] + 1) + ")");
+
             let spaceIndexCurrentCopy = playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"];
 
             playerTurnCharacterData["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
 
             updateMapSpace(spaceIndexCurrentCopy);
             updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
+
+            addLogEntry("Landed on " + spaceContainer.find(".space-icon").html() + ".");
 
             animateCharacterMarkerFlag = false;
 
@@ -1343,6 +1347,8 @@ $(document).ready(function ()
 
             if (spaceTypeName === "suit")
             {
+                let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (spaceTreeGraph["Node"]["SpaceIndexCurrent"] + 1) + ")");
+
                 let spaceSuitAdditionalProperties = analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["AdditionalPropertiesData"]["SuitData"];
 
                 let suitName = spaceSuitAdditionalProperties["Name"];
@@ -1351,7 +1357,7 @@ $(document).ready(function ()
                 {
                     playerTurnCharacterData["TurnBeforeRollCurrentData"]["CollectedSuits"].push(suitName);
 
-                    addLogEntry("Picked up " + suitName + ".");
+                    addLogEntry("Picked up " + spaceContainer.find(".space-icon").html() + ".");
 
                     updateStandingsPlayer(playerTurnCharacterIndex);
                 }
