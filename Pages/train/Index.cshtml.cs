@@ -289,6 +289,8 @@ namespace fortunestreetanalyzer.Pages.train
             {
                 BoardCharacteristics boardCharacteristicResult = _fortuneStreetAppContext.BoardCharacteristics.SingleOrDefault(board_characteristic => board_characteristic.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && board_characteristic.BoardID == loadSettingsOnGameStartParameter.BoardData.ID);
 
+                List<Characters> cameoCharacters = _fortuneStreetAppContext.Characters.Where(rank => string.IsNullOrEmpty(rank.Rank)).ToList();
+
                 List<Spaces> spaceResults = _fortuneStreetAppContext.Spaces.Where(space => space.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && space.BoardID == loadSettingsOnGameStartParameter.BoardData.ID).ToList();
 
                 List<long> spaceIDs = spaceResults.Select(id => id.ID).ToList();
@@ -408,6 +410,12 @@ namespace fortunestreetanalyzer.Pages.train
                         {
                             TurnData = new List<List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>> { initialTurnData }
                         },
+                        CameoCharacterData = cameoCharacters.Select(cameo_character_result => new Global.AnalyzerDataModel.CharacterDataModel
+                        {
+                            ID = cameo_character_result.ID,
+                            PortraitURL = Global.AZURE_STORAGE_URL + cameo_character_result.CharacterPortraitURI,
+                            Name = cameo_character_result.Name
+                        }).ToList(),
                         SpaceData = spaceData,
                         SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
                         {

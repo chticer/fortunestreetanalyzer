@@ -219,7 +219,6 @@ namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
                     .HasColumnName("name");
 
                 entity.Property(e => e.Rank)
-                    .IsRequired()
                     .HasMaxLength(1)
                     .HasColumnName("rank");
 

@@ -667,6 +667,7 @@ $(document).ready(function ()
                                 TurnData: JSONResponse["Data"]["GameData"]["TurnData"]
                             }
                         ),
+                        CameoCharacterData: JSONResponse["Data"]["CameoCharacterData"],
 		                SpaceData: JSONResponse["Data"]["SpaceData"],
 		                SpaceTypeData: JSONResponse["Data"]["SpaceTypeData"],
 		                ShopData: JSONResponse["Data"]["ShopData"],
@@ -674,7 +675,7 @@ $(document).ready(function ()
 	                }
                 );
 
-                saveAnalyzerData([ "GameData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData" ]);
+                saveAnalyzerData([ "GameData", "CameoCharacterData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData" ]);
 
                 saveTurnBeforeRollData(null, initializeGameSetup);
             }

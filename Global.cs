@@ -19,6 +19,7 @@ namespace fortunestreetanalyzer
             public DateTime AnalyzerInstanceStarted { get; set; }
             public GameDataModel GameData { get; set; }
             public List<CharacterDataModel> CharacterData { get; set; }
+            public List<CharacterDataModel> CameoCharacterData { get; set; }
             public List<SpaceDataModel> SpaceData { get; set; }
             public List<SpaceTypeDataModel> SpaceTypeData { get; set; }
             public List<ShopDataModel> ShopData { get; set; }
@@ -62,6 +63,8 @@ namespace fortunestreetanalyzer
                     public TurnBeforeRollDataModel TurnBeforeRollCurrentData { get; set; }
                     public List<TurnAfterRollDataModel> TurnAfterRollData { get; set; }
                     public List<string> Logs { get; set; }
+                    public List<long> CameoCharacterIDs { get; set; }
+                    public List<TurnDataModel> TurnCameoCharacterData { get; set; }
 
                     public class TurnBeforeRollDataModel
                     {
