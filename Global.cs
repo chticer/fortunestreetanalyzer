@@ -86,7 +86,6 @@ namespace fortunestreetanalyzer
 
                     public class TurnAfterRollDataModel
                     {
-                        public long SpaceIndex { get; set; }
                         public byte DieRollValue { get; set; }
                     }
                 }
