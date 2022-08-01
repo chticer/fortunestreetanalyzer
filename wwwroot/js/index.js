@@ -177,7 +177,7 @@
                     "<div>Board: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["BoardData"]["Name"] + "</strong></div>" +
                     "<div>Standing Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"] + "<sup>" + ordinalNumberSuffix(previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"]) + "</sup> Place</strong></div>" +
                     "<div>Net Worth Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["NetWorthThreshold"].toLocaleString() + "</strong></div>" +
-                    "<div>Turn: <strong>" + (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["TurnData"].length).toLocaleString() + "</strong></div>"
+                    (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["TurnData"] !== null ? "<div>Turn: <strong>" + (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["TurnData"].length).toLocaleString() + "</strong></div>" : "")
                     :
                     "<div>" +
                         "<strong>No rule and board selection has been made for this analyzer instance.</strong>" +
