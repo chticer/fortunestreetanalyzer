@@ -111,24 +111,35 @@ namespace fortunestreetanalyzer
         {
             List<GetBoardCharactersTVF> getBoardCharactersTVFResults = fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({previousAnalyzerData.GameData.BoardData.ID})").ToList();
 
-            List<Global.AnalyzerDataModel.CharacterDataModel> characters = new List<Global.AnalyzerDataModel.CharacterDataModel>
+            List<Characters> cameoCharacters = fortuneStreetAppContext.Characters.Where(rank => string.IsNullOrEmpty(rank.Rank)).ToList();
+
+            Global.AnalyzerDataModel.CharacterDataModel characterData = new Global.AnalyzerDataModel.CharacterDataModel
             {
-	            new Global.AnalyzerDataModel.CharacterDataModel
-	            {
-		            Name = "You"
-	            }
-            }.Union(getBoardCharactersTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel
-            {
-	            ID = result.CharacterID,
-	            PortraitURL = Global.AZURE_STORAGE_URL + result.CharacterPortraitURI,
-	            Name = result.Name
-            })).ToList();
+                PlayerData = new List<Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel>
+                {
+                    new Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel
+                    {
+                        Name = "You"
+                    }
+                }.Union(getBoardCharactersTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel
+                {
+                    ID = result.CharacterID,
+                    PortraitURL = Global.AZURE_STORAGE_URL + result.CharacterPortraitURI,
+                    Name = result.Name
+                })).ToList(),
+                CameoCharacterData = cameoCharacters.Select(result => new Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerAbstractDataModel
+                {
+                    ID = result.ID,
+                    PortraitURL = Global.AZURE_STORAGE_URL + result.CharacterPortraitURI,
+                    Name = result.Name
+                }).ToList()
+            };
 
             Global.RebuildAnalyzerInstance rebuildAnalyzerInstance = new Global.RebuildAnalyzerInstance
             {
                 Data = new Global.AnalyzerDataModel
                 {
-                    CharacterData = characters
+                    CharacterData = characterData
                 }
             };
 
@@ -136,7 +147,7 @@ namespace fortunestreetanalyzer
                 "<div id=\"player-turn-determination\"" + (previousAnalyzerData.CharacterData != null ? " class=\"disabled\"" : "") + ">" +
 			        "<div>" +
 
-				        string.Join("", characters.Select
+				        string.Join("", characterData.PlayerData.Select
 				        (
 					        character =>
 						        "<div>" +
@@ -161,7 +172,7 @@ namespace fortunestreetanalyzer
 									        (
 										        digit =>
 											        "<span>" +
-												        "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue / 10 == digit ? " active" : "") + "\" value=\"" + (digit * 10) + "\">" + digit + "</button>" +
+												        "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.PlayerData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue / 10 == digit ? " active" : "") + "\" value=\"" + (digit * 10) + "\">" + digit + "</button>" +
 											        "</span>"
 									        )) +
 
@@ -173,7 +184,7 @@ namespace fortunestreetanalyzer
 									        (
 										        digit =>
 											        "<span>" +
-												        "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue % 10 == digit ? " active" : "") + "\" value=\"" + digit + "\">" + digit + "</button>" +
+												        "<button type=\"button\" class=\"btn btn-outline-primary btn-lg" + (previousAnalyzerData.CharacterData != null && previousAnalyzerData.CharacterData.PlayerData.SingleOrDefault(id => id.ID == character.ID).TurnOrderValue % 10 == digit ? " active" : "") + "\" value=\"" + digit + "\">" + digit + "</button>" +
 											        "</span>"
 									        )) +
 

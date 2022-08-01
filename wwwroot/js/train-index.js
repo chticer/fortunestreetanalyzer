@@ -593,7 +593,7 @@ $(document).ready(function ()
                     $("#player-turn-determination button").off("click");
 
                     for (let i = 0; i < playerTurnDeterminationSumValues.length; ++i)
-                        analyzerData["CharacterData"][i]["TurnOrderValue"] = playerTurnDeterminationSumValues[i];
+                        analyzerData["CharacterData"]["PlayerData"][i]["TurnOrderValue"] = playerTurnDeterminationSumValues[i];
 
                     ajaxCall
                     (
@@ -626,16 +626,16 @@ $(document).ready(function ()
                     "<div class=\"character-portrait-icon small\">" +
 
                     (
-                        analyzerData["CharacterData"][playerIndex]["PortraitURL"] !== null
+                        analyzerData["CharacterData"]["PlayerData"][playerIndex]["PortraitURL"] !== null
                         ?
-                        "<img src=\"" + analyzerData["CharacterData"][playerIndex]["PortraitURL"] + "\" alt=\"Character Portrait for " + analyzerData["CharacterData"][playerIndex]["Name"] + "\" />"
+                        "<img src=\"" + analyzerData["CharacterData"]["PlayerData"][playerIndex]["PortraitURL"] + "\" alt=\"Character Portrait for " + analyzerData["CharacterData"]["PlayerData"][playerIndex]["Name"] + "\" />"
                         :
                         ""
                     ) +
 
                     "</div>" +
 
-                    "<div>" + (analyzerData["CharacterData"][playerIndex]["Name"] !== null ? analyzerData["CharacterData"][playerIndex]["Name"] : "You") + "</div>" +
+                    "<div>" + (analyzerData["CharacterData"]["PlayerData"][playerIndex]["Name"] !== null ? analyzerData["CharacterData"]["PlayerData"][playerIndex]["Name"] : "You") + "</div>" +
                 "</div>";
     }
 
@@ -667,7 +667,6 @@ $(document).ready(function ()
                                 TurnData: JSONResponse["Data"]["GameData"]["TurnData"]
                             }
                         ),
-                        CameoCharacterData: JSONResponse["Data"]["CameoCharacterData"],
 		                SpaceData: JSONResponse["Data"]["SpaceData"],
 		                SpaceTypeData: JSONResponse["Data"]["SpaceTypeData"],
 		                ShopData: JSONResponse["Data"]["ShopData"],
@@ -675,7 +674,7 @@ $(document).ready(function ()
 	                }
                 );
 
-                saveAnalyzerData([ "GameData", "CameoCharacterData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData" ]);
+                saveAnalyzerData([ "GameData", "SpaceData", "SpaceTypeData", "ShopData", "DistrictData" ]);
 
                 saveTurnBeforeRollData(null, initializeGameSetup);
             }
@@ -688,13 +687,13 @@ $(document).ready(function ()
 
         if (characterIndices !== null)
         {
-            analyzerDataCopy["CharacterData"] = [];
             analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1] = [];
+            analyzerDataCopy["CharacterData"]["PlayerData"] = [];
 
             for (let currentCharacterIndex of characterIndices)
             {
-                analyzerDataCopy["CharacterData"].push(analyzerData["CharacterData"][currentCharacterIndex]);
                 analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1].push(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][currentCharacterIndex]);
+                analyzerDataCopy["CharacterData"]["PlayerData"].push(analyzerData["CharacterData"]["PlayerData"][currentCharacterIndex]);
             }
         }
 
@@ -728,7 +727,7 @@ $(document).ready(function ()
 
         $("#standings-subpanel").show();
 
-        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        for (let i = 0; i < analyzerData["CharacterData"]["PlayerData"].length; ++i)
         {
             if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i]["TurnAfterRollData"] === null)
             {
@@ -759,11 +758,11 @@ $(document).ready(function ()
 
         standingsContainer.empty();
 
-        for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+        for (let i = 0; i < analyzerData["CharacterData"]["PlayerData"].length; ++i)
         {
             standingsContainer.append
             (
-                "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][i]["ColorData"]["GameColor"] + ";\">" +
+                "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"]["PlayerData"][i]["ColorData"]["GameColor"] + ";\">" +
                     "<div></div>" +
 
                     renderPlayerContainer(i) +
@@ -1186,7 +1185,7 @@ $(document).ready(function ()
 
             if (analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] !== null)
             {
-                spaceSquareIconContainer.css({ color: "#" + analyzerData["CharacterData"][analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"]]["ColorData"]["GameColor"] });
+                spaceSquareIconContainer.css({ color: "#" + analyzerData["CharacterData"]["PlayerData"][analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"]]["ColorData"]["GameColor"] });
 
                 spaceSquareContainer.append
                 (
@@ -1237,7 +1236,7 @@ $(document).ready(function ()
 
         spaceSquareContainer.append("<div class=\"character-markers\"></div>");
 
-        let spaceCharacterMarkerIndices = $.map(analyzerData["CharacterData"], function (value, index)
+        let spaceCharacterMarkerIndices = $.map(analyzerData["CharacterData"]["PlayerData"], function (value, index)
         {
             if (analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][index]["TurnBeforeRollCurrentData"]["SpaceIndexCurrent"] === spaceIndex)
                 return index;
@@ -1267,7 +1266,7 @@ $(document).ready(function ()
                             }
                         ),
                         {
-                            backgroundColor: "#" + analyzerData["CharacterData"][spaceCharacterMarkerIndices[i]]["ColorData"]["GameColor"]
+                            backgroundColor: "#" + analyzerData["CharacterData"]["PlayerData"][spaceCharacterMarkerIndices[i]]["ColorData"]["GameColor"]
                         }
                     )
                 );
@@ -1333,7 +1332,7 @@ $(document).ready(function ()
 
             $("#board-subpanel-spaces-remaining").remove();
 
-            playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"].length;
+            playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"]["PlayerData"].length;
 
             $("#turns > div:last-of-type").append("<div></div>");
 
@@ -1434,7 +1433,7 @@ $(document).ready(function ()
                 {
                     let currentArrowIcon = currentArrowContainer.find("path");
 
-                    currentArrowIcon.css({ fill: "#" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] });
+                    currentArrowIcon.css({ fill: "#" + analyzerData["CharacterData"]["PlayerData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] });
 
                     let currentArrowIconCopy = currentArrowIcon.clone();
 
@@ -1444,7 +1443,7 @@ $(document).ready(function ()
                     (
                         {
                             fill: "transparent",
-                            stroke: "#" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"],
+                            stroke: "#" + analyzerData["CharacterData"]["PlayerData"][playerTurnCharacterIndex]["ColorData"]["GameColor"],
                             strokeWidth: "10px",
                             filter: "brightness(0.25)"
                         }
@@ -1537,7 +1536,7 @@ $(document).ready(function ()
 
             $("body > .modal button[name=\"modal-confirmation-reset-turn-danger-yes\"]").on("click", function ()
             {
-                for (let i = 0; i < analyzerData["CharacterData"].length; ++i)
+                for (let i = 0; i < analyzerData["CharacterData"]["PlayerData"].length; ++i)
                     analyzerData["GameData"]["TurnData"][turnIndex][i]["TurnBeforeRollCurrentData"] = analyzerData["GameData"]["TurnData"][turnIndex][i]["TurnBeforeRollStartData"];
 
                 analyzerData["GameData"]["TurnData"].length = turnIndex + 1;
@@ -1689,7 +1688,7 @@ $(document).ready(function ()
             playerTurnConfirmationActionsContainer.remove();
         });
 
-        let opponentsCharacterIndices = Array.from(Array(analyzerData["CharacterData"].length).keys());
+        let opponentsCharacterIndices = Array.from(Array(analyzerData["CharacterData"]["PlayerData"].length).keys());
 
         opponentsCharacterIndices.splice(playerTurnCharacterIndex, 1);
 
@@ -1769,7 +1768,7 @@ $(document).ready(function ()
         {
             displayNewTurn(i);
 
-            for (let j = 0; j < analyzerData["CharacterData"].length; ++j)
+            for (let j = 0; j < analyzerData["CharacterData"]["PlayerData"].length; ++j)
             {
                 $("#turns > div:last-of-type").append("<div></div>");
 
@@ -1778,7 +1777,7 @@ $(document).ready(function ()
 
                 $("#turns > div:last-of-type > div:last-of-type").append
                 (
-                    "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][j]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(j) + "</div>" +
+                    "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"]["PlayerData"][j]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(j) + "</div>" +
 
                     "<div class=\"logs\">" +
 
@@ -1811,7 +1810,7 @@ $(document).ready(function ()
 
         $("#turns > div:last-of-type > div:last-of-type").append
         (
-            "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(playerTurnCharacterIndex) + "</div>" +
+            "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"]["PlayerData"][playerTurnCharacterIndex]["ColorData"]["GameColor"] + ";\">" + renderPlayerContainer(playerTurnCharacterIndex) + "</div>" +
 
             "<div class=\"logs\"></div>"
         );

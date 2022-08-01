@@ -212,7 +212,7 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                _fortuneStreetAppContext.TurnOrderDetermination.AddRange(saveCharacterDataParameter.CharacterData.Select(character => new TurnOrderDetermination
+                _fortuneStreetAppContext.TurnOrderDetermination.AddRange(saveCharacterDataParameter.CharacterData.PlayerData.Select(character => new TurnOrderDetermination
                 {
                     AnalyzerInstanceID = saveCharacterDataParameter.AnalyzerInstanceID,
                     CharacterID = character.ID,
@@ -223,31 +223,36 @@ namespace fortunestreetanalyzer.Pages.train
 
                 List<GetCharacterColorsTVF> getCharacterColorsTVFResults = _fortuneStreetAppContext.GetCharacterColorsTVF.FromSqlInterpolated($"SELECT * FROM getcharactercolors_tvf({saveCharacterDataParameter.AnalyzerInstanceID})").ToList();
 
-                List<Global.AnalyzerDataModel.CharacterDataModel> characters = getCharacterColorsTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel
+                List<Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel> characters = getCharacterColorsTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel
                 {
                     ID = result.CharacterID,
                     TurnOrderValue = result.Value,
-                    ColorData = new Global.AnalyzerDataModel.CharacterDataModel.ColorDataModel
+                    ColorData = new Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel.ColorDataModel
                     {
                         ID = result.ColorIDAssigned
                     }
                 }).ToList();
 
-                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = _fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({saveCharacterDataParameter.GameData.BoardData.ID})").ToList();
+                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = new List<GetBoardCharactersTVF>
+                {
+                    new GetBoardCharactersTVF
+                    {
+                        Name = "You"
+                    }
+                }.Union(_fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({saveCharacterDataParameter.GameData.BoardData.ID})")).ToList();
 
                 List<long> characterColorIDs = characters.Select(character => character.ColorData.ID).ToList();
 
                 List<Colors> colors = _fortuneStreetAppContext.Colors.Where(color => characterColorIDs.Contains(color.ID)).ToList();
 
-                foreach (Global.AnalyzerDataModel.CharacterDataModel currentCharacter in characters)
+                foreach (Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel currentCharacter in characters)
                 {
                     GetBoardCharactersTVF currentGetBoardCharactersTVFResult = getBoardCharactersTVFResults.SingleOrDefault(result => result.CharacterID == currentCharacter.ID);
 
-                    if (currentGetBoardCharactersTVFResult != null)
-                    {
+                    currentCharacter.Name = currentGetBoardCharactersTVFResult.Name;
+
+                    if (!string.IsNullOrEmpty(currentGetBoardCharactersTVFResult.CharacterPortraitURI))
                         currentCharacter.PortraitURL = Global.AZURE_STORAGE_URL + currentGetBoardCharactersTVFResult.CharacterPortraitURI;
-                        currentCharacter.Name = currentGetBoardCharactersTVFResult.Name;
-                    }
 
                     Colors currentColor = colors.SingleOrDefault(color => color.ID == currentCharacter.ColorData.ID);
 
@@ -258,18 +263,11 @@ namespace fortunestreetanalyzer.Pages.train
                 {
                     Data = new Global.AnalyzerDataModel
                     {
-                        CharacterData = characters.Select(character => new Global.AnalyzerDataModel.CharacterDataModel
+                        CharacterData = new Global.AnalyzerDataModel.CharacterDataModel
                         {
-                            ID = character.ID,
-                            PortraitURL = character.PortraitURL,
-                            Name = character.Name,
-                            TurnOrderValue = character.TurnOrderValue,
-                            ColorData = new Global.AnalyzerDataModel.CharacterDataModel.ColorDataModel
-                            {
-                                ID = character.ColorData.ID,
-                                GameColor = character.ColorData.GameColor
-                            }
-                        }).ToList()
+                            PlayerData = characters,
+                            CameoCharacterData = saveCharacterDataParameter.CharacterData.CameoCharacterData
+                        }
                     }
                 });
 
@@ -288,8 +286,6 @@ namespace fortunestreetanalyzer.Pages.train
             try
             {
                 BoardCharacteristics boardCharacteristicResult = _fortuneStreetAppContext.BoardCharacteristics.SingleOrDefault(board_characteristic => board_characteristic.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && board_characteristic.BoardID == loadSettingsOnGameStartParameter.BoardData.ID);
-
-                List<Characters> cameoCharacters = _fortuneStreetAppContext.Characters.Where(rank => string.IsNullOrEmpty(rank.Rank)).ToList();
 
                 List<Spaces> spaceResults = _fortuneStreetAppContext.Spaces.Where(space => space.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && space.BoardID == loadSettingsOnGameStartParameter.BoardData.ID).ToList();
 
@@ -410,12 +406,6 @@ namespace fortunestreetanalyzer.Pages.train
                         {
                             TurnData = new List<List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>> { initialTurnData }
                         },
-                        CameoCharacterData = cameoCharacters.Select(cameo_character_result => new Global.AnalyzerDataModel.CharacterDataModel
-                        {
-                            ID = cameo_character_result.ID,
-                            PortraitURL = Global.AZURE_STORAGE_URL + cameo_character_result.CharacterPortraitURI,
-                            Name = cameo_character_result.Name
-                        }).ToList(),
                         SpaceData = spaceData,
                         SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
                         {
@@ -454,10 +444,10 @@ namespace fortunestreetanalyzer.Pages.train
 
             try
             {
-                _fortuneStreetAppContext.TurnBeforeRoll.AddRange(saveTurnBeforeRollDataParameter.GameData.TurnData.LastOrDefault().Select((turn_character_result, turn_character_index) => new TurnBeforeRoll
+                _fortuneStreetAppContext.TurnBeforeRoll.AddRange(saveTurnBeforeRollDataParameter.GameData.TurnData.FirstOrDefault().Select((turn_character_result, turn_character_index) => new TurnBeforeRoll
                 {
                     AnalyzerInstanceID = saveTurnBeforeRollDataParameter.AnalyzerInstanceID,
-                    CharacterID = saveTurnBeforeRollDataParameter.CharacterData[turn_character_index].ID,
+                    CharacterID = saveTurnBeforeRollDataParameter.CharacterData.PlayerData[turn_character_index].ID,
                     SpaceIDCurrent = saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexCurrent].ID,
                     SpaceIDFrom = turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom != null ? saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom].ID : null,
                     TurnNumber = (byte) saveTurnBeforeRollDataParameter.GameData.TurnData.Count,

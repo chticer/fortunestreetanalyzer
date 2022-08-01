@@ -18,8 +18,7 @@ namespace fortunestreetanalyzer
             public string AnalyzerInstanceName { get; set; }
             public DateTime AnalyzerInstanceStarted { get; set; }
             public GameDataModel GameData { get; set; }
-            public List<CharacterDataModel> CharacterData { get; set; }
-            public List<CharacterDataModel> CameoCharacterData { get; set; }
+            public CharacterDataModel CharacterData { get; set; }
             public List<SpaceDataModel> SpaceData { get; set; }
             public List<SpaceTypeDataModel> SpaceTypeData { get; set; }
             public List<ShopDataModel> ShopData { get; set; }
@@ -93,16 +92,26 @@ namespace fortunestreetanalyzer
 
             public class CharacterDataModel
             {
-                public long ID { get; set; }
-                public string PortraitURL { get; set; }
-                public string Name { get; set; }
-                public byte TurnOrderValue { get; set; }
-                public ColorDataModel ColorData { get; set; }
+                public List<CharacterPlayerDataModel> PlayerData { get; set; }
+                public List<CharacterPlayerAbstractDataModel> CameoCharacterData { get; set; }
 
-                public class ColorDataModel
+                public class CharacterPlayerAbstractDataModel
                 {
                     public long ID { get; set; }
-                    public string GameColor { get; set; }
+                    public string PortraitURL { get; set; }
+                    public string Name { get; set; }
+                }
+
+                public class CharacterPlayerDataModel : CharacterPlayerAbstractDataModel
+                {
+                    public byte TurnOrderValue { get; set; }
+                    public ColorDataModel ColorData { get; set; }
+
+                    public class ColorDataModel
+                    {
+                        public long ID { get; set; }
+                        public string GameColor { get; set; }
+                    }
                 }
             }
 
