@@ -18,27 +18,26 @@ namespace fortunestreetanalyzer
                 Data = new Global.AnalyzerDataModel
                 {
                     GameData =
-                    previousGameData != null
-                    ?
-                    previousGameData
-                    :
-                    new Global.AnalyzerDataModel.GameDataModel
-                    {
-                        RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
+                        previousGameData != null
+                        ?
+                        previousGameData
+                        :
+                        new Global.AnalyzerDataModel.GameDataModel
                         {
-                            ID = rules.FirstOrDefault().ID
-                        },
-                        BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
-                        {
-                            ID = boards.FirstOrDefault().ID
-                        },
-                        ColorData = new Global.AnalyzerDataModel.GameDataModel.ColorDataModel
-                        {
-                            ID = miiColors.FirstOrDefault().ID
+                            RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
+                            {
+                                ID = rules.FirstOrDefault().ID
+                            },
+                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
+                            {
+                                ID = boards.FirstOrDefault().ID
+                            },
+                            ColorData = new Global.AnalyzerDataModel.GameDataModel.ColorDataModel
+                            {
+                                ID = miiColors.FirstOrDefault().ID
+                            }
                         }
-                    }
-                },
-
+                }
             };
 
             rebuildAnalyzerInstance.Response =

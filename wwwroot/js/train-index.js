@@ -685,15 +685,17 @@ $(document).ready(function ()
     {
         let analyzerDataCopy = $.extend(true, {}, analyzerData);
 
+        analyzerDataCopy["GameData"]["TurnData"] = analyzerDataCopy["GameData"]["TurnData"].slice(-1);
+
         if (characterIndices !== null)
         {
-            analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1] = [];
             analyzerDataCopy["CharacterData"]["PlayerData"] = [];
+            analyzerDataCopy["GameData"]["TurnData"][0] = [];
 
             for (let currentCharacterIndex of characterIndices)
             {
-                analyzerDataCopy["GameData"]["TurnData"][analyzerDataCopy["GameData"]["TurnData"].length - 1].push(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][currentCharacterIndex]);
                 analyzerDataCopy["CharacterData"]["PlayerData"].push(analyzerData["CharacterData"]["PlayerData"][currentCharacterIndex]);
+                analyzerDataCopy["GameData"]["TurnData"][0].push(analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][currentCharacterIndex]);
             }
         }
 
