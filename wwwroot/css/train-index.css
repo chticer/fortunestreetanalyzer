@@ -247,6 +247,12 @@ body > div
     height: 80%;
 }
 
+#board-subpanel-spaces > div > div:first-of-type > .space-icon > span[data-fa-i2svg] > .svg-inline--fa
+{
+    width: 100%;
+    height: 100%;
+}
+
 #board-subpanel-spaces > div > div:first-of-type > .shop-unowned-value
 {
     display: flex;
@@ -382,18 +388,28 @@ body > div
 
 #board-subpanel-direction-choices > div
 {
-    padding: 10px;
+    width: 100%;
+    height: 100%;
+    visibility: hidden;
+}
+
+#board-subpanel-direction-choices > div > span[data-fa-i2svg] > .svg-inline--fa
+{
+    position: absolute;
+    left: 50%;
+    top: 25%;
+    width: 50%;
+    height: 50%;
 }
 
 #board-subpanel-direction-choices > div > span[data-fa-i2svg] > .svg-inline--fa > path
 {
-    cursor: pointer;
+    visibility: visible;
 }
 
-#board-subpanel-spaces > div > div:first-of-type > .space-icon > span[data-fa-i2svg] > .svg-inline--fa, #board-subpanel-direction-choices > div > span[data-fa-i2svg] > .svg-inline--fa
+#board-subpanel-direction-choices > div > span[data-fa-i2svg] > .svg-inline--fa > path:last-of-type
 {
-    width: 100%;
-    height: 100%;
+    cursor: pointer;
 }
 
 #board-subpanel-spaces-remaining

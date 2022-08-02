@@ -1413,21 +1413,19 @@ $(document).ready(function ()
                         "<span class=\"fas fa-right\"></span>" +
                     "</div>"
                 );
-                
+
                 let currentArrowContainer = $("#board-subpanel-direction-choices > div:last-of-type");
 
                 let destinationSpaceLayoutData = analyzerData["SpaceData"][currentPlayerSpaceTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceLayoutData"][spaceLayoutIndex];
 
-                let arrowAngle = Math.atan2(destinationSpaceLayoutData["CenterYFactor"] - sourceSpaceLayoutData["CenterYFactor"], destinationSpaceLayoutData["CenterXFactor"] - sourceSpaceLayoutData["CenterXFactor"]) * 180 / Math.PI;
-
                 currentArrowContainer.css
                 (
                     {
-                        left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (sourceSpaceLayoutData["CenterXFactor"] - 0.5) - SPACE_SQUARE_SIZE / 180 * Math.abs(arrowAngle) + SPACE_SQUARE_SIZE / 2 + "px",
-                        top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (sourceSpaceLayoutData["CenterYFactor"] - 0.5) + ((arrowAngle > 0 ? 1 : -1) * (-SPACE_SQUARE_SIZE / 180 * Math.abs(((arrowAngle > 0 ? 1 : -1) * 90) - arrowAngle) + SPACE_SQUARE_SIZE / 2)) + "px",
-                        width: SPACE_SQUARE_SIZE + "px",
-                        height: SPACE_SQUARE_SIZE + "px",
-                        transform: "rotateZ(" + arrowAngle + "deg)"
+                        left: boardSubpanelOffsetX + SPACE_SQUARE_SIZE * (sourceSpaceLayoutData["CenterXFactor"] - 1) + "px",
+                        top: boardSubpanelOffsetY + SPACE_SQUARE_SIZE * (sourceSpaceLayoutData["CenterYFactor"] - 1) + "px",
+                        width: 2 * SPACE_SQUARE_SIZE + "px",
+                        height: 2 * SPACE_SQUARE_SIZE + "px",
+                        transform: "rotateZ(" + Math.atan2(destinationSpaceLayoutData["CenterYFactor"] - sourceSpaceLayoutData["CenterYFactor"], destinationSpaceLayoutData["CenterXFactor"] - sourceSpaceLayoutData["CenterXFactor"]) * 180 / Math.PI + "deg)"
                     }
                 );
 
