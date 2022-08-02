@@ -1487,8 +1487,6 @@ $(document).ready(function ()
                         "<button type=\"button\" class=\"btn btn-danger\" name=\"reset\">Reset To This Turn</button>" +
                     "</div>" +
                 "</div>" +
-
-                "<div></div>" +
             "</div>"
         );
 
