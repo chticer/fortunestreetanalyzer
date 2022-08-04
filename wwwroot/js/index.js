@@ -77,7 +77,7 @@
 
             if (descriptions.length > 0)
             {
-                $("#alert-container").removeClass().addClass(alert["Type"]);
+                $("#alert-container").removeClass().addClass([ "alert", alert["Type"] ]);
 
                 $("#alert-container").empty().append
                 (

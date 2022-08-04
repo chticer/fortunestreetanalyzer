@@ -53,6 +53,13 @@ body > div > div
     font-size: 1.25rem;
 }
 
+#alert-container.alert
+{
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
 #alert-container > .alert
 {
     margin-bottom: 0;
