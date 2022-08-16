@@ -584,7 +584,7 @@ body > div
     border-bottom: 2px solid #888;
 }
 
-#settings-content > div:not(.loading) > div:not(:last-of-type)
+#settings-content > div:not(#turns):not(.loading) > div:not(:last-of-type)
 {
     margin-bottom: 20px;
 }
@@ -648,6 +648,11 @@ body > div
 #player-turn-determination.disabled > div:first-of-type > div > div:last-of-type > div > span > button:not(.active)
 {
     opacity: 0.65;
+}
+
+#turns > div:not(:last-of-type)
+{
+    margin-bottom: 50px;
 }
 
 #turns > div > div:first-of-type

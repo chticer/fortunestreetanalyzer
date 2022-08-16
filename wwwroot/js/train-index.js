@@ -1334,6 +1334,32 @@ $(document).ready(function ()
 
             $("#board-subpanel-spaces-remaining").remove();
 
+            if (playerTurnCharacterIndex === analyzerData["CharacterData"]["PlayerData"].length - 1)
+            {
+                let nextTurnData = [];
+
+                for (let i = 0; i < analyzerData["CharacterData"]["PlayerData"].length; ++i)
+                {
+                    let currentPlayerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][i];
+
+                    nextTurnData.push
+                    (
+                        {
+                            TurnBeforeRollStartData: currentPlayerTurnCharacterData["TurnBeforeRollCurrentData"],
+                            TurnBeforeRollCurrentData: currentPlayerTurnCharacterData["TurnBeforeRollCurrentData"],
+                            TurnAfterRollData: null,
+                            Logs: [],
+                            CameoCharacterIndices: currentPlayerTurnCharacterData["CameoCharacterIndices"],
+                            TurnCameoCharacterData: currentPlayerTurnCharacterData["TurnCameoCharacterData"]
+                        }
+                    );
+                }
+
+                analyzerData["GameData"]["TurnData"].push(nextTurnData);
+
+                displayNewTurn(analyzerData["GameData"]["TurnData"].length - 1);
+            }
+
             playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"]["PlayerData"].length;
 
             $("#turns > div:last-of-type").append("<div></div>");
