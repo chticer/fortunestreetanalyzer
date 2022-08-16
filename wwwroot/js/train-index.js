@@ -1375,7 +1375,32 @@ $(document).ready(function ()
 
             let spaceTypeName = analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceTypeIndex"]]["Name"];
 
-            if (spaceTypeName === "suit")
+            if (spaceTypeName === "bank")
+            {
+                if (playerTurnCharacterData["TurnBeforeRollCurrentData"]["NetWorth"] >= analyzerData["GameData"]["RuleData"]["NetWorthThreshold"])
+                {
+                    endGame();
+
+                    return;
+                }
+
+                if (playerTurnCharacterData["TurnBeforeRollCurrentData"]["CollectedSuits"].length + playerTurnCharacterData["TurnBeforeRollCurrentData"]["TotalSuitCards"] >= SUIT_DATA.length)
+                {
+                    executePlayerPromotion();
+
+                    if (playerTurnCharacterData["TurnBeforeRollCurrentData"]["NetWorth"] >= analyzerData["GameData"]["RuleData"]["NetWorthThreshold"])
+                    {
+                        endGame();
+
+                        return;
+                    }
+                }
+
+                if (analyzerData["GameData"]["RuleData"]["Name"] === "Standard")
+                {
+                }
+            }
+            else if (spaceTypeName === "suit")
             {
                 let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (spaceTreeGraph["Node"]["SpaceIndexCurrent"] + 1) + ")");
 
@@ -1904,6 +1929,10 @@ $(document).ready(function ()
         playerTurnCharacterData["TurnBeforeRollCurrentData"]["TotalSuitCards"] -= Math.min(SUIT_DATA.length - playerTurnCharacterData["TurnBeforeRollCurrentData"]["CollectedSuits"].length, playerTurnCharacterData["TurnBeforeRollCurrentData"]["TotalSuitCards"]);
 
         addLogEntry("Received a promotion of " + totalPromotionValue + " ready cash (" + baseSalaryValue + " base salary, " + promotionBonusValue + " promotion bonus, " + shopBonusValue + " shop bonus).");
+    }
+
+    function endGame()
+    {
     }
 
     $("#standings-subpanel").hide();
