@@ -801,11 +801,11 @@ $(document).ready(function ()
 
             standingsContainer.children().last().children().eq(2).children().eq(2).toggle(analyzerData["GameData"]["RuleData"]["Name"] === "Standard");
 
-            updateStandingsPlayer(i);
+            updatePlayerStandings(i);
         }
     }
 
-    function updateStandingsPlayer(playerIndex)
+    function updatePlayerStandings(playerIndex)
     {
         let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerIndex]["TurnBeforeRollCurrentData"];
 
@@ -1363,7 +1363,7 @@ $(document).ready(function ()
 
                     addLogEntry("Picked up " + spaceContainer.find(".space-icon").html() + ".");
 
-                    updateStandingsPlayer(playerTurnCharacterIndex);
+                    updatePlayerStandings(playerTurnCharacterIndex);
                 }
 
                 if (spaceSuitAdditionalProperties["Rotate"])

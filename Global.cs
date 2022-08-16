@@ -62,7 +62,7 @@ namespace fortunestreetanalyzer
                     public TurnBeforeRollDataModel TurnBeforeRollCurrentData { get; set; }
                     public List<TurnAfterRollDataModel> TurnAfterRollData { get; set; }
                     public List<string> Logs { get; set; }
-                    public List<long> CameoCharacterIDs { get; set; }
+                    public List<long> CameoCharacterIndices { get; set; }
                     public List<TurnDataModel> TurnCameoCharacterData { get; set; }
 
                     public class TurnBeforeRollDataModel

@@ -356,7 +356,8 @@ namespace fortunestreetanalyzer.Pages.train
                         ArcadeIndex = 0
                     },
                     TurnAfterRollData = null,
-                    Logs = new List<string>()
+                    Logs = new List<string>(),
+                    CameoCharacterIndices = new List<long>()
                 }).ToList();
 
                 List<Global.AnalyzerDataModel.SpaceDataModel> spaceData = new List<Global.AnalyzerDataModel.SpaceDataModel>();
