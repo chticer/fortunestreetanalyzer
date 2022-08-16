@@ -1842,6 +1842,70 @@ $(document).ready(function ()
         displayPlayerTurnOptions();
     }
 
+    function updatePlayerStandingsScore(data)
+    {
+        let turnData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1];
+
+        for (let currentData of data)
+        {
+            turnData[currentData["CharacterIndex"]]["TurnBeforeRollCurrentData"]["ReadyCash"] += currentData["ReadyCash"];
+            turnData[currentData["CharacterIndex"]]["TurnBeforeRollCurrentData"]["NetWorth"] += currentData["ReadyCash"];
+        }
+
+        let playerNetWorthOrder = $.map(turnData, function (value, index)
+        {
+            return {
+                CharacterIndex: index,
+                NetWorth: value["TurnBeforeRollCurrentData"]["NetWorth"]
+            };
+        }).sort((a, b) => -1 * (a["NetWorth"] - b["NetWorth"]));
+
+        let previousNetWorthValue = null;
+        let previousPlacingValue = null;
+
+        for (let i = 0; i < playerNetWorthOrder.length; ++i)
+        {
+            if (previousNetWorthValue === null || previousNetWorthValue !== playerNetWorthOrder[i]["NetWorth"])
+            {
+                previousNetWorthValue = playerNetWorthOrder[i]["NetWorth"];
+                previousPlacingValue = i + 1;
+            }
+
+            turnData[playerNetWorthOrder[i]["CharacterIndex"]]["TurnBeforeRollCurrentData"]["Placing"] = previousPlacingValue;
+
+            updatePlayerStandings(playerNetWorthOrder[i]["CharacterIndex"]);
+        }
+    }
+
+    function executePlayerPromotion()
+    {
+        let playerTurnCharacterData = analyzerData["GameData"]["TurnData"][analyzerData["GameData"]["TurnData"].length - 1][playerTurnCharacterIndex];
+
+        let baseSalaryValue = analyzerData["GameData"]["BoardData"]["SalaryStart"];
+        let promotionBonusValue = analyzerData["GameData"]["BoardData"]["SalaryIncrease"] * playerTurnCharacterData["TurnBeforeRollCurrentData"]["Level"];
+        let shopBonusValue = Math.floor(playerTurnCharacterData["TurnBeforeRollCurrentData"]["TotalShopValue"] / 10);
+
+        let totalPromotionValue = baseSalaryValue + promotionBonusValue + shopBonusValue;
+
+        updatePlayerStandingsScore
+        (
+            [
+                {
+                    CharacterIndex: playerTurnCharacterIndex,
+                    ReadyCash: totalPromotionValue
+                }
+            ]
+        );
+
+        ++playerTurnCharacterData["TurnBeforeRollCurrentData"]["Level"];
+
+        playerTurnCharacterData["TurnBeforeRollCurrentData"]["CollectedSuits"] = [];
+
+        playerTurnCharacterData["TurnBeforeRollCurrentData"]["TotalSuitCards"] -= Math.min(SUIT_DATA.length - playerTurnCharacterData["TurnBeforeRollCurrentData"]["CollectedSuits"].length, playerTurnCharacterData["TurnBeforeRollCurrentData"]["TotalSuitCards"]);
+
+        addLogEntry("Received a promotion of " + totalPromotionValue + " ready cash (" + baseSalaryValue + " base salary, " + promotionBonusValue + " promotion bonus, " + shopBonusValue + " shop bonus).");
+    }
+
     $("#standings-subpanel").hide();
 
     settingsContainer.append(loadingDisplay());
