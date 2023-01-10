@@ -171,13 +171,19 @@
                 ) +
 
                 (
-                    previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"] !== null
+                    previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["RuleData"]["Name"] !== null
                     ?
-                    "<div>Rule: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["Name"] + "</strong></div>" +
-                    "<div>Board: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["BoardData"]["Name"] + "</strong></div>" +
-                    "<div>Standing Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"] + "<sup>" + ordinalNumberSuffix(previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["StandingThreshold"]) + "</sup> Place</strong></div>" +
-                    "<div>Net Worth Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["RuleData"]["NetWorthThreshold"].toLocaleString() + "</strong></div>" +
-                    (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["TurnData"] !== null ? "<div>Turn: <strong>" + (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameData"]["TurnData"].length).toLocaleString() + "</strong></div>" : "")
+                    "<div>Rule: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["RuleData"]["Name"] + "</strong></div>" +
+                    "<div>Board: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["BoardData"]["Name"] + "</strong></div>" +
+                    "<div>Standing Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["RuleData"]["StandingThreshold"] + "<sup>" + ordinalNumberSuffix(previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["RuleData"]["StandingThreshold"]) + "</sup> Place</strong></div>" +
+                    "<div>Net Worth Threshold: <strong>" + previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["RuleData"]["NetWorthThreshold"].toLocaleString() + "</strong></div>" +
+                    (
+                        previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["TurnData"] !== null
+                        ?
+                        "<div>Turn: <strong>" + (previousAnalyzerInstanceData[type][previousAnalyzerInstanceCurrentPage[type] - 1]["GameSettingsData"]["TurnData"].length).toLocaleString() + "</strong></div>"
+                        :
+                        ""
+                    )
                     :
                     "<div>" +
                         "<strong>No rule and board selection has been made for this analyzer instance.</strong>" +
