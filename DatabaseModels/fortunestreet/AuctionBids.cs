@@ -1,9 +1,9 @@
 ﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
 
 /// <summary>
-/// Crosslist for boards and characters tables.
+/// Data of auction bids within the program.
 /// </summary>
-public partial class BoardCharacterCrosslist
+public partial class AuctionBids
 {
     /// <summary>
     /// Unique identifier.
@@ -11,9 +11,9 @@ public partial class BoardCharacterCrosslist
     public long ID { get; set; }
 
     /// <summary>
-    /// Board identifier reference.
+    /// Shop offer negotiation identifier reference.
     /// </summary>
-    public long BoardID { get; set; }
+    public long ShopOfferNegotiationID { get; set; }
 
     /// <summary>
     /// Character identifier reference.
@@ -21,9 +21,14 @@ public partial class BoardCharacterCrosslist
     public long CharacterID { get; set; }
 
     /// <summary>
+    /// The bid of the auction.
+    /// </summary>
+    public int Bid { get; set; }
+
+    /// <summary>
     /// Default UTC timestamp when record is added.
     /// </summary>
     public DateTime TimestampAdded { get; set; }
 
-    public virtual Boards Board { get; set; }
+    public virtual ShopOffers ShopOfferNegotiation { get; set; }
 }

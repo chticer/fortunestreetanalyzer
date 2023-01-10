@@ -1,17 +1,29 @@
-﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
+﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
+
+/// <summary>
+/// Data of the shops in Fortune Street.
+/// </summary>
+public partial class Shops
 {
-    public partial class Shops
-    {
-        public Shops()
-        {
-            Spaces = new HashSet<Spaces>();
-        }
+    /// <summary>
+    /// Unique identifier.
+    /// </summary>
+    public long ID { get; set; }
 
-        public long ID { get; set; }
-        public string Name { get; set; }
-        public int Value { get; set; }
-        public DateTime TimestampAdded { get; set; }
+    /// <summary>
+    /// The name of the shop.
+    /// </summary>
+    public string Name { get; set; }
 
-        public virtual ICollection<Spaces> Spaces { get; set; }
-    }
+    /// <summary>
+    /// The value of the shop.
+    /// </summary>
+    public int Value { get; set; }
+
+    /// <summary>
+    /// Default UTC timestamp when record is added.
+    /// </summary>
+    public DateTime TimestampAdded { get; set; }
+
+    public virtual ICollection<Spaces> Spaces { get; } = new List<Spaces>();
 }

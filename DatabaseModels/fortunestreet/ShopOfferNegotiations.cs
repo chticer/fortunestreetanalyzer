@@ -1,9 +1,9 @@
 ﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
 
 /// <summary>
-/// Crosslist for characters and colors tables.
+/// Data of shop offer negotations within the program.
 /// </summary>
-public partial class CharacterColorCrosslist
+public partial class ShopOfferNegotiations
 {
     /// <summary>
     /// Unique identifier.
@@ -11,29 +11,34 @@ public partial class CharacterColorCrosslist
     public long ID { get; set; }
 
     /// <summary>
+    /// Shop offer identifier reference.
+    /// </summary>
+    public long ShopOfferID { get; set; }
+
+    /// <summary>
     /// Character identifier reference.
     /// </summary>
     public long CharacterID { get; set; }
 
     /// <summary>
-    /// Color identifier reference.
+    /// Whether the shop offer negotiation succeeded.
     /// </summary>
-    public long ColorID { get; set; }
+    public bool Success { get; set; }
 
     /// <summary>
-    /// The order value relative to the character and color.
+    /// Whether the shop offer negotiation was forced.
     /// </summary>
-    public byte Position { get; set; }
+    public bool Forced { get; set; }
 
     /// <summary>
-    /// The order value, in comparison with other characters, relative to the character and color.
+    /// The amount of the shop offer negotation.
     /// </summary>
-    public byte? Priority { get; set; }
+    public int Amount { get; set; }
 
     /// <summary>
     /// Default UTC timestamp when record is added.
     /// </summary>
     public DateTime TimestampAdded { get; set; }
 
-    public virtual Colors Color { get; set; }
+    public virtual ShopOffers ShopOffer { get; set; }
 }

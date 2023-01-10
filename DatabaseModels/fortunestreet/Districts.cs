@@ -1,17 +1,29 @@
-﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
+﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
+
+/// <summary>
+/// Data of the districts in Fortune Street.
+/// </summary>
+public partial class Districts
 {
-    public class Districts
-    {
-        public Districts()
-        {
-            Spaces = new HashSet<Spaces>();
-        }
+    /// <summary>
+    /// Unique identifier.
+    /// </summary>
+    public long ID { get; set; }
 
-        public long ID { get; set; }
-        public string Name { get; set; }
-        public string Color { get; set; }
-        public DateTime TimestampAdded { get; set; }
+    /// <summary>
+    /// The name of the district.
+    /// </summary>
+    public string Name { get; set; }
 
-        public virtual ICollection<Spaces> Spaces { get; set; }
-    }
+    /// <summary>
+    /// Hex value given to a district in Fortune Street.
+    /// </summary>
+    public string Color { get; set; }
+
+    /// <summary>
+    /// Default UTC timestamp when record is added.
+    /// </summary>
+    public DateTime TimestampAdded { get; set; }
+
+    public virtual ICollection<Spaces> Spaces { get; } = new List<Spaces>();
 }

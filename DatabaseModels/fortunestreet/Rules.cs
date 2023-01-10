@@ -1,20 +1,28 @@
-﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
+﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
+
+/// <summary>
+/// Data of the rules in Fortune Street.
+/// </summary>
+public partial class Rules
 {
-    public partial class Rules
-    {
-        public Rules()
-        {
-            BoardCharacteristics = new HashSet<BoardCharacteristics>();
-            GameSettings = new HashSet<GameSettings>();
-            Spaces = new HashSet<Spaces>();
-        }
+    /// <summary>
+    /// Unique identifier.
+    /// </summary>
+    public long ID { get; set; }
 
-        public long ID { get; set; }
-        public string Name { get; set; }
-        public DateTime TimestampAdded { get; set; }
+    /// <summary>
+    /// The name of the rule.
+    /// </summary>
+    public string Name { get; set; }
 
-        public virtual ICollection<BoardCharacteristics> BoardCharacteristics { get; set; }
-        public virtual ICollection<GameSettings> GameSettings { get; set; }
-        public virtual ICollection<Spaces> Spaces { get; set; }
-    }
+    /// <summary>
+    /// Default UTC timestamp when record is added.
+    /// </summary>
+    public DateTime TimestampAdded { get; set; }
+
+    public virtual ICollection<BoardCharacteristics> BoardCharacteristics { get; } = new List<BoardCharacteristics>();
+
+    public virtual ICollection<GameSettings> GameSettings { get; } = new List<GameSettings>();
+
+    public virtual ICollection<Spaces> Spaces { get; } = new List<Spaces>();
 }

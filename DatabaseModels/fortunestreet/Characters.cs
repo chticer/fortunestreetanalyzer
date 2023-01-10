@@ -1,20 +1,32 @@
-﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
+﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
+
+/// <summary>
+/// Data of the characters in Fortune Street.
+/// </summary>
+public partial class Characters
 {
-    public partial class Characters
-    {
-        public Characters()
-        {
-            BoardCharacterCrosslists = new HashSet<BoardCharacterCrosslist>();
-            CharacterColorCrosslists = new HashSet<CharacterColorCrosslist>();
-        }
+    /// <summary>
+    /// Unique identifier.
+    /// </summary>
+    public long ID { get; set; }
 
-        public long ID { get; set; }
-        public string CharacterPortraitURI { get; set; }
-        public string Name { get; set; }
-        public string Rank { get; set; }
-        public DateTime TimestampAdded { get; set; }
+    /// <summary>
+    /// The URI value of the character's portrait image.
+    /// </summary>
+    public string CharacterPortraitURI { get; set; }
 
-        public virtual ICollection<BoardCharacterCrosslist> BoardCharacterCrosslists { get; set; }
-        public virtual ICollection<CharacterColorCrosslist> CharacterColorCrosslists { get; set; }
-    }
+    /// <summary>
+    /// The name of the character.
+    /// </summary>
+    public string Name { get; set; }
+
+    /// <summary>
+    /// The rank of the character.
+    /// </summary>
+    public string Rank { get; set; }
+
+    /// <summary>
+    /// Default UTC timestamp when record is added.
+    /// </summary>
+    public DateTime TimestampAdded { get; set; }
 }

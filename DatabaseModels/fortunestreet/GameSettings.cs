@@ -1,16 +1,45 @@
-﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet
-{
-    public class GameSettings
-    {
-        public long ID { get; set; }
-        public long AnalyzerInstanceID { get; set; }
-        public long RuleID { get; set; }
-        public long BoardID { get; set; }
-        public long MiiColorID { get; set; }
-        public DateTime TimestampAdded { get; set; }
+﻿namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
 
-        public virtual Boards Board { get; set; }
-        public virtual Colors Color { get; set; }
-        public virtual Rules Rule { get; set; }
-    }
+/// <summary>
+/// Data of game settings within the program.
+/// </summary>
+public partial class GameSettings
+{
+    /// <summary>
+    /// Unique identifier.
+    /// </summary>
+    public long ID { get; set; }
+
+    /// <summary>
+    /// Analyzer instance identifier reference.
+    /// </summary>
+    public long AnalyzerInstanceID { get; set; }
+
+    /// <summary>
+    /// Rule identifier reference.
+    /// </summary>
+    public long RuleID { get; set; }
+
+    /// <summary>
+    /// Board identifier reference.
+    /// </summary>
+    public long BoardID { get; set; }
+
+    /// <summary>
+    /// Color identifier reference for the Mii character.
+    /// </summary>
+    public long MiiColorID { get; set; }
+
+    /// <summary>
+    /// Default UTC timestamp when record is added.
+    /// </summary>
+    public DateTime TimestampAdded { get; set; }
+
+    public virtual AnalyzerInstances AnalyzerInstance { get; set; }
+
+    public virtual Boards Board { get; set; }
+
+    public virtual Colors MiiColor { get; set; }
+
+    public virtual Rules Rule { get; set; }
 }
