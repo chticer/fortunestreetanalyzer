@@ -25,7 +25,7 @@ builder.Services.AddDbContext<FortuneStreetAppContext>
     options => options.UseSqlServer
     (
         new SqlConnection(fortuneStreetSQLConnectionString),
-        options => options.CommandTimeout(int.MaxValue)
+        options => options.CommandTimeout((int) new TimeSpan(0, 3, 0).TotalSeconds)
     )
 );
 
@@ -34,7 +34,7 @@ builder.Services.AddDbContext<FortuneStreetSaveAnalyzerInstanceLogContext>
     options => options.UseSqlServer
     (
         new SqlConnection(fortuneStreetSQLConnectionString),
-        options => options.CommandTimeout(int.MaxValue)
+        options => options.CommandTimeout((int) new TimeSpan(0, 3, 0).TotalSeconds)
     )
 );
 
