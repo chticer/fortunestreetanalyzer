@@ -6,7 +6,7 @@ Fortune Street analyzer is the helper program that accurately keeps track of the
 
 - ID: 10004
 - Status: In Progress
-- Development Timeframe: 4/9/2021 to Q2 2023
+- Development Timeframe: 4/9/2021 to Q4 2024
 
 This project is open sourced and licensed under [GNU General Public License v3.0](LICENSE).
 
