@@ -3,7 +3,7 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "jquery@3.6.0",
+      "library": "jquery@3.6.3",
       "destination": "wwwroot/lib/jquery/",
       "files": [
         "jquery.min.js",
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "library": "twitter-bootstrap@5.2.0",
+      "library": "twitter-bootstrap@5.2.3",
       "destination": "wwwroot/lib/twitter-bootstrap/",
       "files": [
         "js/bootstrap.min.js",
