@@ -2,526 +2,148 @@ using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 using System.Text.Json;
 
-namespace fortunestreetanalyzer.Pages.train
+namespace fortunestreetanalyzer.Pages.train;
+
+public class IndexModel : PageModel
 {
-    public class IndexModel : PageModel
+    private readonly FortuneStreetAppContext _fortuneStreetAppContext;
+
+    public class StartupDataModel
     {
-        private readonly FortuneStreetAppContext _fortuneStreetAppContext;
-        private readonly FortuneStreetSaveAnalyzerInstanceLogContext _fortuneStreetSaveAnalyzerInstanceLogContext;
+        public long? id { get; set; }
+    }
 
-        public class StartupDataModel
+    public class SavePreRollTurnDataModel
+    {
+        public List<PreRolls> PreRollsRecords { get; set; }
+    }
+
+    public class SavePostRollTurnDataModel
+    {
+        public PostRolls PostRollsRecord { get; set; }
+    }
+
+    public class ResetTurnModel
+    {
+        public PreRolls PreRollsRecord { get; set; }
+    }
+
+    public IndexModel(FortuneStreetAppContext fortuneStreetAppContext)
+    {
+        _fortuneStreetAppContext = fortuneStreetAppContext;
+    }
+
+    public JsonResult OnPostStartup([FromBody] StartupDataModel startupDataParameter)
+    {
+        Global.Response response = new Global.Response();
+
+        try
         {
-            public long? id { get; set; }
-        }
+            List<CurrentAnalyzerInstancesTVF> userAnalyzerInstances = Global.FindUserAnalyzerInstances(startupDataParameter.id != null ? (long) startupDataParameter.id : 0, new List<string> { "train" }, _fortuneStreetAppContext);
 
-        public class SaveAnalyzerDataModel
-        {
-            public List<string> keys { get; set; }
-            public Global.AnalyzerDataModel analyzerData { get; set; }
-        }
-
-        public IndexModel(FortuneStreetAppContext fortuneStreetAppContext, FortuneStreetSaveAnalyzerInstanceLogContext fortuneStreetSaveAnalyzerInstanceLogContext)
-        {
-            _fortuneStreetAppContext = fortuneStreetAppContext;
-            _fortuneStreetSaveAnalyzerInstanceLogContext = fortuneStreetSaveAnalyzerInstanceLogContext;
-        }
-
-        public JsonResult OnPostStartup([FromBody] StartupDataModel startupDataParameter)
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                List<CurrentAnalyzerInstancesTVF> userAnalyzerInstances = Global.FindUserAnalyzerInstances(startupDataParameter.id != null ? (long) startupDataParameter.id : 0, new List<string> { "train" }, _fortuneStreetAppContext);
-
-                if (userAnalyzerInstances == null)
-                {
-                    response.AlertData = new Global.Response.Alert
-                    {
-                        Type = "alert-danger",
-                        Title = "Unable to verify the analyzer instance ID."
-                    };
-                    response.Error = true;
-
-                    return new JsonResult(response);
-                }
-
-                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = userAnalyzerInstances.FirstOrDefault();
-
-                response.HTMLResponse = JsonSerializer.Serialize(Global.RebuildAnalyzerInstanceDataResponse(true, true, currentUserAnalyzerInstance != null ? currentUserAnalyzerInstance.AnalyzerInstanceID : (long) Global.CreateAnalyzerInstanceID("train", null, _fortuneStreetAppContext), new List<string> { "train" }, _fortuneStreetAppContext).FirstOrDefault());
-
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                return Global.ServerErrorResponse(e);
-            }
-        }
-
-        public JsonResult OnGetLoadGameData()
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                response.HTMLResponse = JsonSerializer.Serialize(RebuildAnalyzerInstanceHelper.LoadGameData(null, _fortuneStreetAppContext));
-
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                return Global.ServerErrorResponse(e);
-            }
-        }
-
-        public JsonResult OnPostSaveGameData([FromBody] Global.AnalyzerDataModel saveGameDataParameter)
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                Rules rulesResult = _fortuneStreetAppContext.Rules.SingleOrDefault(id => id.ID == saveGameDataParameter.GameData.RuleData.ID);
-
-                if (rulesResult == null)
-                {
-                    response.AlertData = new Global.Response.Alert
-                    {
-                        Type = "alert-danger",
-                        Title = "Invalid rule selection."
-                    };
-                    response.Error = true;
-
-                    return new JsonResult(response);
-                }
-
-                Boards boardsResult = _fortuneStreetAppContext.Boards.SingleOrDefault(id => id.ID == saveGameDataParameter.GameData.BoardData.ID);
-
-                if (boardsResult == null)
-                {
-                    response.AlertData = new Global.Response.Alert
-                    {
-                        Type = "alert-danger",
-                        Title = "Invalid board selection."
-                    };
-                    response.Error = true;
-
-                    return new JsonResult(response);
-                }
-
-                Colors colorsResult = _fortuneStreetAppContext.Colors.SingleOrDefault(id => id.ID == saveGameDataParameter.GameData.ColorData.ID);
-
-                if (colorsResult == null)
-                {
-                    response.AlertData = new Global.Response.Alert
-                    {
-                        Type = "alert-danger",
-                        Title = "Invalid mii color selection."
-                    };
-                    response.Error = true;
-
-                    return new JsonResult(response);
-                }
-
-                _fortuneStreetAppContext.GameSettings.Add(new GameSettings
-                {
-                    AnalyzerInstanceID = saveGameDataParameter.AnalyzerInstanceID,
-                    RuleID = rulesResult.ID,
-                    BoardID = boardsResult.ID,
-                    MiiColorID = colorsResult.ID
-                });
-
-                _fortuneStreetAppContext.SaveChanges();
-
-                BoardCharacteristics boardCharacteristicResult = _fortuneStreetAppContext.BoardCharacteristics.SingleOrDefault(board_characteristic => board_characteristic.RuleID == rulesResult.ID && board_characteristic.BoardID == boardsResult.ID);
-
-                response.HTMLResponse = JsonSerializer.Serialize(new
-                {
-                    Data = new Global.AnalyzerDataModel
-                    {
-                        GameData = new Global.AnalyzerDataModel.GameDataModel
-                        {
-                            RuleData = new Global.AnalyzerDataModel.GameDataModel.RuleDataModel
-                            {
-                                ID = rulesResult.ID,
-                                Name = rulesResult.Name,
-                                StandingThreshold = boardCharacteristicResult.StandingThreshold,
-                                NetWorthThreshold = boardCharacteristicResult.NetWorthThreshold
-                            },
-                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
-                            {
-                                ID = boardsResult.ID,
-                                Name = boardsResult.Name,
-                                ReadyCashStart = boardCharacteristicResult.ReadyCashStart,
-                                SalaryStart = boardCharacteristicResult.SalaryStart,
-                                SalaryIncrease = boardCharacteristicResult.SalaryIncrease,
-                                MaxDieRoll = boardCharacteristicResult.MaxDieRoll
-                            },
-                            ColorData = new Global.AnalyzerDataModel.GameDataModel.ColorDataModel
-                            {
-                                ID = colorsResult.ID,
-                                SystemColor = colorsResult.SystemColor,
-                                CharacterColor = colorsResult.CharacterColor
-                            }
-                        }
-                    }
-                });
-
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                return Global.ServerErrorResponse(e);
-            }
-        }
-
-        public JsonResult OnPostLoadCharacters([FromBody] Boards loadCharactersParameter)
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                response.HTMLResponse = JsonSerializer.Serialize(RebuildAnalyzerInstanceHelper.LoadCharacters
-                (
-                    new Global.AnalyzerDataModel
-                    {
-                        GameData = new Global.AnalyzerDataModel.GameDataModel
-                        {
-                            BoardData = new Global.AnalyzerDataModel.GameDataModel.BoardDataModel
-                            {
-                                ID = loadCharactersParameter.ID
-                            }
-                        }
-                    },
-                    _fortuneStreetAppContext
-                ));
-
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                return Global.ServerErrorResponse(e);
-            }
-        }
-
-        public JsonResult OnPostSaveCharacterData([FromBody] Global.AnalyzerDataModel saveCharacterDataParameter)
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                _fortuneStreetAppContext.TurnOrderDetermination.AddRange(saveCharacterDataParameter.CharacterData.PlayerData.Select(character => new TurnOrderDetermination
-                {
-                    AnalyzerInstanceID = saveCharacterDataParameter.AnalyzerInstanceID,
-                    CharacterID = character.ID,
-                    Value = character.TurnOrderValue
-                }));
-
-                _fortuneStreetAppContext.SaveChanges();
-
-                List<GetCharacterColorsTVF> getCharacterColorsTVFResults = _fortuneStreetAppContext.GetCharacterColorsTVF.FromSqlInterpolated($"SELECT * FROM getcharactercolors_tvf({saveCharacterDataParameter.AnalyzerInstanceID})").ToList();
-
-                List<Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel> characters = getCharacterColorsTVFResults.Select(result => new Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel
-                {
-                    ID = result.CharacterID,
-                    TurnOrderValue = result.Value,
-                    ColorData = new Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel.ColorDataModel
-                    {
-                        ID = result.ColorIDAssigned
-                    }
-                }).ToList();
-
-                List<GetBoardCharactersTVF> getBoardCharactersTVFResults = new List<GetBoardCharactersTVF>
-                {
-                    new GetBoardCharactersTVF
-                    {
-                        Name = "You"
-                    }
-                }.Union(_fortuneStreetAppContext.GetBoardCharactersTVF.FromSqlInterpolated($"SELECT * FROM getboardcharacters_tvf({saveCharacterDataParameter.GameData.BoardData.ID})")).ToList();
-
-                List<long> characterColorIDs = characters.Select(character => character.ColorData.ID).ToList();
-
-                List<Colors> colors = _fortuneStreetAppContext.Colors.Where(color => characterColorIDs.Contains(color.ID)).ToList();
-
-                foreach (Global.AnalyzerDataModel.CharacterDataModel.CharacterPlayerDataModel currentCharacter in characters)
-                {
-                    GetBoardCharactersTVF currentGetBoardCharactersTVFResult = getBoardCharactersTVFResults.SingleOrDefault(result => result.CharacterID == currentCharacter.ID);
-
-                    currentCharacter.Name = currentGetBoardCharactersTVFResult.Name;
-
-                    if (!string.IsNullOrEmpty(currentGetBoardCharactersTVFResult.CharacterPortraitURI))
-                        currentCharacter.PortraitURL = Global.AZURE_STORAGE_URL + currentGetBoardCharactersTVFResult.CharacterPortraitURI;
-
-                    Colors currentColor = colors.SingleOrDefault(color => color.ID == currentCharacter.ColorData.ID);
-
-                    currentCharacter.ColorData.GameColor = currentColor.CharacterColor;
-                }
-
-                response.HTMLResponse = JsonSerializer.Serialize(new
-                {
-                    Data = new Global.AnalyzerDataModel
-                    {
-                        CharacterData = new Global.AnalyzerDataModel.CharacterDataModel
-                        {
-                            PlayerData = characters,
-                            CameoCharacterData = saveCharacterDataParameter.CharacterData.CameoCharacterData
-                        }
-                    }
-                });
-
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                return Global.ServerErrorResponse(e);
-            }
-        }
-
-        public JsonResult OnPostLoadSettingsOnGameStart([FromBody] Global.AnalyzerDataModel.GameDataModel loadSettingsOnGameStartParameter)
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                BoardCharacteristics boardCharacteristicResult = _fortuneStreetAppContext.BoardCharacteristics.SingleOrDefault(board_characteristic => board_characteristic.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && board_characteristic.BoardID == loadSettingsOnGameStartParameter.BoardData.ID);
-
-                List<Spaces> spaceResults = _fortuneStreetAppContext.Spaces.Where(space => space.RuleID == loadSettingsOnGameStartParameter.RuleData.ID && space.BoardID == loadSettingsOnGameStartParameter.BoardData.ID).ToList();
-
-                List<long> spaceIDs = spaceResults.Select(id => id.ID).ToList();
-
-                List<SpaceLayouts> spaceLayoutResults = _fortuneStreetAppContext.SpaceLayouts.Where(space_id => spaceIDs.Contains(space_id.SpaceID)).ToList();
-
-                List<SpaceConstraints> spaceConstraintResults = _fortuneStreetAppContext.SpaceConstraints.Where(space_id => spaceIDs.Contains(space_id.SpaceID)).ToList();
-
-                List<long> spaceTypeIDs = spaceResults.Select(space_type_id => space_type_id.SpaceTypeID).Distinct().ToList();
-
-                List<SpaceTypes> spaceTypeResults = _fortuneStreetAppContext.SpaceTypes.Where(id => spaceTypeIDs.Contains(id.ID)).ToList();
-
-                List<long> shopIDs = spaceResults.Where(shop_id => shop_id.ShopID != null).Select(shop_id => (long) shop_id.ShopID).Distinct().ToList();
-
-                List<Shops> shopResults = _fortuneStreetAppContext.Shops.Where(id => shopIDs.Contains(id.ID)).ToList();
-
-                List<long> districtIDs = spaceResults.Where(district_id => district_id.DistrictID != null).Select(district_id => (long) district_id.DistrictID).Distinct().ToList();
-
-                List<Districts> districtResults = _fortuneStreetAppContext.Districts.Where(id => districtIDs.Contains(id.ID)).ToList();
-
-                Global.IndexDataModel indexData = new Global.IndexDataModel
-                {
-                    SpaceIndexData = spaceResults.Select((space_result, space_index) => new Global.IndexDataModel.SpaceIndexDataModel
-                    {
-                        Index = space_index,
-                        SpaceData = space_result
-                    }).ToList(),
-                    SpaceConstraintIndexData = spaceConstraintResults.Select((space_constraint_result, space_constraint_index) => new Global.IndexDataModel.SpaceConstraintIndexDataModel
-                    {
-                        Index = space_constraint_index,
-                        SpaceConstraintData = space_constraint_result
-                    }).ToList(),
-                    SpaceTypeIndexData = spaceTypeResults.Select((space_type_result, space_type_index) => new Global.IndexDataModel.SpaceTypeIndexDataModel
-                    {
-                        Index = space_type_index,
-                        SpaceTypeData = space_type_result
-                    }).ToList(),
-                    ShopIndexData = shopResults.Select((shop_result, shop_index) => new Global.IndexDataModel.ShopIndexDataModel
-                    {
-                        Index = shop_index,
-                        ShopData = shop_result
-                    }).ToList(),
-                    DistrictIndexData = new List<Global.IndexDataModel.DistrictIndexDataModel>()
-                };
-
-                if (districtIDs.Count > 0)
-                    indexData.DistrictIndexData = districtResults.Select((district_result, district_index) => new Global.IndexDataModel.DistrictIndexDataModel
-                    {
-                        Index = district_index,
-                        DistrictData = district_result
-                    }).ToList();
-
-                List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel> initialTurnData = Enumerable.Range(0, 4).Select(value => new Global.AnalyzerDataModel.GameDataModel.TurnDataModel
-                {
-                    TurnBeforeRollCurrentData = new Global.AnalyzerDataModel.GameDataModel.TurnDataModel.TurnBeforeRollDataModel
-                    {
-                        SpaceLayoutIndex = 0,
-                        Level = 1,
-                        Placing = 1,
-                        ReadyCash = boardCharacteristicResult.ReadyCashStart,
-                        TotalShopValue = 0,
-                        TotalStockValue = 0,
-                        NetWorth = boardCharacteristicResult.ReadyCashStart,
-                        OwnedShopIndices = new List<long>(),
-                        TotalSuitCards = 0,
-                        CollectedSuits = new List<string>(),
-                        ArcadeIndex = 0
-                    },
-                    TurnAfterRollData = null,
-                    Logs = new List<string>(),
-                    CameoCharacterIndices = new List<long>()
-                }).ToList();
-
-                List<Global.AnalyzerDataModel.SpaceDataModel> spaceData = new List<Global.AnalyzerDataModel.SpaceDataModel>();
-
-                foreach (Global.IndexDataModel.SpaceIndexDataModel currentSpaceIndexData in indexData.SpaceIndexData)
-                {
-                    if (currentSpaceIndexData.SpaceData.SpaceType.Name.Equals("bank"))
-                    {
-                        foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel currentInitialTurnData in initialTurnData)
-                            currentInitialTurnData.TurnBeforeRollCurrentData.SpaceIndexCurrent = currentSpaceIndexData.Index;
-                    }
-
-                    List<Global.IndexDataModel.SpaceConstraintIndexDataModel> currentSpaceConstraintIndexData = indexData.SpaceConstraintIndexData.Where(space_constraint_index_result => space_constraint_index_result.SpaceConstraintData.SpaceID == currentSpaceIndexData.SpaceData.ID).ToList();
-
-                    Global.IndexDataModel.ShopIndexDataModel currentShopIndexData = indexData.ShopIndexData.SingleOrDefault(shop_index_result => currentSpaceIndexData.SpaceData.ShopID != null && shop_index_result.ShopData.ID == (long) currentSpaceIndexData.SpaceData.ShopID);
-                    Global.IndexDataModel.DistrictIndexDataModel currentDistrictIndexData = indexData.DistrictIndexData.SingleOrDefault(district_index_result => currentSpaceIndexData.SpaceData.DistrictID != null && district_index_result.DistrictData.ID == (long) currentSpaceIndexData.SpaceData.DistrictID);
-
-                    spaceData.Add(new Global.AnalyzerDataModel.SpaceDataModel
-                    {
-                        ID = currentSpaceIndexData.SpaceData.ID,
-                        AdditionalPropertiesData = !string.IsNullOrWhiteSpace(currentSpaceIndexData.SpaceData.AdditionalProperties) ? JsonSerializer.Deserialize<Global.AnalyzerDataModel.SpaceDataModel.AdditionalPropertiesDataModel>(currentSpaceIndexData.SpaceData.AdditionalProperties) : null,
-                        SpaceLayoutData = spaceLayoutResults.Where(space_id => space_id.SpaceID == currentSpaceIndexData.SpaceData.ID).Select(space_layout_result => new Global.AnalyzerDataModel.SpaceDataModel.SpaceLayoutDataModel
-                        {
-                            CenterXFactor = space_layout_result.CenterXFactor,
-                            CenterYFactor = space_layout_result.CenterYFactor
-                        }).ToList(),
-                        SpaceConstraintData = currentSpaceConstraintIndexData.GroupBy(space_constraint_index_result => new { space_constraint_index_result.SpaceConstraintData.SpaceIDFrom, space_constraint_index_result.SpaceConstraintData.SpaceLayoutIndex }).Select(space_constraint_groupby => new Global.AnalyzerDataModel.SpaceDataModel.SpaceConstraintDataModel
-                        {
-                            SpaceIndexFrom = indexData.SpaceIndexData.FirstOrDefault(space_index_result => space_index_result.SpaceData.ID == space_constraint_groupby.Key.SpaceIDFrom).Index,
-                            SpaceIndicesTo = indexData.SpaceIndexData.Where(space_index_result => currentSpaceConstraintIndexData.Where(space_constraint_index_result => space_constraint_index_result.SpaceConstraintData.SpaceIDFrom == space_constraint_groupby.Key.SpaceIDFrom).Select(space_constraint_index_result => space_constraint_index_result.SpaceConstraintData.SpaceIDTo).Contains(space_index_result.SpaceData.ID)).Select(index => index.Index).ToList(),
-                            SpaceLayoutIndex = space_constraint_groupby.Key.SpaceLayoutIndex
-                        }).ToList(),
-                        SpaceTypeIndex = indexData.SpaceTypeIndexData.SingleOrDefault(space_type_index_result => space_type_index_result.SpaceTypeData.ID == currentSpaceIndexData.SpaceData.SpaceTypeID).Index,
-                        ShopIndex = currentShopIndexData?.Index,
-                        DistrictIndex = currentDistrictIndexData?.Index
-                    });
-                }
-
-                foreach (Global.AnalyzerDataModel.GameDataModel.TurnDataModel currentInitialTurnData in initialTurnData)
-                    currentInitialTurnData.TurnBeforeRollStartData = currentInitialTurnData.TurnBeforeRollCurrentData;
-
-                response.HTMLResponse = JsonSerializer.Serialize(new
-                {
-                    Data = new Global.AnalyzerDataModel
-                    {
-                        GameData = new Global.AnalyzerDataModel.GameDataModel
-                        {
-                            TurnData = new List<List<Global.AnalyzerDataModel.GameDataModel.TurnDataModel>> { initialTurnData }
-                        },
-                        SpaceData = spaceData,
-                        SpaceTypeData = indexData.SpaceTypeIndexData.Select(space_type_index_result => new Global.AnalyzerDataModel.SpaceTypeDataModel
-                        {
-                            ID = space_type_index_result.SpaceTypeData.ID,
-                            Name = space_type_index_result.SpaceTypeData.Name,
-                            Icon = space_type_index_result.SpaceTypeData.Icon,
-                            Title = space_type_index_result.SpaceTypeData.Title,
-                            Description = space_type_index_result.SpaceTypeData.Description
-                        }).ToList(),
-                        ShopData = indexData.ShopIndexData.Select(shop_index_result => new Global.AnalyzerDataModel.ShopDataModel
-                        {
-                            ID = shop_index_result.ShopData.ID,
-                            Name = shop_index_result.ShopData.Name,
-                            Value = shop_index_result.ShopData.Value
-                        }).ToList(),
-                        DistrictData = indexData.DistrictIndexData.Select(district_index_result => new Global.AnalyzerDataModel.DistrictDataModel
-                        {
-                            ID = district_index_result.DistrictData.ID,
-                            Name = district_index_result.DistrictData.Name,
-                            Color = district_index_result.DistrictData.Color
-                        }).ToList()
-                    }
-                });
-
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                return Global.ServerErrorResponse(e);
-            }
-        }
-
-        public JsonResult OnPostSaveTurnBeforeRollData([FromBody] Global.AnalyzerDataModel saveTurnBeforeRollDataParameter)
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                _fortuneStreetAppContext.TurnBeforeRoll.AddRange(saveTurnBeforeRollDataParameter.GameData.TurnData.FirstOrDefault().Select((turn_character_result, turn_character_index) => new TurnBeforeRoll
-                {
-                    AnalyzerInstanceID = saveTurnBeforeRollDataParameter.AnalyzerInstanceID,
-                    CharacterID = saveTurnBeforeRollDataParameter.CharacterData.PlayerData[turn_character_index].ID,
-                    SpaceIDCurrent = saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexCurrent].ID,
-                    SpaceIDFrom = turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom != null ? saveTurnBeforeRollDataParameter.SpaceData[(int) turn_character_result.TurnBeforeRollCurrentData.SpaceIndexFrom].ID : null,
-                    TurnNumber = (byte) saveTurnBeforeRollDataParameter.GameData.TurnData.Count,
-                    SpaceLayoutIndex = turn_character_result.TurnBeforeRollCurrentData.SpaceLayoutIndex,
-                    Level = turn_character_result.TurnBeforeRollCurrentData.Level,
-                    Placing = turn_character_result.TurnBeforeRollCurrentData.Placing,
-                    ReadyCash = turn_character_result.TurnBeforeRollCurrentData.ReadyCash,
-                    TotalShopValue = turn_character_result.TurnBeforeRollCurrentData.TotalShopValue,
-                    TotalStockValue = turn_character_result.TurnBeforeRollCurrentData.TotalStockValue,
-                    NetWorth = turn_character_result.TurnBeforeRollCurrentData.NetWorth,
-                    OwnedShopIndices = JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.OwnedShopIndices),
-                    TotalSuitCards = turn_character_result.TurnBeforeRollCurrentData.TotalSuitCards,
-                    CollectedSuits = JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.CollectedSuits),
-                    DieRollRestrictions = turn_character_result.TurnBeforeRollCurrentData.DieRollRestrictions != null ? JsonSerializer.Serialize(turn_character_result.TurnBeforeRollCurrentData.DieRollRestrictions) : null
-                }));
-
-                _fortuneStreetAppContext.SaveChanges();
-
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                return Global.ServerErrorResponse(e);
-            }
-        }
-
-        public JsonResult OnPostSaveAnalyzerData([FromBody] SaveAnalyzerDataModel saveAnalyzerDataParameter)
-        {
-            Global.Response response = new Global.Response();
-
-            try
-            {
-                CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = Global.FindUserAnalyzerInstances(saveAnalyzerDataParameter.analyzerData.AnalyzerInstanceID, new List<string> { "train" }, _fortuneStreetSaveAnalyzerInstanceLogContext).SingleOrDefault(type => Equals(type.Type, "train"));
-
-                if (currentUserAnalyzerInstance == null)
-                    throw new Exception();
-
-                _fortuneStreetSaveAnalyzerInstanceLogContext.AnalyzerInstanceLogs.AddRange(typeof(Global.AnalyzerDataModel).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(name => saveAnalyzerDataParameter.keys.Contains(name.Name)).Select(property => new AnalyzerInstanceLogs
-                {
-                    AnalyzerInstanceID = currentUserAnalyzerInstance.AnalyzerInstanceID,
-                    Key = property.Name,
-                    Value = JsonSerializer.Serialize(property.GetValue(saveAnalyzerDataParameter.analyzerData, null))
-                }));
-
-                _fortuneStreetSaveAnalyzerInstanceLogContext.SaveChanges();
-
-                response.HTMLResponse = JsonSerializer.Serialize(new
-                {
-                    Data = new Global.AnalyzerDataModel
-                    {
-                        AnalyzerInstanceID = currentUserAnalyzerInstance.AnalyzerInstanceID,
-                        AnalyzerInstanceName = currentUserAnalyzerInstance.Name,
-                        AnalyzerInstanceStarted = currentUserAnalyzerInstance.TimestampAdded
-                    }
-                });
-
-                response.AlertData = new Global.Response.Alert
-                {
-                    Type = "alert-success",
-                    Title = "Saved data..."
-                };
-            }
-            catch
+            if (userAnalyzerInstances == null)
             {
                 response.AlertData = new Global.Response.Alert
                 {
-                    Type = "alert-warning",
-                    Title = "Cannot save data..."
+                    Type = "alert-danger",
+                    Title = "Unable to verify the analyzer instance ID."
                 };
                 response.Error = true;
+
+                return new JsonResult(response);
             }
 
+            CurrentAnalyzerInstancesTVF currentUserAnalyzerInstance = userAnalyzerInstances.FirstOrDefault();
+
+            response.HTMLResponse = JsonSerializer.Serialize(Global.LoadAnalyzerInstanceDataResponse(currentUserAnalyzerInstance != null ? currentUserAnalyzerInstance.AnalyzerInstanceID : (long) Global.CreateAnalyzerInstanceID("train", null, _fortuneStreetAppContext), new List<string> { "train" }, _fortuneStreetAppContext).FirstOrDefault());
+
             return new JsonResult(response);
+        }
+        catch (Exception e)
+        {
+            return Global.ServerErrorResponse(e);
+        }
+    }
+
+    public JsonResult OnPostSaveGameSettings([FromBody] Global.AnalyzerDataModel saveGameSettingsParameter)
+    {
+        return SaveAnalyzerInstanceHelper.SaveGameSettings(saveGameSettingsParameter, _fortuneStreetAppContext);
+    }
+
+    public JsonResult OnPostSaveTurnOrderDeterminationSettings([FromBody] Global.AnalyzerDataModel saveTurnOrderDeterminationSettingsParameter)
+    {
+        return SaveAnalyzerInstanceHelper.SaveTurnOrderDeterminationSettings(saveTurnOrderDeterminationSettingsParameter, _fortuneStreetAppContext);
+    }
+
+    public JsonResult OnPostSavePreRollTurnData([FromBody] SavePreRollTurnDataModel savePreRollTurnDataParameter)
+    {
+        return SaveAnalyzerInstanceHelper.SavePreRollTurnData(savePreRollTurnDataParameter.PreRollsRecords, _fortuneStreetAppContext);
+    }
+
+    public JsonResult OnPostSavePostRollTurnData([FromBody] SavePostRollTurnDataModel savePostRollTurnDataParameter)
+    {
+        return SaveAnalyzerInstanceHelper.SavePostRollTurnData(savePostRollTurnDataParameter.PostRollsRecord, _fortuneStreetAppContext);
+    }
+
+    public JsonResult OnPostResetTurn([FromBody] ResetTurnModel resetTurnParameter)
+    {
+        Global.Response response = new Global.Response();
+
+        try
+        {
+            long analyzerInstanceID = resetTurnParameter.PreRollsRecord.AnalyzerInstanceID;
+
+            List<GetPreRollsTVF> getPreRollsTVFResults = _fortuneStreetAppContext.GetPreRollsTVF.FromSqlRaw("SELECT * FROM getprerolls_tvf({0})", analyzerInstanceID).Where(turn_number => turn_number.TurnNumber == resetTurnParameter.PreRollsRecord.TurnNumber).ToList();
+
+            List<GetPostRollsTVF> getPostRollsTVFResults = _fortuneStreetAppContext.GetPostRollsTVF.FromSqlRaw("SELECT * FROM getpostrolls_tvf({0})", analyzerInstanceID).Where(turn_number => turn_number.TurnNumber == resetTurnParameter.PreRollsRecord.TurnNumber - 1).ToList();
+
+            _fortuneStreetAppContext.PreRolls.AddRange(getPreRollsTVFResults.Select(result => new PreRolls
+            {
+                AnalyzerInstanceID = analyzerInstanceID,
+                CharacterID = result.CharacterID,
+                SpaceIDCurrent = result.SpaceIDCurrent,
+                SpaceIDFrom = result.SpaceIDFrom,
+                TurnResetFlag = true,
+                TurnNumber = result.TurnNumber,
+                LayoutIndex = result.LayoutIndex,
+                Level = result.Level,
+                Placing = result.Placing,
+                ReadyCash = result.ReadyCash,
+                TotalShopValue = result.TotalShopValue,
+                TotalStockValue = result.TotalStockValue,
+                NetWorth = result.NetWorth,
+                OwnedShopIndices = result.OwnedShopIndices,
+                TotalSuitCards = result.TotalSuitCards,
+                CollectedSuits = result.CollectedSuits,
+                ArcadeIndex = result.ArcadeIndex,
+                DieRollRestrictions = result.DieRollRestrictions
+            }));
+
+            _fortuneStreetAppContext.PostRolls.AddRange(getPostRollsTVFResults.Select(result => new PostRolls
+            {
+                AnalyzerInstanceID = analyzerInstanceID,
+                CharacterID = result.CharacterID,
+                SpaceIDLandedOn = result.SpaceIDLandedOn,
+                TurnResetFlag = true,
+                TurnNumber = result.TurnNumber,
+                DieRollValue = result.DieRollValue,
+                Logs = result.Logs
+            }));
+
+            _fortuneStreetAppContext.SaveChanges();
+
+            response.HTMLResponse = JsonSerializer.Serialize(new
+            {
+                Data = LoadAnalyzerInstanceHelper.LoadAnalyzerData(analyzerInstanceID, _fortuneStreetAppContext).GameSettingsData.TurnData
+            });
+
+            return new JsonResult(response);
+        }
+        catch (Exception e)
+        {
+            return Global.ServerErrorResponse(e);
         }
     }
 }

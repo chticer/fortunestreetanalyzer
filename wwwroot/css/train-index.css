@@ -559,7 +559,7 @@ body > div
     top: 0;
 }
 
-#settings-panel > div:last-of-type > .alert.save
+#settings-panel > div:last-of-type > .alert.status
 {
     bottom: 0;
 }
