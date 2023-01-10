@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace fortunestreetanalyzer.Pages.predict
+namespace fortunestreetanalyzer.Pages.predict;
+
+public class IndexModel : PageModel
 {
-    public class IndexModel : PageModel
-    {
-    }
 }
