@@ -12,7 +12,7 @@ This project is open sourced and licensed under [GNU General Public License v3.0
 
 ## Installation and Setup
 
-Download and install the latest version of .NET 6.0 SDK or ASP.NET Core Runtime from https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+Download and install the latest version of .NET 7.0 from https://dotnet.microsoft.com/en-us/download/dotnet/7.0
 
 Download and install the latest version of Git from https://git-scm.com/downloads
 
@@ -32,7 +32,7 @@ dotnet run
 
 #### Debugging the program
 
-Download and install Visual Studio 2022 Community Edition from https://visualstudio.microsoft.com/downloads/
+Download and install the latest version of Visual Studio 2022 from https://visualstudio.microsoft.com/downloads/
 
 Debug the program with the following command.
 
