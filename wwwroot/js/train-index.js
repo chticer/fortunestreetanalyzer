@@ -1416,7 +1416,7 @@ $(document).ready(function ()
 
                 turnData.push(turnNewData);
 
-                savePreRollData($.map(analyzerData["CharacterData"]["PlayerData"], function (value, index) { return index; }));
+                savePreRollData(Array.from(Array(analyzerData["CharacterData"]["PlayerData"].length).keys()));
 
                 displayNewTurn(turnData.length - 1);
             }
