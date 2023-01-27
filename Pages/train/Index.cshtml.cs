@@ -9,6 +9,7 @@ namespace fortunestreetanalyzer.Pages.train;
 public class IndexModel : PageModel
 {
     private readonly FortuneStreetAppContext _fortuneStreetAppContext;
+    private readonly FortuneStreetSavePostRollContext _fortuneStreetSavePostRollContext;
 
     public class StartupDataModel
     {
@@ -30,9 +31,10 @@ public class IndexModel : PageModel
         public PreRolls PreRollsRecord { get; set; }
     }
 
-    public IndexModel(FortuneStreetAppContext fortuneStreetAppContext)
+    public IndexModel(FortuneStreetAppContext fortuneStreetAppContext, FortuneStreetSavePostRollContext fortuneStreetSavePostRollContext)
     {
         _fortuneStreetAppContext = fortuneStreetAppContext;
+        _fortuneStreetSavePostRollContext = fortuneStreetSavePostRollContext;
     }
 
     public JsonResult OnPostStartup([FromBody] StartupDataModel startupDataParameter)
@@ -84,7 +86,7 @@ public class IndexModel : PageModel
 
     public JsonResult OnPostSavePostRollTurnData([FromBody] SavePostRollTurnDataModel savePostRollTurnDataParameter)
     {
-        return SaveAnalyzerInstanceHelper.SavePostRollTurnData(savePostRollTurnDataParameter.PostRollsRecord, _fortuneStreetAppContext);
+        return SaveAnalyzerInstanceHelper.SavePostRollTurnData(savePostRollTurnDataParameter.PostRollsRecord, _fortuneStreetSavePostRollContext);
     }
 
     public JsonResult OnPostResetTurn([FromBody] ResetTurnModel resetTurnParameter)

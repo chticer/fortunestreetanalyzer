@@ -1,7 +1,4 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace fortunestreetanalyzer.DatabaseModels.fortunestreet;
 
@@ -12,9 +9,9 @@ public class FortuneStreetAppContext : FortuneStreetContext
     }
 }
 
-public class FortuneStreetSaveAnalyzerInstanceLogContext : FortuneStreetContext
+public class FortuneStreetSavePostRollContext : FortuneStreetContext
 {
-    public FortuneStreetSaveAnalyzerInstanceLogContext(DbContextOptions<FortuneStreetSaveAnalyzerInstanceLogContext> options) : base(options)
+    public FortuneStreetSavePostRollContext(DbContextOptions<FortuneStreetSavePostRollContext> options) : base(options)
     {
     }
 }
@@ -23,11 +20,6 @@ public partial class FortuneStreetContext : DbContext
 {
     public FortuneStreetContext(DbContextOptions options) : base(options)
     {
-        SqlConnection sqlConnection = (SqlConnection) Database.GetDbConnection();
-        sqlConnection.AccessToken = new VisualStudioCredential().GetToken(new TokenRequestContext(new[]
-        {
-            "https://database.windows.net/.default"
-        }), new CancellationToken()).Token;
     }
 
     public virtual DbSet<AnalyzerInstances> AnalyzerInstances { get; set; }

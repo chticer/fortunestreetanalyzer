@@ -291,13 +291,13 @@ public class SaveAnalyzerInstanceHelper
         }
     }
 
-    public static JsonResult SavePostRollTurnData(PostRolls postRollsRecord, FortuneStreetAppContext fortuneStreetAppContext)
+    public static JsonResult SavePostRollTurnData(PostRolls postRollsRecord, FortuneStreetSavePostRollContext fortuneStreetSavePostRollContext)
     {
         try
         {
-            fortuneStreetAppContext.PostRolls.Add(postRollsRecord);
+            fortuneStreetSavePostRollContext.PostRolls.Add(postRollsRecord);
 
-            fortuneStreetAppContext.SaveChanges();
+            fortuneStreetSavePostRollContext.SaveChanges();
 
             return new JsonResult(new Global.Response());
         }
