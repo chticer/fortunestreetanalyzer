@@ -42,11 +42,9 @@ public partial class AnalyzerInstances
 
     public virtual ICollection<GameSettings> GameSettings { get; } = new List<GameSettings>();
 
-    public virtual ICollection<PostRolls> PostRolls { get; } = new List<PostRolls>();
-
-    public virtual ICollection<PreRolls> PreRolls { get; } = new List<PreRolls>();
-
     public virtual ICollection<ShopOffers> ShopOffers { get; } = new List<ShopOffers>();
+
+    public virtual ICollection<TurnIterators> TurnIterators { get; } = new List<TurnIterators>();
 
     public virtual ICollection<TurnOrderDetermination> TurnOrderDeterminations { get; } = new List<TurnOrderDetermination>();
 }

@@ -11,14 +11,9 @@ public partial class PreRolls
     public long ID { get; set; }
 
     /// <summary>
-    /// Analyzer instance identifier reference.
+    /// Turn iterator identifier reference.
     /// </summary>
-    public long AnalyzerInstanceID { get; set; }
-
-    /// <summary>
-    /// Character identifier reference.
-    /// </summary>
-    public long CharacterID { get; set; }
+    public long TurnIteratorID { get; set; }
 
     /// <summary>
     /// Space identifier reference of the current space.
@@ -29,16 +24,6 @@ public partial class PreRolls
     /// Space identifier reference of the space where the player came from.
     /// </summary>
     public long? SpaceIDFrom { get; set; }
-
-    /// <summary>
-    /// Whether the turn has been resetted.
-    /// </summary>
-    public bool TurnResetFlag { get; set; }
-
-    /// <summary>
-    /// The turn number value of the player.
-    /// </summary>
-    public byte TurnNumber { get; set; }
 
     /// <summary>
     /// The index value of the board layout.
@@ -105,9 +90,9 @@ public partial class PreRolls
     /// </summary>
     public DateTime TimestampAdded { get; set; }
 
-    public virtual AnalyzerInstances AnalyzerInstance { get; set; }
-
     public virtual Spaces _SpaceIDCurrent { get; set; }
 
     public virtual Spaces _SpaceIDFrom { get; set; }
+
+    public virtual TurnIterators TurnIterator { get; set; }
 }

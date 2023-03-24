@@ -2,10 +2,11 @@
 
 public class GetPreRollsTVF
 {
+    public long TurnIteratorID { get; set; }
     public long CharacterID { get; set; }
+    public byte TurnNumber { get; set; }
     public long SpaceIDCurrent { get; set; }
     public long? SpaceIDFrom { get; set; }
-    public byte TurnNumber { get; set; }
     public byte LayoutIndex { get; set; }
     public byte Level { get; set; }
     public byte Placing { get; set; }

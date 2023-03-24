@@ -9,6 +9,13 @@ public class FortuneStreetAppContext : FortuneStreetContext
     }
 }
 
+public class FortuneStreetSavePreRollContext : FortuneStreetContext
+{
+    public FortuneStreetSavePreRollContext(DbContextOptions<FortuneStreetSavePreRollContext> options) : base(options)
+    {
+    }
+}
+
 public class FortuneStreetSavePostRollContext : FortuneStreetContext
 {
     public FortuneStreetSavePostRollContext(DbContextOptions<FortuneStreetSavePostRollContext> options) : base(options)
@@ -42,8 +49,10 @@ public partial class FortuneStreetContext : DbContext
     public virtual DbSet<SpaceLayouts> SpaceLayouts { get; set; }
     public virtual DbSet<Spaces> Spaces { get; set; }
     public virtual DbSet<SpaceTypes> SpaceTypes { get; set; }
+    public virtual DbSet<TurnIterators> TurnIterators { get; set; }
     public virtual DbSet<TurnOrderDetermination> TurnOrderDetermination { get; set; }
     public virtual DbSet<CurrentAnalyzerInstancesTVF> CurrentAnalyzerInstancesTVF { get; set; }
+    public virtual DbSet<CurrentTurnIteratorsTVF> CurrentTurnIteratorsTVF { get; set; }
     public virtual DbSet<GetBoardCharactersTVF> GetBoardCharactersTVF { get; set; }
     public virtual DbSet<GetCharacterColorsTVF> GetCharacterColorsTVF { get; set; }
     public virtual DbSet<GetPostRollsTVF> GetPostRollsTVF { get; set; }
@@ -391,12 +400,6 @@ public partial class FortuneStreetContext : DbContext
             entity.Property(e => e.ID)
                 .HasComment("Unique identifier.")
                 .HasColumnName("id");
-            entity.Property(e => e.AnalyzerInstanceID)
-                .HasComment("Analyzer instance identifier reference.")
-                .HasColumnName("analyzer_instance_id");
-            entity.Property(e => e.CharacterID)
-                .HasComment("Character identifier reference.")
-                .HasColumnName("character_id");
             entity.Property(e => e.DieRollValue)
                 .HasComment("The value of the die roll.")
                 .HasColumnName("die_roll_value");
@@ -412,22 +415,19 @@ public partial class FortuneStreetContext : DbContext
                 .HasComment("Default UTC timestamp when record is added.")
                 .HasColumnType("datetime")
                 .HasColumnName("timestamp_added");
-            entity.Property(e => e.TurnNumber)
-                .HasComment("The turn number value of the player.")
-                .HasColumnName("turn_number");
-            entity.Property(e => e.TurnResetFlag)
-                .HasComment("Whether the turn has been resetted.")
-                .HasColumnName("turn_reset_flag");
+            entity.Property(e => e.TurnIteratorID)
+                .HasComment("Turn iterator identifier reference.")
+                .HasColumnName("turn_iterator_id");
 
-            entity.HasOne(d => d.AnalyzerInstance).WithMany(p => p.PostRolls)
-                .HasForeignKey(d => d.AnalyzerInstanceID)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_postrolls_analyzerinstances");
-
-            entity.HasOne(d => d.SpaceIdLandedOnNavigation).WithMany(p => p.PostRolls)
+            entity.HasOne(d => d._SpaceIDLandedOn).WithMany(p => p.PostRolls)
                 .HasForeignKey(d => d.SpaceIDLandedOn)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_postrolls_spaces");
+
+            entity.HasOne(d => d.TurnIterator).WithMany(p => p.PostRolls)
+                .HasForeignKey(d => d.TurnIteratorID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_postrolls_turniterators");
         });
 
         modelBuilder.Entity<PreRolls>(entity =>
@@ -439,15 +439,9 @@ public partial class FortuneStreetContext : DbContext
             entity.Property(e => e.ID)
                 .HasComment("Unique identifier.")
                 .HasColumnName("id");
-            entity.Property(e => e.AnalyzerInstanceID)
-                .HasComment("Analyzer instance identifier reference.")
-                .HasColumnName("analyzer_instance_id");
             entity.Property(e => e.ArcadeIndex)
                 .HasComment("The index value of the arcade mini-game.")
                 .HasColumnName("arcade_index");
-            entity.Property(e => e.CharacterID)
-                .HasComment("Character identifier reference.")
-                .HasColumnName("character_id");
             entity.Property(e => e.CollectedSuits)
                 .IsRequired()
                 .HasMaxLength(900)
@@ -497,17 +491,9 @@ public partial class FortuneStreetContext : DbContext
             entity.Property(e => e.TotalSuitCards)
                 .HasComment("The total number of suit cards the player has.")
                 .HasColumnName("total_suit_cards");
-            entity.Property(e => e.TurnNumber)
-                .HasComment("The turn number value of the player.")
-                .HasColumnName("turn_number");
-            entity.Property(e => e.TurnResetFlag)
-                .HasComment("Whether the turn has been resetted.")
-                .HasColumnName("turn_reset_flag");
-
-            entity.HasOne(d => d.AnalyzerInstance).WithMany(p => p.PreRolls)
-                .HasForeignKey(d => d.AnalyzerInstanceID)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_prerolls_analyzerinstances");
+            entity.Property(e => e.TurnIteratorID)
+                .HasComment("Turn iterator identifier reference.")
+                .HasColumnName("turn_iterator_id");
 
             entity.HasOne(d => d._SpaceIDCurrent).WithMany(p => p.PreRollsSpaceIDCurrent)
                 .HasForeignKey(d => d.SpaceIDCurrent)
@@ -517,6 +503,11 @@ public partial class FortuneStreetContext : DbContext
             entity.HasOne(d => d._SpaceIDFrom).WithMany(p => p.PreRollsSpaceIDFrom)
                 .HasForeignKey(d => d.SpaceIDFrom)
                 .HasConstraintName("FK_prerolls_spaces1");
+
+            entity.HasOne(d => d.TurnIterator).WithMany(p => p.PreRolls)
+                .HasForeignKey(d => d.TurnIteratorID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_prerolls_turniterators");
         });
 
         modelBuilder.Entity<Rules>(entity =>
@@ -811,6 +802,42 @@ public partial class FortuneStreetContext : DbContext
                 .HasColumnName("title");
         });
 
+        modelBuilder.Entity<TurnIterators>(entity =>
+        {
+            entity.HasKey(e => e.ID).HasName("PK__turnrese__3213E83F8DF022AF");
+
+            entity.ToTable("turniterators", tb => tb.HasComment("Data of turn iterators within the program."));
+
+            entity.Property(e => e.ID)
+                .HasComment("Unique identifier.")
+                .HasColumnName("id");
+            entity.Property(e => e.AnalyzerInstanceID)
+                .HasComment("Analyzer instance identifier reference.")
+                .HasColumnName("analyzer_instance_id");
+            entity.Property(e => e.CharacterID)
+                .HasComment("Character identifier reference.")
+                .HasColumnName("character_id");
+            entity.Property(e => e.TimestampAdded)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasComment("Default UTC timestamp when record is added.")
+                .HasColumnType("datetime")
+                .HasColumnName("timestamp_added");
+            entity.Property(e => e.TurnNumber)
+                .HasComment("The turn number value of the player.")
+                .HasColumnName("turn_number");
+            entity.Property(e => e.TurnOrder)
+                .HasComment("The turn order value of the player.")
+                .HasColumnName("turn_order");
+            entity.Property(e => e.TurnResetCounter)
+                .HasComment("The turn reset counter value of the iteration.")
+                .HasColumnName("turn_reset_counter");
+
+            entity.HasOne(d => d.AnalyzerInstance).WithMany(p => p.TurnIterators)
+                .HasForeignKey(d => d.AnalyzerInstanceID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_turnresets_analyzerinstances");
+        });
+
         modelBuilder.Entity<TurnOrderDetermination>(entity =>
         {
             entity.HasKey(e => e.ID).HasName("PK__characte__3213E83F297308EA");
@@ -845,10 +872,8 @@ public partial class FortuneStreetContext : DbContext
         {
             entity.HasNoKey();
 
-            entity.Property(e => e.ID)
-                .HasColumnName("id");
-            entity.Property(e => e.AnalyzerInstanceID)
-                .HasColumnName("analyzer_instance_id");
+            entity.Property(e => e.ID).HasColumnName("id");
+            entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
             entity.Property(e => e.IPAddress)
                 .IsRequired()
                 .HasMaxLength(900)
@@ -870,20 +895,34 @@ public partial class FortuneStreetContext : DbContext
                 .HasColumnName("type");
         });
 
+        modelBuilder.Entity<CurrentTurnIteratorsTVF>(entity =>
+        {
+            entity.HasNoKey();
+
+            entity.Property(e => e.ID).HasColumnName("id");
+            entity.Property(e => e.AnalyzerInstanceID).HasColumnName("analyzer_instance_id");
+            entity.Property(e => e.CharacterID).HasColumnName("character_id");
+            entity.Property(e => e.TimestampAdded)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("timestamp_added");
+            entity.Property(e => e.TurnNumber).HasColumnName("turn_number");
+            entity.Property(e => e.TurnOrder).HasColumnName("turn_order");
+            entity.Property(e => e.TurnResetCounter).HasColumnName("turn_reset_counter");
+        });
+
         modelBuilder.Entity<GetAuctionWinnersTVF>(entity =>
         {
             entity.HasNoKey();
 
-            entity.Property(e => e.CharacterID)
-                .HasColumnName("character_id");
+            entity.Property(e => e.CharacterID).HasColumnName("character_id");
         });
 
         modelBuilder.Entity<GetBoardCharactersTVF>(entity =>
         {
             entity.HasNoKey();
 
-            entity.Property(e => e.CharacterID)
-                .HasColumnName("character_id");
+            entity.Property(e => e.CharacterID).HasColumnName("character_id");
             entity.Property(e => e.CharacterPortraitURI)
                 .IsRequired()
                 .HasMaxLength(900)
@@ -898,38 +937,28 @@ public partial class FortuneStreetContext : DbContext
         {
             entity.HasNoKey();
 
-            entity.Property(e => e.CharacterID)
-                .HasColumnName("character_id");
-            entity.Property(e => e.ColorIDAssigned)
-                .HasColumnName("color_id_assigned");
-            entity.Property(e => e.Value)
-                .HasColumnName("value");
+            entity.Property(e => e.CharacterID).HasColumnName("character_id");
+            entity.Property(e => e.ColorIDAssigned).HasColumnName("color_id_assigned");
+            entity.Property(e => e.Value).HasColumnName("value");
         });
 
         modelBuilder.Entity<GetPostRollsTVF>(entity =>
         {
             entity.HasNoKey();
 
-            entity.Property(e => e.CharacterID)
-                .HasColumnName("character_id");
-            entity.Property(e => e.DieRollValue)
-                .HasColumnName("die_roll_value");
-            entity.Property(e => e.Logs)
-                .HasColumnName("logs");
-            entity.Property(e => e.SpaceIDLandedOn)
-                .HasColumnName("space_id_landed_on");
-            entity.Property(e => e.TurnNumber)
-                .HasColumnName("turn_number");
+            entity.Property(e => e.CharacterID).HasColumnName("character_id");
+            entity.Property(e => e.DieRollValue).HasColumnName("die_roll_value");
+            entity.Property(e => e.Logs).HasColumnName("logs");
+            entity.Property(e => e.SpaceIDLandedOn).HasColumnName("space_id_landed_on");
+            entity.Property(e => e.TurnNumber).HasColumnName("turn_number");
         });
 
         modelBuilder.Entity<GetPreRollsTVF>(entity =>
         {
             entity.HasNoKey();
 
-            entity.Property(e => e.ArcadeIndex)
-                .HasColumnName("arcade_index");
-            entity.Property(e => e.CharacterID)
-                .HasColumnName("character_id");
+            entity.Property(e => e.ArcadeIndex).HasColumnName("arcade_index");
+            entity.Property(e => e.CharacterID).HasColumnName("character_id");
             entity.Property(e => e.CollectedSuits)
                 .IsRequired()
                 .HasMaxLength(900)
@@ -937,32 +966,22 @@ public partial class FortuneStreetContext : DbContext
             entity.Property(e => e.DieRollRestrictions)
                 .HasMaxLength(50)
                 .HasColumnName("die_roll_restrictions");
-            entity.Property(e => e.LayoutIndex)
-                .HasColumnName("layout_index");
-            entity.Property(e => e.Level)
-                .HasColumnName("level");
-            entity.Property(e => e.NetWorth)
-                .HasColumnName("net_worth");
+            entity.Property(e => e.LayoutIndex).HasColumnName("layout_index");
+            entity.Property(e => e.Level).HasColumnName("level");
+            entity.Property(e => e.NetWorth).HasColumnName("net_worth");
             entity.Property(e => e.OwnedShopIndices)
                 .IsRequired()
                 .HasMaxLength(900)
                 .HasColumnName("owned_shop_indices");
-            entity.Property(e => e.Placing)
-                .HasColumnName("placing");
-            entity.Property(e => e.ReadyCash)
-                .HasColumnName("ready_cash");
-            entity.Property(e => e.SpaceIDCurrent)
-                .HasColumnName("space_id_current");
-            entity.Property(e => e.SpaceIDFrom)
-                .HasColumnName("space_id_from");
-            entity.Property(e => e.TotalShopValue)
-                .HasColumnName("total_shop_value");
-            entity.Property(e => e.TotalStockValue)
-                .HasColumnName("total_stock_value");
-            entity.Property(e => e.TotalSuitCards)
-                .HasColumnName("total_suit_cards");
-            entity.Property(e => e.TurnNumber)
-                .HasColumnName("turn_number");
+            entity.Property(e => e.Placing).HasColumnName("placing");
+            entity.Property(e => e.ReadyCash).HasColumnName("ready_cash");
+            entity.Property(e => e.SpaceIDCurrent).HasColumnName("space_id_current");
+            entity.Property(e => e.SpaceIDFrom).HasColumnName("space_id_from");
+            entity.Property(e => e.TotalShopValue).HasColumnName("total_shop_value");
+            entity.Property(e => e.TotalStockValue).HasColumnName("total_stock_value");
+            entity.Property(e => e.TotalSuitCards).HasColumnName("total_suit_cards");
+            entity.Property(e => e.TurnIteratorID).HasColumnName("turn_iterator_id");
+            entity.Property(e => e.TurnNumber).HasColumnName("turn_number");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -11,29 +11,14 @@ public partial class PostRolls
     public long ID { get; set; }
 
     /// <summary>
-    /// Analyzer instance identifier reference.
+    /// Turn iterator identifier reference.
     /// </summary>
-    public long AnalyzerInstanceID { get; set; }
-
-    /// <summary>
-    /// Character identifier reference.
-    /// </summary>
-    public long CharacterID { get; set; }
+    public long TurnIteratorID { get; set; }
 
     /// <summary>
     /// Space identifier reference of the space landed on.
     /// </summary>
     public long SpaceIDLandedOn { get; set; }
-
-    /// <summary>
-    /// Whether the turn has been resetted.
-    /// </summary>
-    public bool TurnResetFlag { get; set; }
-
-    /// <summary>
-    /// The turn number value of the player.
-    /// </summary>
-    public byte TurnNumber { get; set; }
 
     /// <summary>
     /// The value of the die roll.
@@ -50,7 +35,7 @@ public partial class PostRolls
     /// </summary>
     public DateTime TimestampAdded { get; set; }
 
-    public virtual AnalyzerInstances AnalyzerInstance { get; set; }
+    public virtual Spaces _SpaceIDLandedOn { get; set; }
 
-    public virtual Spaces SpaceIdLandedOnNavigation { get; set; }
+    public virtual TurnIterators TurnIterator { get; set; }
 }
