@@ -1945,17 +1945,46 @@ $(document).ready(function ()
                 if (analyzerData["GameSettingsData"]["TurnData"].length - 1 === i && playerTurnCharacterIndex === j)
                     break;
 
+                let currentPlayerTurnLogsData =
+                {
+                    TurnPlayerData: [],
+                    TurnCameoCharactersData: []
+                };
+
+                for (let currentTurnPlayerData of analyzerData["GameSettingsData"]["TurnData"][i][j]["TurnPlayerData"])
+                    currentPlayerTurnLogsData["TurnPlayerData"].push
+                    (
+                        "<div>" +
+
+                            $.map(currentTurnPlayerData["Logs"], function (value)
+                            {
+                                return "<div>" + value + "</div>";
+                            }).join("") +
+
+                        "</div>"
+                    );
+
+                for (let currentTurnCameoCharactersData of analyzerData["GameSettingsData"]["TurnData"][i][j]["TurnCameoCharactersData"])
+                    currentPlayerTurnLogsData["TurnCameoCharactersData"].push
+                    (
+                        "<div>" +
+
+                            $.map(currentTurnCameoCharactersData["Logs"], function (value)
+                            {
+                                return "<div>" + value + "</div>";
+                            }).join("") +
+
+                        "</div>"
+                    );
+
                 $("#turns > div:last-of-type > div:last-of-type").append
                 (
                     "<div class=\"player-information\" style=\"background-color: #" + analyzerData["CharacterData"]["PlayerData"][j]["ColorData"]["CharacterColor"] + ";\">" + renderPlayerContainer(j) + "</div>" +
 
                     "<div class=\"logs\">" +
+                        currentPlayerTurnLogsData["TurnPlayerData"].join("") +
 
-                        $.map(analyzerData["GameSettingsData"]["TurnData"][i][j]["Logs"], function (value)
-                        {
-                            return "<div>" + value + "</div>";
-                        }).join("") +
-
+                        currentPlayerTurnLogsData["TurnCameoCharactersData"].join("") +
                     "</div>"
                 );
             }
