@@ -111,7 +111,7 @@ public class SaveAnalyzerInstanceHelper
         }
     }
 
-    public static JsonResult SaveTurnOrderDeterminationSettings(Global.AnalyzerDataModel saveTurnOrderDeterminationSettingsParameter, FortuneStreetAppContext fortuneStreetAppContext)
+    public static JsonResult SaveTurnOrderDeterminationSettings(Global.AnalyzerDataModel saveTurnOrderDeterminationSettingsParameter, FortuneStreetAppContext fortuneStreetAppContext, FortuneStreetSavePreRollContext fortuneStreetSavePreRollContext)
     {
         Global.Response response = new Global.Response();
 
@@ -270,7 +270,7 @@ public class SaveAnalyzerInstanceHelper
                     ArcadeIndex = player.ArcadeIndex,
                     DieRollRestrictions = player.DieRollRestrictions != null ? JsonSerializer.Serialize(player.DieRollRestrictions) : null
                 }).ToList(),
-                fortuneStreetAppContext
+                fortuneStreetSavePreRollContext
             );
 
             response.HTMLResponse = JsonSerializer.Serialize(new
@@ -286,13 +286,13 @@ public class SaveAnalyzerInstanceHelper
         }
     }
 
-    public static JsonResult SavePreRollTurnData(List<PreRolls> preRollsRecords, FortuneStreetAppContext fortuneStreetAppContext)
+    public static JsonResult SavePreRollTurnData(List<PreRolls> preRollsRecords, FortuneStreetSavePreRollContext fortuneStreetSavePreRollContext)
     {
         try
         {
-            fortuneStreetAppContext.PreRolls.AddRange(preRollsRecords);
+            fortuneStreetSavePreRollContext.PreRolls.AddRange(preRollsRecords);
 
-            fortuneStreetAppContext.SaveChanges();
+            fortuneStreetSavePreRollContext.SaveChanges();
 
             return new JsonResult(new Global.Response());
         }

@@ -9,6 +9,7 @@ namespace fortunestreetanalyzer.Pages.train;
 public class IndexModel : PageModel
 {
     private readonly FortuneStreetAppContext _fortuneStreetAppContext;
+    private readonly FortuneStreetSavePreRollContext _fortuneStreetSavePreRollContext;
     private readonly FortuneStreetSavePostRollContext _fortuneStreetSavePostRollContext;
 
     public class StartupDataModel
@@ -31,14 +32,15 @@ public class IndexModel : PageModel
         public TurnIterators TurnIteratorsRecord { get; set; }
     }
 
-    public IndexModel(FortuneStreetAppContext fortuneStreetAppContext, FortuneStreetSavePostRollContext fortuneStreetSavePostRollContext)
     public class NewTurnModel
     {
         public TurnIterators TurnIteratorsRecord { get; set; }
     }
 
+    public IndexModel(FortuneStreetAppContext fortuneStreetAppContext, FortuneStreetSavePreRollContext fortuneStreetSavePreRollContext, FortuneStreetSavePostRollContext fortuneStreetSavePostRollContext)
     {
         _fortuneStreetAppContext = fortuneStreetAppContext;
+        _fortuneStreetSavePreRollContext = fortuneStreetSavePreRollContext;
         _fortuneStreetSavePostRollContext = fortuneStreetSavePostRollContext;
     }
 
@@ -81,12 +83,12 @@ public class IndexModel : PageModel
 
     public JsonResult OnPostSaveTurnOrderDeterminationSettings([FromBody] Global.AnalyzerDataModel saveTurnOrderDeterminationSettingsParameter)
     {
-        return SaveAnalyzerInstanceHelper.SaveTurnOrderDeterminationSettings(saveTurnOrderDeterminationSettingsParameter, _fortuneStreetAppContext);
+        return SaveAnalyzerInstanceHelper.SaveTurnOrderDeterminationSettings(saveTurnOrderDeterminationSettingsParameter, _fortuneStreetAppContext, _fortuneStreetSavePreRollContext);
     }
 
     public JsonResult OnPostSavePreRollTurnData([FromBody] SavePreRollTurnDataModel savePreRollTurnDataParameter)
     {
-        return SaveAnalyzerInstanceHelper.SavePreRollTurnData(savePreRollTurnDataParameter.PreRollsRecords, _fortuneStreetAppContext);
+        return SaveAnalyzerInstanceHelper.SavePreRollTurnData(savePreRollTurnDataParameter.PreRollsRecords, _fortuneStreetSavePreRollContext);
     }
 
     public JsonResult OnPostSavePostRollTurnData([FromBody] SavePostRollTurnDataModel savePostRollTurnDataParameter)
