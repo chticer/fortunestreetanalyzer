@@ -1662,7 +1662,14 @@ $(document).ready(function ()
 
                 animateCharacterMarkerFlag = false;
 
-                let alertStatusMessage;
+                let alertStatusMessageResetTurn = function (type)
+                {
+                    let alertStatusMessage = $.extend(true, {}, ALERT_STATUS_MESSAGES[type]);
+
+                    alertStatusMessage["Title"] = alertStatusMessage["Title"].replace("{turn-number}", turnIndex + 1);
+
+                    alertStatusMessageDisplay(alertStatusMessage);
+                };
 
                 $("#settings-content").append("<div>" + loadingDisplay() + "</div>");
 
@@ -1681,11 +1688,7 @@ $(document).ready(function ()
                 {
                     if (response["Error"])
                     {
-                        alertStatusMessage = ALERT_STATUS_MESSAGES["RESET_TURN_ERROR"];
-
-                        alertStatusMessage["Title"] = alertStatusMessage["Title"].replace("{turn-number}", turnIndex + 1);
-
-                        alertStatusMessageDisplay(alertStatusMessage);
+                        alertStatusMessageResetTurn("RESET_TURN_ERROR");
 
                         return;
                     }
@@ -1694,20 +1697,12 @@ $(document).ready(function ()
 
                     analyzerData["GameSettingsData"]["TurnData"] = JSONResponse["Data"];
 
-                    alertStatusMessage = ALERT_STATUS_MESSAGES["RESET_TURN_SUCCESS"];
-
-                    alertStatusMessage["Title"] = alertStatusMessage["Title"].replace("{turn-number}", turnIndex + 1);
-
-                    alertStatusMessageDisplay(alertStatusMessage);
+                    alertStatusMessageResetTurn("RESET_TURN_SUCCESS");
 
                     playerTurnCharacterIndex = 0;
                 }).fail(function ()
                 {
-                    alertStatusMessage = ALERT_STATUS_MESSAGES["RESET_TURN_ERROR"];
-
-                    alertStatusMessage["Title"] = alertStatusMessage["Title"].replace("{turn-number}", turnIndex + 1);
-
-                    alertStatusMessageDisplay(alertStatusMessage);
+                    alertStatusMessageResetTurn("RESET_TURN_ERROR");
                 }).always(function ()
                 {
                     $("#settings-content").find(".loading").parent().remove();
