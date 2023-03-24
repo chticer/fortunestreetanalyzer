@@ -1,5 +1,3 @@
-using Azure.Core;
-using Azure.Identity;
 using fortunestreetanalyzer.DatabaseModels.fortunestreet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -7,52 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-#if DEBUG
-    Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", builder.Configuration["AZURE_CLIENT_ID"]);
-    Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", builder.Configuration["AZURE_CLIENT_SECRET"]);
-    Environment.SetEnvironmentVariable("AZURE_TENANT_ID", builder.Configuration["AZURE_TENANT_ID"]);
-#endif
-
 // Add services to the container.
 builder.Services.AddRazorPages();
 
 string fortuneStreetSQLConnectionString = new SqlConnectionStringBuilder
 {
     DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
-    InitialCatalog = "fortunestreet"
+    InitialCatalog = "fortunestreet",
+    Authentication = SqlAuthenticationMethod.ActiveDirectoryDefault,
+    CommandTimeout = (int) TimeSpan.FromMinutes(5).TotalSeconds
 }.ConnectionString;
 
-DefaultAzureCredential azureCredential = new DefaultAzureCredential();
-
-SqlConnection fortuneStreetAppSQLConnection = new SqlConnection(fortuneStreetSQLConnectionString);
-fortuneStreetAppSQLConnection.AccessToken = azureCredential.GetToken(new TokenRequestContext(new[]
-{
-    "https://database.windows.net/.default"
-})).Token;
-
-builder.Services.AddDbContext<FortuneStreetAppContext>
-(
-    options => options.UseSqlServer
-    (
-        fortuneStreetAppSQLConnection,
-        options => options.CommandTimeout((int) new TimeSpan(0, 3, 0).TotalSeconds)
-    )
-);
-
-SqlConnection fortuneStreetSavePostRollContext = new SqlConnection(fortuneStreetSQLConnectionString);
-fortuneStreetSavePostRollContext.AccessToken = azureCredential.GetToken(new TokenRequestContext(new[]
-{
-    "https://database.windows.net/.default"
-})).Token;
-
-builder.Services.AddDbContext<FortuneStreetSavePostRollContext>
-(
-    options => options.UseSqlServer
-    (
-        fortuneStreetSavePostRollContext,
-        options => options.CommandTimeout((int) new TimeSpan(0, 3, 0).TotalSeconds)
-    )
-);
+builder.Services.AddDbContext<FortuneStreetAppContext>(options => options.UseSqlServer(new SqlConnection(fortuneStreetSQLConnectionString)));
+builder.Services.AddDbContext<FortuneStreetSavePreRollContext>(options => options.UseSqlServer(new SqlConnection(fortuneStreetSQLConnectionString)));
+builder.Services.AddDbContext<FortuneStreetSavePostRollContext>(options => options.UseSqlServer(new SqlConnection(fortuneStreetSQLConnectionString)));
 
 builder.Services.AddMvc().AddRazorPagesOptions(options =>
 {
