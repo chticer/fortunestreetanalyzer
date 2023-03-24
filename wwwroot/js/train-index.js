@@ -1377,47 +1377,59 @@ $(document).ready(function ()
                 }
 
                 alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_SUCCESS"]);
+
+                playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"]["PlayerData"].length;
+
+                if (playerTurnCharacterIndex === 0)
+                {
+                    alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_LOAD"]);
+
+                    ajaxCall
+                    (
+                        "POST",
+                        "NewTurn",
+                        {
+                            TurnIteratorsRecord:
+                            {
+                                AnalyzerInstanceID: analyzerData["AnalyzerInstanceID"],
+                                TurnNumber: analyzerData["GameSettingsData"]["TurnData"].length + 1
+                            }
+                        }
+                    ).done(function (response)
+                    {
+                        if (response["Error"])
+                        {
+                            alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
+
+                            return;
+                        }
+
+                        let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
+                        analyzerData["GameSettingsData"]["TurnData"].push(JSONResponse["Data"]);
+
+                        alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_SUCCESS"]);
+
+                        displayNewTurn(analyzerData["GameSettingsData"]["TurnData"].length - 1);
+
+                        $("#turns > div:last-of-type").append("<div></div>");
+
+                        startNextPlayerTurn();
+                    }).fail(function ()
+                    {
+                        alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
+                    });
+
+                    return;
+                }
+
+                $("#turns > div:last-of-type").append("<div></div>");
+
+                startNextPlayerTurn();
             }).fail(function ()
             {
                 alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
             });
-
-            playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"]["PlayerData"].length;
-
-            if (playerTurnCharacterIndex === 0)
-            {
-                let turnData = analyzerData["GameSettingsData"]["TurnData"];
-
-                let turnNewData = $.extend(true, [], turnData[turnData.length - 1]);
-
-                for (let currentTurnNewCharacterData of turnNewData)
-                {
-                    let currentPlayerTurnNewCharacterData = currentTurnNewCharacterData["TurnPlayerData"];
-
-                    currentPlayerTurnNewCharacterData.splice(0, currentPlayerTurnNewCharacterData.length - 1);
-
-                    currentPlayerTurnNewCharacterData[0]["DieRollValue"] = null;
-                    currentPlayerTurnNewCharacterData[0]["Logs"] = null;
-
-                    for (let currentCameoCharacterTurnNewData of currentTurnNewCharacterData["TurnCameoCharactersData"])
-                    {
-                        currentCameoCharacterTurnNewData.splice(0, currentCameoCharacterTurnNewData.length - 1);
-
-                        currentCameoCharacterTurnNewData[0]["DieRollValue"] = null;
-                        currentCameoCharacterTurnNewData[0]["Logs"] = null;
-                    }
-                }
-
-                turnData.push(turnNewData);
-
-                savePreRollData(Array.from(Array(analyzerData["CharacterData"]["PlayerData"].length).keys()));
-
-                displayNewTurn(turnData.length - 1);
-            }
-
-            $("#turns > div:last-of-type").append("<div></div>");
-
-            startNextPlayerTurn();
 
             return;
         }

@@ -102,50 +102,120 @@ public class IndexModel : PageModel
 
         try
         {
-            long analyzerInstanceID = resetTurnParameter.PreRollsRecord.AnalyzerInstanceID;
+            List<CurrentTurnIteratorsTVF> currentTurnIteratorsTVFResults = _fortuneStreetAppContext.CurrentTurnIteratorsTVF.FromSqlRaw("SELECT * FROM currentturniterators_tvf()").Where(result => result.AnalyzerInstanceID == resetTurnParameter.TurnIteratorsRecord.AnalyzerInstanceID).ToList();
 
-            List<GetPreRollsTVF> getPreRollsTVFResults = _fortuneStreetAppContext.GetPreRollsTVF.FromSqlRaw("SELECT * FROM getprerolls_tvf({0})", analyzerInstanceID).Where(turn_number => turn_number.TurnNumber == resetTurnParameter.PreRollsRecord.TurnNumber).ToList();
+            int maximumTurnResetCounter = currentTurnIteratorsTVFResults.Select(turn_reset_counter => turn_reset_counter.TurnResetCounter).Max();
 
-            List<GetPostRollsTVF> getPostRollsTVFResults = _fortuneStreetAppContext.GetPostRollsTVF.FromSqlRaw("SELECT * FROM getpostrolls_tvf({0})", analyzerInstanceID).Where(turn_number => turn_number.TurnNumber == resetTurnParameter.PreRollsRecord.TurnNumber - 1).ToList();
+            currentTurnIteratorsTVFResults = currentTurnIteratorsTVFResults.Where(turn_number => turn_number.TurnNumber == resetTurnParameter.TurnIteratorsRecord.TurnNumber).ToList();
 
-            _fortuneStreetAppContext.PreRolls.AddRange(getPreRollsTVFResults.Select(result => new PreRolls
+            List<long> resetTurnInitialTurnIteratorIDs = currentTurnIteratorsTVFResults.Select(id => id.ID).ToList();
+
+            List<PreRolls> preRollsRecords = _fortuneStreetAppContext.PreRolls.Where(turn_iterator_id => resetTurnInitialTurnIteratorIDs.Contains(turn_iterator_id.TurnIteratorID)).GroupBy(turn_iterator_id => turn_iterator_id.TurnIteratorID).Select(result => result.FirstOrDefault()).ToList();
+
+            List<TurnIterators> turnIteratorsRecords = currentTurnIteratorsTVFResults.Select(result => new TurnIterators
             {
-                AnalyzerInstanceID = analyzerInstanceID,
+                AnalyzerInstanceID = result.AnalyzerInstanceID,
                 CharacterID = result.CharacterID,
-                SpaceIDCurrent = result.SpaceIDCurrent,
-                SpaceIDFrom = result.SpaceIDFrom,
-                TurnResetFlag = true,
+                TurnResetCounter = maximumTurnResetCounter + 1,
                 TurnNumber = result.TurnNumber,
-                LayoutIndex = result.LayoutIndex,
-                Level = result.Level,
-                Placing = result.Placing,
-                ReadyCash = result.ReadyCash,
-                TotalShopValue = result.TotalShopValue,
-                TotalStockValue = result.TotalStockValue,
-                NetWorth = result.NetWorth,
-                OwnedShopIndices = result.OwnedShopIndices,
-                TotalSuitCards = result.TotalSuitCards,
-                CollectedSuits = result.CollectedSuits,
-                ArcadeIndex = result.ArcadeIndex,
-                DieRollRestrictions = result.DieRollRestrictions
-            }));
+                TurnOrder = result.TurnOrder
+            }).ToList();
 
-            _fortuneStreetAppContext.PostRolls.AddRange(getPostRollsTVFResults.Select(result => new PostRolls
+            _fortuneStreetAppContext.TurnIterators.AddRange(turnIteratorsRecords);
+
+            _fortuneStreetAppContext.SaveChanges();
+
+            foreach (PreRolls currentPreRollsRecord in preRollsRecords)
             {
-                AnalyzerInstanceID = analyzerInstanceID,
-                CharacterID = result.CharacterID,
-                SpaceIDLandedOn = result.SpaceIDLandedOn,
-                TurnResetFlag = true,
-                TurnNumber = result.TurnNumber,
-                DieRollValue = result.DieRollValue,
-                Logs = result.Logs
-            }));
+                CurrentTurnIteratorsTVF currentTurnIteratorsTVFResult = currentTurnIteratorsTVFResults.SingleOrDefault(result => result.ID == currentPreRollsRecord.TurnIteratorID);
+
+                TurnIterators currentTurnIteratorsRecord = turnIteratorsRecords.SingleOrDefault(record => record.CharacterID == currentTurnIteratorsTVFResult.CharacterID);
+
+                _fortuneStreetAppContext.PreRolls.Add(new PreRolls
+                {
+                    TurnIteratorID = currentTurnIteratorsRecord.ID,
+                    SpaceIDCurrent = currentPreRollsRecord.SpaceIDCurrent,
+                    SpaceIDFrom = currentPreRollsRecord.SpaceIDFrom,
+                    LayoutIndex = currentPreRollsRecord.LayoutIndex,
+                    Level = currentPreRollsRecord.Level,
+                    Placing = currentPreRollsRecord.Placing,
+                    ReadyCash = currentPreRollsRecord.ReadyCash,
+                    TotalShopValue = currentPreRollsRecord.TotalShopValue,
+                    TotalStockValue = currentPreRollsRecord.TotalStockValue,
+                    NetWorth = currentPreRollsRecord.NetWorth,
+                    OwnedShopIndices = currentPreRollsRecord.OwnedShopIndices,
+                    TotalSuitCards = currentPreRollsRecord.TotalSuitCards,
+                    CollectedSuits = currentPreRollsRecord.CollectedSuits,
+                    ArcadeIndex = currentPreRollsRecord.ArcadeIndex
+                });
+            }
 
             _fortuneStreetAppContext.SaveChanges();
 
             response.HTMLResponse = JsonSerializer.Serialize(new
             {
-                Data = LoadAnalyzerInstanceHelper.LoadAnalyzerData(analyzerInstanceID, _fortuneStreetAppContext).GameSettingsData.TurnData
+                Data = LoadAnalyzerInstanceHelper.LoadAnalyzerData(resetTurnParameter.TurnIteratorsRecord.AnalyzerInstanceID, _fortuneStreetAppContext).GameSettingsData.TurnData
+            });
+
+            return new JsonResult(response);
+        }
+        catch (Exception e)
+        {
+            return Global.ServerErrorResponse(e);
+        }
+    }
+
+    public JsonResult OnPostNewTurn([FromBody] NewTurnModel newTurnParameter)
+    {
+        Global.Response response = new Global.Response();
+
+        try
+        {
+            List<GetPreRollsTVF> getPreRollsTVFResults = _fortuneStreetAppContext.GetPreRollsTVF.FromSqlRaw("SELECT * FROM getprerolls_tvf({0})", newTurnParameter.TurnIteratorsRecord.AnalyzerInstanceID).Where(turn_number => turn_number.TurnNumber == newTurnParameter.TurnIteratorsRecord.TurnNumber - 1).ToList();
+
+            List<CurrentTurnIteratorsTVF> currentTurnIteratorsTVFResults = _fortuneStreetAppContext.CurrentTurnIteratorsTVF.FromSqlRaw("SELECT * FROM currentturniterators_tvf()").Where(result => result.AnalyzerInstanceID == newTurnParameter.TurnIteratorsRecord.AnalyzerInstanceID && result.TurnNumber == newTurnParameter.TurnIteratorsRecord.TurnNumber - 1).ToList();
+
+            List<TurnIterators> turnIteratorsRecords = currentTurnIteratorsTVFResults.Select(result => new TurnIterators
+            {
+                AnalyzerInstanceID = result.AnalyzerInstanceID,
+                CharacterID = result.CharacterID,
+                TurnResetCounter = result.TurnResetCounter,
+                TurnNumber = newTurnParameter.TurnIteratorsRecord.TurnNumber,
+                TurnOrder = result.TurnOrder
+            }).ToList();
+
+            _fortuneStreetAppContext.TurnIterators.AddRange(turnIteratorsRecords);
+
+            _fortuneStreetAppContext.SaveChanges();
+
+            foreach (GetPreRollsTVF currentGetPreRollsTVFResult in getPreRollsTVFResults)
+            {
+                TurnIterators currentTurnIteratorsRecord = turnIteratorsRecords.SingleOrDefault(character_id => character_id.CharacterID == currentGetPreRollsTVFResult.CharacterID);
+
+                _fortuneStreetAppContext.PreRolls.Add(new PreRolls
+                {
+                    TurnIteratorID = currentTurnIteratorsRecord.ID,
+                    SpaceIDCurrent = currentGetPreRollsTVFResult.SpaceIDCurrent,
+                    SpaceIDFrom = currentGetPreRollsTVFResult.SpaceIDFrom,
+                    LayoutIndex = currentGetPreRollsTVFResult.LayoutIndex,
+                    Level = currentGetPreRollsTVFResult.Level,
+                    Placing = currentGetPreRollsTVFResult.Placing,
+                    ReadyCash = currentGetPreRollsTVFResult.ReadyCash,
+                    TotalShopValue = currentGetPreRollsTVFResult.TotalShopValue,
+                    TotalStockValue = currentGetPreRollsTVFResult.TotalStockValue,
+                    NetWorth = currentGetPreRollsTVFResult.NetWorth,
+                    OwnedShopIndices = currentGetPreRollsTVFResult.OwnedShopIndices,
+                    TotalSuitCards = currentGetPreRollsTVFResult.TotalSuitCards,
+                    CollectedSuits = currentGetPreRollsTVFResult.CollectedSuits,
+                    ArcadeIndex = currentGetPreRollsTVFResult.ArcadeIndex
+                });
+            }
+
+            _fortuneStreetAppContext.SaveChanges();
+
+            response.HTMLResponse = JsonSerializer.Serialize(new
+            {
+                Data = LoadAnalyzerInstanceHelper.LoadAnalyzerData(newTurnParameter.TurnIteratorsRecord.AnalyzerInstanceID, _fortuneStreetAppContext).GameSettingsData.TurnData.LastOrDefault()
             });
 
             return new JsonResult(response);
