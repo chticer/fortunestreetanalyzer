@@ -284,12 +284,14 @@ public class LoadAnalyzerInstanceHelper
 
         List<GetPreRollsTVF> getPreRollsTVFResults = fortuneStreetAppContext.GetPreRollsTVF.FromSqlRaw("SELECT * FROM getprerolls_tvf({0})", analyzerInstanceID).ToList();
 
-        List<GetPostRollsTVF> getPostRollsTVFResults = fortuneStreetAppContext.GetPostRollsTVF.FromSqlRaw("SELECT * FROM getpostrolls_tvf({0})", analyzerInstanceID).ToList();
-
         List<List<Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel>> turnData = getPreRollsTVFResults.GroupBy(turn_number => turn_number.TurnNumber).Select(turn_group_by => turn_group_by.GroupBy(character_id => character_id.CharacterID).Select(turn_character_group_by => new Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel
         {
             TurnPlayerData = turn_character_group_by.Select(turn_character => new Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel.TurnPlayerDataModel
             {
+                TurnIteratorID = turn_character.TurnIteratorID,
+                SpaceIndexCurrent = indexData.SpaceIndexData.SingleOrDefault(space_index => space_index.SpaceData.ID == turn_character.SpaceIDCurrent).Index,
+                SpaceIndexFrom = turn_character.SpaceIDFrom != null ? indexData.SpaceIndexData.SingleOrDefault(space_index => space_index.SpaceData.ID == (long) turn_character.SpaceIDFrom).Index : null,
+                LayoutIndex = turn_character.LayoutIndex,
                 Level = turn_character.Level,
                 Placing = turn_character.Placing,
                 ReadyCash = turn_character.ReadyCash,
@@ -300,15 +302,14 @@ public class LoadAnalyzerInstanceHelper
                 TotalSuitCards = turn_character.TotalSuitCards,
                 CollectedSuits = JsonSerializer.Deserialize<List<string>>(turn_character.CollectedSuits),
                 ArcadeIndex = turn_character.ArcadeIndex,
-                SpaceIndexCurrent = indexData.SpaceIndexData.SingleOrDefault(space_index => space_index.SpaceData.ID == turn_character.SpaceIDCurrent).Index,
-                SpaceIndexFrom = turn_character.SpaceIDFrom != null ? indexData.SpaceIndexData.SingleOrDefault(space_index => space_index.SpaceData.ID == (long) turn_character.SpaceIDFrom).Index : null,
-                LayoutIndex = turn_character.LayoutIndex,
                 DieRollRestrictions = turn_character.DieRollRestrictions != null ? JsonSerializer.Deserialize<List<byte>>(turn_character.DieRollRestrictions) : null
             }).ToList(),
             TurnCameoCharactersData = new List<List<Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel.TurnCharacterPropertiesDataModel>>()
         }).ToList()).ToList();
 
-        foreach (PostRollsTurnDataModel postRollsTurnData in getPostRollsTVFResults.GroupBy(turn_number => turn_number.TurnNumber).Select((turn_group_by, turn_index) => turn_group_by.GroupBy(character_id => character_id.CharacterID).Select((turn_character_group_by, turn_character_index) => new PostRollsTurnDataModel { TurnIndex = turn_index, CharacterIndex = turn_character_index, GetPostRollsTVFResults = turn_character_group_by.ToList() })))
+        List<GetPostRollsTVF> getPostRollsTVFResults = fortuneStreetAppContext.GetPostRollsTVF.FromSqlRaw("SELECT * FROM getpostrolls_tvf({0})", analyzerInstanceID).ToList();
+
+        foreach (PostRollsTurnDataModel postRollsTurnData in getPostRollsTVFResults.GroupBy(turn_number => turn_number.TurnNumber).SelectMany((turn_group_by, turn_index) => turn_group_by.GroupBy(character_id => character_id.CharacterID).Select((turn_character_group_by, turn_character_index) => new PostRollsTurnDataModel { TurnIndex = turn_index, CharacterIndex = turn_character_index, GetPostRollsTVFResults = turn_character_group_by.ToList() })))
         {
             for (int i = 0; i < postRollsTurnData.GetPostRollsTVFResults.Count; ++i)
             {

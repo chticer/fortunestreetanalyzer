@@ -666,12 +666,9 @@ $(document).ready(function ()
                     let turnCharacterRollData = turnCharacterData[turnCharacterData.length - 1];
 
                     return {
-                        AnalyzerInstanceID: analyzerData["AnalyzerInstanceID"],
-                        CharacterID: analyzerData["CharacterData"]["PlayerData"][value]["ID"],
+                        TurnIteratorID: turnCharacterRollData["TurnIteratorID"],
                         SpaceIDCurrent: analyzerData["SpaceData"][turnCharacterRollData["SpaceIndexCurrent"]]["ID"],
                         SpaceIDFrom: analyzerData["SpaceData"][turnCharacterRollData["SpaceIndexFrom"]]["ID"],
-                        TurnResetFlag: false,
-                        TurnNumber: analyzerData["GameSettingsData"]["TurnData"].length,
                         LayoutIndex: layoutIndex,
                         Level: turnCharacterRollData["Level"],
                         Placing: turnCharacterRollData["Placing"],
@@ -1364,11 +1361,8 @@ $(document).ready(function ()
                 {
                     PostRollsRecord:
                     {
-                        AnalyzerInstanceID: analyzerData["AnalyzerInstanceID"],
-                        CharacterID: analyzerData["CharacterData"]["PlayerData"][playerTurnCharacterIndex]["ID"],
+                        TurnIteratorID: playerTurnCharacterRollData["TurnIteratorID"],
                         SpaceIDLandedOn: analyzerData["SpaceData"][playerTurnCharacterRollData["SpaceIndexCurrent"]]["ID"],
-                        TurnResetFlag: false,
-                        TurnNumber: analyzerData["GameSettingsData"]["TurnData"].length,
                         DieRollValue: playerTurnCharacterRollData["DieRollValue"],
                         Logs: JSON.stringify(playerTurnCharacterRollData["Logs"])
                     }
@@ -1667,7 +1661,7 @@ $(document).ready(function ()
                     "POST",
                     "ResetTurn",
                     {
-                        PreRollsRecord:
+                        TurnIteratorsRecord:
                         {
                             AnalyzerInstanceID: analyzerData["AnalyzerInstanceID"],
                             TurnNumber: turnIndex + 1

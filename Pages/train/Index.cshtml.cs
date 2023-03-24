@@ -28,10 +28,15 @@ public class IndexModel : PageModel
 
     public class ResetTurnModel
     {
-        public PreRolls PreRollsRecord { get; set; }
+        public TurnIterators TurnIteratorsRecord { get; set; }
     }
 
     public IndexModel(FortuneStreetAppContext fortuneStreetAppContext, FortuneStreetSavePostRollContext fortuneStreetSavePostRollContext)
+    public class NewTurnModel
+    {
+        public TurnIterators TurnIteratorsRecord { get; set; }
+    }
+
     {
         _fortuneStreetAppContext = fortuneStreetAppContext;
         _fortuneStreetSavePostRollContext = fortuneStreetSavePostRollContext;

@@ -62,6 +62,7 @@ public class Global
 
                 public class TurnCharacterPropertiesDataModel
                 {
+                    public long TurnIteratorID { get; set; }
                     public long SpaceIndexCurrent { get; set; }
                     public long? SpaceIndexFrom { get; set; }
                     public byte LayoutIndex { get; set; }

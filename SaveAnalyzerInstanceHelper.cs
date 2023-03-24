@@ -124,6 +124,17 @@ public class SaveAnalyzerInstanceHelper
                 Value = (byte) player.TurnOrderValue
             }));
 
+            List<TurnIterators> initialTurnIteratorsData = saveTurnOrderDeterminationSettingsParameter.CharacterData.PlayerData.OrderByDescending(player => player.TurnOrderValue).Select((player_result, player_index) => new TurnIterators
+            {
+                AnalyzerInstanceID = saveTurnOrderDeterminationSettingsParameter.AnalyzerInstanceID,
+                CharacterID = player_result.ID,
+                TurnResetCounter = 1,
+                TurnNumber = 1,
+                TurnOrder = (byte) (player_index + 1)
+            }).ToList();
+
+            fortuneStreetAppContext.TurnIterators.AddRange(initialTurnIteratorsData);
+
             fortuneStreetAppContext.SaveChanges();
 
             BoardCharacteristics boardCharacteristicResult = fortuneStreetAppContext.BoardCharacteristics.SingleOrDefault(board_characteristic => board_characteristic.RuleID == saveTurnOrderDeterminationSettingsParameter.GameSettingsData.RuleData.ID && board_characteristic.BoardID == saveTurnOrderDeterminationSettingsParameter.GameSettingsData.BoardData.ID);
@@ -134,12 +145,13 @@ public class SaveAnalyzerInstanceHelper
 
             List<SpaceLayouts> spaceLayoutResults = fortuneStreetAppContext.SpaceLayouts.Where(space_id => spaceIDs.Contains(space_id.SpaceID)).ToList();
 
-            List<Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel> initialTurnData = Enumerable.Range(0, saveTurnOrderDeterminationSettingsParameter.CharacterData.PlayerData.Count).Select(value => new Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel
+            List<Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel> initialTurnData = initialTurnIteratorsData.Select(result => new Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel
             {
                 TurnPlayerData = new List<Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel.TurnPlayerDataModel>
                 {
                     new Global.AnalyzerDataModel.GameSettingsDataModel.TurnDataModel.TurnPlayerDataModel
                     {
+                        TurnIteratorID = result.ID,
                         LayoutIndex = 0,
                         Level = 1,
                         Placing = 1,
@@ -240,24 +252,23 @@ public class SaveAnalyzerInstanceHelper
 
             SavePreRollTurnData
             (
-                initialTurnData.Select((turn_result, turn_index) => new PreRolls
+                initialTurnData.Select(result => result.TurnPlayerData.FirstOrDefault()).Select(player => new PreRolls
                 {
-                    AnalyzerInstanceID = saveTurnOrderDeterminationSettingsParameter.AnalyzerInstanceID,
-                    CharacterID = analyzerData.CharacterData.PlayerData[turn_index].ID,
-                    SpaceIDCurrent = analyzerData.SpaceData[(int) turn_result.TurnPlayerData.FirstOrDefault().SpaceIndexCurrent].ID,
-                    TurnNumber = (byte) analyzerData.GameSettingsData.TurnData.Count,
-                    LayoutIndex = turn_result.TurnPlayerData.FirstOrDefault().LayoutIndex,
-                    Level = turn_result.TurnPlayerData.FirstOrDefault().Level,
-                    Placing = turn_result.TurnPlayerData.FirstOrDefault().Placing,
-                    ReadyCash = turn_result.TurnPlayerData.FirstOrDefault().ReadyCash,
-                    TotalShopValue = turn_result.TurnPlayerData.FirstOrDefault().TotalShopValue,
-                    TotalStockValue = turn_result.TurnPlayerData.FirstOrDefault().TotalStockValue,
-                    NetWorth = turn_result.TurnPlayerData.FirstOrDefault().NetWorth,
-                    OwnedShopIndices = JsonSerializer.Serialize(turn_result.TurnPlayerData.FirstOrDefault().OwnedShopIndices),
-                    TotalSuitCards = turn_result.TurnPlayerData.FirstOrDefault().TotalSuitCards,
-                    CollectedSuits = JsonSerializer.Serialize(turn_result.TurnPlayerData.FirstOrDefault().CollectedSuits),
-                    ArcadeIndex = turn_result.TurnPlayerData.FirstOrDefault().ArcadeIndex,
-                    DieRollRestrictions = turn_result.TurnPlayerData.FirstOrDefault().DieRollRestrictions != null ? JsonSerializer.Serialize(turn_result.TurnPlayerData.FirstOrDefault().DieRollRestrictions) : null
+                    TurnIteratorID = player.TurnIteratorID,
+                    SpaceIDCurrent = analyzerData.SpaceData[(int) player.SpaceIndexCurrent].ID,
+                    SpaceIDFrom = player.SpaceIndexFrom != null ? analyzerData.SpaceData[(int) player.SpaceIndexFrom].ID : null,
+                    LayoutIndex = player.LayoutIndex,
+                    Level = player.Level,
+                    Placing = player.Placing,
+                    ReadyCash = player.ReadyCash,
+                    TotalShopValue = player.TotalShopValue,
+                    TotalStockValue = player.TotalStockValue,
+                    NetWorth = player.NetWorth,
+                    OwnedShopIndices = JsonSerializer.Serialize(player.OwnedShopIndices),
+                    TotalSuitCards = player.TotalSuitCards,
+                    CollectedSuits = JsonSerializer.Serialize(player.CollectedSuits),
+                    ArcadeIndex = player.ArcadeIndex,
+                    DieRollRestrictions = player.DieRollRestrictions != null ? JsonSerializer.Serialize(player.DieRollRestrictions) : null
                 }).ToList(),
                 fortuneStreetAppContext
             );
