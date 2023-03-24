@@ -317,7 +317,7 @@ public class Global
 
                         if (loadAnalyzerInstanceTurnOrderDeterminationSettings.Data.CharacterData.PlayerData.FirstOrDefault().TurnOrderValue != null)
                         {
-                            Global.AnalyzerDataModel analyzerData = LoadAnalyzerInstanceHelper.LoadAnalyzerData(currentAnalyzerInstancesTVFResult.AnalyzerInstanceID, fortuneStreetAppContext);
+                            AnalyzerDataModel analyzerData = LoadAnalyzerInstanceHelper.LoadAnalyzerData(currentAnalyzerInstancesTVFResult.AnalyzerInstanceID, fortuneStreetAppContext);
 
                             currentLoadAnalyzerInstanceDataResponse.Data.GameSettingsData.BoardData.ReadyCashStart = analyzerData.GameSettingsData.BoardData.ReadyCashStart;
                             currentLoadAnalyzerInstanceDataResponse.Data.GameSettingsData.BoardData.SalaryStart = analyzerData.GameSettingsData.BoardData.SalaryStart;

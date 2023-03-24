@@ -1581,8 +1581,6 @@ $(document).ready(function ()
 
     function displayNewTurn(turnIndex)
     {
-        console.log($.extend({}, true, analyzerData));
-
         $("#turns").append
         (
             "<div>" +
