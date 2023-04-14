@@ -860,6 +860,8 @@ $(document).ready(function ()
                 "</div>"
             );
         }
+
+        animateSuits(playerIndex);
     }
 
     function updateCirclePosition(element, centerPercentage)
@@ -1315,6 +1317,23 @@ $(document).ready(function ()
             $(this).css({ opacity: 1 });
 
             animateCurrentPlayerCharacterMarker();
+        });
+    }
+
+    function animateSuits(playerIndex)
+    {
+        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerIndex]["TurnPlayerData"];
+
+        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
+
+        if (!gameRunningFlag || playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] < SUIT_DATA.length)
+            return;
+
+        $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div").animate({ opacity: 0.25 }, 1500, function ()
+        {
+            $(this).css({ opacity: 1 });
+
+            animateSuits(playerIndex);
         });
     }
 
