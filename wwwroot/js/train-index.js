@@ -2025,6 +2025,8 @@ $(document).ready(function ()
     {
         let turnData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1];
 
+        let turnDataCopy = $.extend(true, [], turnData);
+
         for (let currentData of data)
         {
             let currentTurnCharacterData = turnData[currentData["CharacterIndex"]]["TurnPlayerData"];
@@ -2050,6 +2052,8 @@ $(document).ready(function ()
         let previousNetWorthValue = null;
         let previousPlacingValue = null;
 
+        let turnDataChangesCharacterIndices = [];
+
         for (let i = 0; i < playerNetWorthOrder.length; ++i)
         {
             if (previousNetWorthValue === null || previousNetWorthValue !== playerNetWorthOrder[i]["NetWorth"])
@@ -2065,9 +2069,12 @@ $(document).ready(function ()
             currentTurnCharacterRollData["Placing"] = previousPlacingValue;
 
             updatePlayerStandings(playerNetWorthOrder[i]["CharacterIndex"]);
+
+            if (JSON.stringify(turnData[playerNetWorthOrder[i]["CharacterIndex"]]["TurnPlayerData"]) !== JSON.stringify(turnDataCopy[playerNetWorthOrder[i]["CharacterIndex"]]["TurnPlayerData"]))
+                turnDataChangesCharacterIndices.push(playerNetWorthOrder[i]["CharacterIndex"]);
         }
 
-        savePreRollData($.map(data, function (value) { return value["CharacterIndex"]; }));
+        savePreRollData(turnDataChangesCharacterIndices);
     }
 
     function executePlayerPromotion()
