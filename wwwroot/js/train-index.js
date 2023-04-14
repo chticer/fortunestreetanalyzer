@@ -2089,6 +2089,12 @@ $(document).ready(function ()
 
         let totalPromotionValue = baseSalaryValue + promotionBonusValue + shopBonusValue;
 
+        ++playerTurnCharacterRollData["Level"];
+
+        playerTurnCharacterRollData["CollectedSuits"] = [];
+
+        playerTurnCharacterRollData["TotalSuitCards"] -= Math.min(SUIT_DATA.length - playerTurnCharacterRollData["CollectedSuits"].length, playerTurnCharacterRollData["TotalSuitCards"]);
+
         updatePlayerStats
         (
             [
@@ -2098,12 +2104,6 @@ $(document).ready(function ()
                 }
             ]
         );
-
-        ++playerTurnCharacterRollData["Level"];
-
-        playerTurnCharacterRollData["CollectedSuits"] = [];
-
-        playerTurnCharacterRollData["TotalSuitCards"] -= Math.min(SUIT_DATA.length - playerTurnCharacterRollData["CollectedSuits"].length, playerTurnCharacterRollData["TotalSuitCards"]);
 
         addLogEntry("Received a promotion of " + totalPromotionValue + " ready cash (" + baseSalaryValue + " base salary, " + promotionBonusValue + " promotion bonus, " + shopBonusValue + " shop bonus).");
     }
