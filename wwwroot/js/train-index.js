@@ -700,6 +700,8 @@ $(document).ready(function ()
         });
     }
 
+    let gameRunningFlag = true;
+
     let playerTurnCharacterIndex = 0;
 
     let layoutIndex = 0;
@@ -729,6 +731,8 @@ $(document).ready(function ()
         let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
 
         let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
+
+        gameRunningFlag = analyzerData["SpaceTypeData"][analyzerData["SpaceData"][playerTurnCharacterRollData["SpaceIndexCurrent"]]["SpaceTypeIndex"]]["Name"] !== "bank" || playerTurnCharacterRollData["NetWorth"] < analyzerData["GameSettingsData"]["RuleData"]["NetWorthThreshold"];
 
         layoutIndex = playerTurnCharacterRollData["LayoutIndex"];
 
@@ -2110,6 +2114,9 @@ $(document).ready(function ()
 
     function endGame()
     {
+        gameRunningFlag = false;
+
+        animateCharacterMarkerFlag = false;
     }
 
     $("#standings-subpanel").hide();
