@@ -1603,9 +1603,7 @@ $(document).ready(function ()
     {
         let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
 
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
-        playerTurnCharacterRollData["Logs"].push(entry);
+        playerTurnCharacterData[playerTurnCharacterData.length - 1]["Logs"].push(entry);
 
         $("#turns > div:last-of-type > div:last-of-type > .logs").append("<div>" + entry + "</div>");
     }
