@@ -211,6 +211,16 @@ const ALERT_STATUS_MESSAGES =
         Title: "Cannot reset to turn {turn-number}..."
     }
 };
+const ANIMATE_ACTIVE_STATES =
+{
+    CharacterMarker:
+    {
+        Player: [],
+        CameoCharacter: []
+    },
+    Suits: [],
+    Shops: []
+};
 
 $(document).ready(function ()
 {
@@ -710,6 +720,52 @@ $(document).ready(function ()
         y: 0
     };
 
+    function animateChangeState(states, index, active)
+    {
+        let stateIndex = states.indexOf(index);
+
+        if (active)
+        {
+            if (stateIndex === -1)
+                states.push(index);
+
+            return;
+        }
+
+        if (stateIndex > -1)
+            states.splice(stateIndex, 1);
+    }
+
+    function animateFlashing(element, states, index)
+    {
+        $(element).animate
+        (
+            {
+                opacity: 0.25
+            },
+            {
+                duration: 1500,
+                step: function ()
+                {
+                    if (states.indexOf(index) === -1)
+                    {
+                        $(element).css({ opacity: 1 });
+
+                        $(this).stop();
+
+                        return;
+                    }
+                },
+                complete: function ()
+                {
+                    $(element).css({ opacity: 1 });
+
+                    animateFlashing(element, states, index);
+                }
+            }
+        );
+    }
+
     function initializeGameSetup()
     {
         initializeStandings();
@@ -857,7 +913,9 @@ $(document).ready(function ()
             );
         }
 
-        animateSuits(playerIndex);
+        animateChangeState(ANIMATE_ACTIVE_STATES["Suits"], playerIndex, playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_DATA.length);
+
+        animateFlashing($("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div"), ANIMATE_ACTIVE_STATES["Suits"], playerIndex);
     }
 
     function updateCirclePosition(element, centerPercentage)
@@ -1297,42 +1355,6 @@ $(document).ready(function ()
         spaceInformationContainer.append("<div>" + analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
     }
 
-    let animateCharacterMarkerFlag = false;
-
-    function animateCurrentPlayerCharacterMarker()
-    {
-        if (!animateCharacterMarkerFlag)
-            return;
-
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
-        $("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type").animate({ opacity: 0.25 }, 1500, function ()
-        {
-            $(this).css({ opacity: 1 });
-
-            animateCurrentPlayerCharacterMarker();
-        });
-    }
-
-    function animateSuits(playerIndex)
-    {
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
-        if (!gameRunningFlag || playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] < SUIT_DATA.length)
-            return;
-
-        $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div").animate({ opacity: 0.25 }, 1500, function ()
-        {
-            $(this).css({ opacity: 1 });
-
-            animateSuits(playerIndex);
-        });
-    }
-
     function movePlayerAroundMap(characterTreeGraph, spacesRemaining)
     {
         let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
@@ -1365,7 +1387,7 @@ $(document).ready(function ()
                 return;
             }
 
-            animateCharacterMarkerFlag = false;
+            animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
 
             $("#board-subpanel-spaces-remaining").remove();
 
@@ -1677,7 +1699,7 @@ $(document).ready(function ()
 
                 $("#turns").remove();
 
-                animateCharacterMarkerFlag = false;
+                animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
 
                 let alertStatusMessageResetTurn = function (type)
                 {
@@ -1730,9 +1752,11 @@ $(document).ready(function ()
 
                     initializeTurns();
 
-                    animateCharacterMarkerFlag = true;
+                    animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
 
-                    animateCurrentPlayerCharacterMarker();
+                    let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
+
+                    animateFlashing($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterData[playerTurnCharacterData.length - 1]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex);
                 });
             });
         });
@@ -2024,9 +2048,9 @@ $(document).ready(function ()
 
         playerTurnCharacterRollData["Logs"] = [];
 
-        animateCharacterMarkerFlag = true;
+        animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
 
-        animateCurrentPlayerCharacterMarker();
+        animateFlashing($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex);
 
         $("#turns > div:last-of-type > div:last-of-type").append
         (
@@ -2127,7 +2151,10 @@ $(document).ready(function ()
 
     function endGame()
     {
-        animateCharacterMarkerFlag = false;
+        ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"] = [];
+        ANIMATE_ACTIVE_STATES["CharacterMarker"]["CameoCharacter"] = [];
+        ANIMATE_ACTIVE_STATES["Suits"] = [];
+        ANIMATE_ACTIVE_STATES["Shops"] = [];
     }
 
     $("#standings-subpanel").hide();
