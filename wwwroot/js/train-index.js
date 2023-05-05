@@ -722,14 +722,18 @@ $(document).ready(function ()
         y: 0
     };
 
-    function animateChangeState(states, index, active)
+    function animateChangeState(element, states, index, active)
     {
         let stateIndex = states.indexOf(index);
 
         if (active)
         {
             if (stateIndex === -1)
+            {
                 states.push(index);
+
+                animateFlashing(element, states, index);
+            }
 
             return;
         }
@@ -911,9 +915,7 @@ $(document).ready(function ()
             );
         }
 
-        animateChangeState(ANIMATE_ACTIVE_STATES["Suits"], playerIndex, playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_DATA.length);
-
-        animateFlashing($("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div"), ANIMATE_ACTIVE_STATES["Suits"], playerIndex);
+        animateChangeState($("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div"), ANIMATE_ACTIVE_STATES["Suits"], playerIndex, playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_DATA.length);
     }
 
     function updateCirclePosition(element, centerPercentage)
@@ -1377,7 +1379,7 @@ $(document).ready(function ()
                 return;
             }
 
-            animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
+            animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
 
             $("#board-subpanel-spaces-remaining").remove();
 
@@ -1691,7 +1693,7 @@ $(document).ready(function ()
 
                 $("#turns").remove();
 
-                animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
+                animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
 
                 let alertStatusMessageResetTurn = function (type)
                 {
@@ -1748,7 +1750,7 @@ $(document).ready(function ()
 
                     initializeTurns();
 
-                    animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
+                    animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
                 });
             });
         });
@@ -2032,9 +2034,7 @@ $(document).ready(function ()
 
         playerTurnCharacterRollData["Logs"] = [];
 
-        animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
-
-        animateFlashing($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex);
+        animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
 
         $("#turns > div:last-of-type > div:last-of-type").append
         (
