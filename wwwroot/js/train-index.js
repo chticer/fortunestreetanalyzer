@@ -712,6 +712,8 @@ $(document).ready(function ()
 
     let playerTurnCharacterIndex = 0;
 
+    let playerTurnCharacterRollData = null;
+
     let layoutIndex = 0;
 
     let mouseCoordinates =
@@ -784,7 +786,7 @@ $(document).ready(function ()
 
         let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
 
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
+        playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
 
         layoutIndex = playerTurnCharacterRollData["LayoutIndex"];
 
@@ -856,10 +858,6 @@ $(document).ready(function ()
 
     function updatePlayerStandings(playerIndex)
     {
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
         let playerContainer = $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ")");
 
         playerContainer.children().first().empty().append
@@ -1027,10 +1025,6 @@ $(document).ready(function ()
 
     function initializeTreeGraphPlayerTurnCharacter()
     {
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
         playerTurnCharacterTreeGraph = createTreeGraphNode
         (
             {
@@ -1357,10 +1351,6 @@ $(document).ready(function ()
 
     function movePlayerAroundMap(characterTreeGraph, spacesRemaining)
     {
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
         if (spacesRemaining === 0)
         {
             let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (characterTreeGraph["Node"]["SpaceIndexCurrent"] + 1) + ")");
@@ -1420,6 +1410,10 @@ $(document).ready(function ()
                 alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_SUCCESS"]);
 
                 playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"]["PlayerData"].length;
+
+                let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
+
+                playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
 
                 if (playerTurnCharacterIndex === 0)
                 {
@@ -1623,9 +1617,7 @@ $(document).ready(function ()
 
     function addLogEntry(entry)
     {
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-        playerTurnCharacterData[playerTurnCharacterData.length - 1]["Logs"].push(entry);
+        playerTurnCharacterRollData["Logs"].push(entry);
 
         $("#turns > div:last-of-type > div:last-of-type > .logs").append("<div>" + entry + "</div>");
     }
@@ -1739,6 +1731,10 @@ $(document).ready(function ()
                     alertStatusMessageResetTurn("RESET_TURN_SUCCESS");
 
                     playerTurnCharacterIndex = 0;
+
+                    let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
+
+                    playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
                 }).fail(function ()
                 {
                     alertStatusMessageResetTurn("RESET_TURN_ERROR");
@@ -1753,10 +1749,6 @@ $(document).ready(function ()
                     initializeTurns();
 
                     animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
-
-                    let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-                    animateFlashing($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterData[playerTurnCharacterData.length - 1]["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex);
                 });
             });
         });
@@ -1786,10 +1778,6 @@ $(document).ready(function ()
         );
 
         let playerTurnConfirmationActionsContainer = playerTurnContainer.find(".confirmation-actions");
-
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
 
         playerTurnConfirmationActionsContainer.find("button[name=\"roll\"]").on("click", function ()
         {
@@ -2042,10 +2030,6 @@ $(document).ready(function ()
 
         traverseTreeGraphDieRollOptionsSpaceInformation(playerTurnCharacterTreeGraph, 0);
 
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
         playerTurnCharacterRollData["Logs"] = [];
 
         animateChangeState(ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
@@ -2120,10 +2104,6 @@ $(document).ready(function ()
 
     function executePlayerPromotion()
     {
-        let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-        let playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
         let baseSalaryValue = analyzerData["GameSettingsData"]["BoardData"]["SalaryStart"];
         let promotionBonusValue = analyzerData["GameSettingsData"]["BoardData"]["SalaryIncrease"] * playerTurnCharacterRollData["Level"];
         let shopBonusValue = Math.floor(playerTurnCharacterRollData["TotalShopValue"] / 10);
