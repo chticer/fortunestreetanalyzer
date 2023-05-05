@@ -774,8 +774,6 @@ $(document).ready(function ()
 
     function initializeGameSetup()
     {
-        initializeStandings();
-
         for (let i = 0; i < analyzerData["CharacterData"]["PlayerData"].length; ++i)
         {
             let currentPlayerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][i]["TurnPlayerData"]
@@ -791,6 +789,8 @@ $(document).ready(function ()
         let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
 
         playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
+
+        initializeStandings();
 
         layoutIndex = playerTurnCharacterRollData["LayoutIndex"];
 
@@ -1737,6 +1737,8 @@ $(document).ready(function ()
                     let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
 
                     playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
+
+                    layoutIndex = playerTurnCharacterRollData["LayoutIndex"];
                 }).fail(function ()
                 {
                     alertStatusMessageResetTurn("RESET_TURN_ERROR");
