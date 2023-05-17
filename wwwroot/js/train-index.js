@@ -1370,17 +1370,26 @@ $(document).ready(function ()
             updateMapSpace(spaceIndexCurrentCopy);
             updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
 
-            addLogEntry("Landed on " + spaceContainer.find(".space-icon").html() + ".");
             let spaceData = analyzerData["SpaceData"][characterTreeGraph["Node"]["SpaceIndexCurrent"]];
 
             let spaceTypeData = analyzerData["SpaceTypeData"][spaceData["SpaceTypeIndex"]];
 
             let shopData = analyzerData["ShopData"][spaceData["ShopIndex"]];
 
-            if (analyzerData["GameSettingsData"]["RuleData"]["Name"] === "Standard")
+            let logEntryMessage = "Landed on " + spaceContainer.find(".space-icon").html();
+
+            if (spaceTypeData["Name"] === "shop")
             {
+                let logEntryMessageProperties =
+                [
+                    shopData["Name"],
+                    spaceData["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] !== null ? "Owned by " + analyzerData["CharacterData"]["PlayerData"][spaceData["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"]]["Name"] : "Unowned"
+                ];
+
+                logEntryMessage += " (" + logEntryMessageProperties.join(", ") + ")";
             }
 
+            addLogEntry(logEntryMessage);
 
             if (spaceTypeData["Name"] === "bank" && playerTurnCharacterRollData["NetWorth"] >= analyzerData["GameSettingsData"]["RuleData"]["NetWorthThreshold"])
             {
@@ -1524,7 +1533,7 @@ $(document).ready(function ()
                 {
                     playerTurnCharacterRollData["CollectedSuits"].push(suitName);
 
-                    addLogEntry("Picked up " + spaceContainer.find(".space-icon").html() + ".");
+                    addLogEntry("Picked up " + spaceContainer.find(".space-icon").html());
 
                     updatePlayerStandings(playerTurnCharacterIndex);
                 }
@@ -1859,7 +1868,7 @@ $(document).ready(function ()
 
                 renderDie($("#board-subpanel-spaces-remaining > .die-rolls"), playerTurnDieRollValue);
 
-                addLogEntry("Rolled " + playerTurnDieRollValue + ".");
+                addLogEntry("Rolled " + playerTurnDieRollValue);
 
                 movePlayerAroundMap(playerTurnCharacterTreeGraph, playerTurnDieRollValue);
             });
@@ -2138,7 +2147,14 @@ $(document).ready(function ()
             ]
         );
 
-        addLogEntry("Received a promotion of " + totalPromotionValue + " ready cash (" + baseSalaryValue + " base salary, " + promotionBonusValue + " promotion bonus, " + shopBonusValue + " shop bonus).");
+        let logEntryMessageProperties =
+        [
+            baseSalaryValue + " base salary",
+            promotionBonusValue + " promotion bonus",
+            shopBonusValue + " shop bonus"
+        ];
+
+        addLogEntry("Received a promotion of " + totalPromotionValue + " ready cash (" + logEntryMessageProperties.join(", ") + ")");
     }
 
     function endGame()
