@@ -16,6 +16,17 @@ string fortuneStreetSQLConnectionString = new SqlConnectionStringBuilder
     CommandTimeout = (int) TimeSpan.FromMinutes(5).TotalSeconds
 }.ConnectionString;
 
+#if DEBUG
+    fortuneStreetSQLConnectionString = new SqlConnectionStringBuilder
+    {
+        DataSource = "tcp:analyzerprojects-secretply.database.windows.net,1433",
+        InitialCatalog = "fortunestreet",
+        UserID = builder.Configuration["AZURE-SQLSERVER-ANALYZERPROJECTS-SECRETPLY-FORTUNESTREET-USERNAME"],
+        Password = builder.Configuration["AZURE-SQLSERVER-ANALYZERPROJECTS-SECRETPLY-FORTUNESTREET-PASSWORD"],
+        CommandTimeout = (int) TimeSpan.FromMinutes(5).TotalSeconds
+    }.ConnectionString;
+#endif
+
 builder.Services.AddDbContext<FortuneStreetAppContext>(options => options.UseSqlServer(new SqlConnection(fortuneStreetSQLConnectionString)));
 builder.Services.AddDbContext<FortuneStreetSavePreRollContext>(options => options.UseSqlServer(new SqlConnection(fortuneStreetSQLConnectionString)));
 builder.Services.AddDbContext<FortuneStreetSavePostRollContext>(options => options.UseSqlServer(new SqlConnection(fortuneStreetSQLConnectionString)));
