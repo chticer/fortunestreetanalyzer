@@ -1195,12 +1195,16 @@ $(document).ready(function ()
 
         let spaceSquareContainer = spaceContainer.children().last();
 
-        let spaceIconValue = analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Icon"];
+        let spaceData = analyzerData["SpaceData"][spaceIndex];
 
-        if (spaceIconValue == null)
+        let spaceTypeData = analyzerData["SpaceTypeData"][spaceData["SpaceTypeIndex"]];
+
+        let spaceIconValue = spaceTypeData["Icon"];
+
+        if (spaceIconValue === null)
         {
-            if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "suit")
-                spaceIconValue = SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"];
+            if (spaceTypeData["Name"] === "suit")
+                spaceIconValue = SUIT_DATA[SUIT_ORDER.indexOf(spaceData["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"];
         }
 
         spaceSquareContainer.append
@@ -1234,18 +1238,20 @@ $(document).ready(function ()
         if (analyzerData["GameSettingsData"]["RuleData"]["Name"] === "Standard")
             spaceInformationPlaceholders["BankData"]["StockInformation"] = ", and you can buy stocks as you pass through";
 
-        if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "shop")
+        if (spaceTypeData["Name"] === "shop")
         {
-            spaceContainer.css({ borderColor: "#" + (analyzerData["SpaceData"][spaceIndex]["DistrictIndex"] !== null ? analyzerData["DistrictData"][analyzerData["SpaceData"][spaceIndex]["DistrictIndex"]]["Color"] : "F2D4A9") });
+            spaceContainer.css({ borderColor: "#" + (spaceData["DistrictIndex"] !== null ? analyzerData["DistrictData"][spaceData["DistrictIndex"]]["Color"] : "F2D4A9") });
 
-            if (analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] !== null)
+            let shopData = analyzerData["ShopData"][spaceData["ShopIndex"]];
+
+            if (spaceData["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] !== null)
             {
-                spaceSquareIconContainer.css({ color: "#" + analyzerData["CharacterData"]["PlayerData"][analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"]]["ColorData"]["CharacterColor"] });
+                spaceSquareIconContainer.css({ color: "#" + analyzerData["CharacterData"]["PlayerData"][spaceData["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"]]["ColorData"]["CharacterColor"] });
 
                 spaceSquareContainer.append
                 (
                     "<div class=\"shop-owned-price\">" +
-                        "<div>" + analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["Price"] + "</div>" +
+                        "<div>" + spaceData["AdditionalPropertiesData"]["ShopData"]["Price"] + "</div>" +
                     "</div>"
                 );
 
@@ -1253,7 +1259,7 @@ $(document).ready(function ()
                     "<div>" +
                         "<div>Max. capital</div>" +
 
-                        "<div>" + (2 * analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Value"]) + "</div>" +
+                        "<div>" + (2 * shopData["Value"]) + "</div>" +
                     "</div>";
             }
             else
@@ -1261,32 +1267,32 @@ $(document).ready(function ()
                 spaceSquareContainer.append
                 (
                     "<div class=\"shop-unowned-value\">" +
-                        "<div>" + analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Value"] + "</div>" +
+                        "<div>" + shopData["Value"] + "</div>" +
                     "</div>"
                 );
             }
 
-            spaceInformationPlaceholders["ShopData"]["ShopName"] = "<div>" + analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Name"] + "</div>";
+            spaceInformationPlaceholders["ShopData"]["ShopName"] = "<div>" + shopData["Name"] + "</div>";
 
             spaceInformationPlaceholders["ShopData"]["ShopValue"] =
                 "<div>" +
                     "<div>Shop value</div>" +
 
-                    "<div>" + analyzerData["ShopData"][analyzerData["SpaceData"][spaceIndex]["ShopIndex"]]["Value"] + "</div>" +
+                    "<div>" + shopData["Value"] + "</div>" +
                 "</div>";
 
             spaceInformationPlaceholders["ShopData"]["ShopPrice"] =
                 "<div>" +
                     "<div>Shop prices</div>" +
 
-                    "<div>" + analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["ShopData"]["Price"] + "</div>" +
+                    "<div>" + spaceData["AdditionalPropertiesData"]["ShopData"]["Price"] + "</div>" +
                 "</div>";
         }
-        else if (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "suit")
+        else if (spaceTypeData["Name"] === "suit")
         {
-            spaceSquareIconContainer.css({ color: "#" + SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] });
+            spaceSquareIconContainer.css({ color: "#" + SUIT_DATA[SUIT_ORDER.indexOf(spaceData["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] });
 
-            spaceInformationPlaceholders["SuitData"]["SuitIcon"] = "<span class=\"fas fa-" + SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"] + "\" style=\"color: #" + SUIT_DATA[SUIT_ORDER.indexOf(analyzerData["SpaceData"][spaceIndex]["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] + ";\"></span>";
+            spaceInformationPlaceholders["SuitData"]["SuitIcon"] = "<span class=\"fas fa-" + SUIT_DATA[SUIT_ORDER.indexOf(spaceData["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"] + "\" style=\"color: #" + SUIT_DATA[SUIT_ORDER.indexOf(spaceData["AdditionalPropertiesData"]["SuitData"]["Name"])]["Color"] + ";\"></span>";
         }
 
         spaceSquareContainer.append("<div class=\"character-markers\"></div>");
@@ -1332,7 +1338,7 @@ $(document).ready(function ()
 
         spaceContainer.append
         (
-            "<div class=\"popup-dialog space-information" + (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Name"] == "shop" ? " space-shop" : "") + "\">" +
+            "<div class=\"popup-dialog space-information" + (spaceTypeData["Name"] === "shop" ? " space-shop" : "") + "\">" +
                 "<div></div>" +
             "</div>"
         );
@@ -1344,11 +1350,11 @@ $(document).ready(function ()
             "<div>" +
                 "<div class=\"die-rolls\"></div>" +
 
-                "<div>" + (analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] !== null ? analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Title"] : "") + "</div>" +
+                "<div>" + (spaceTypeData["Title"] !== null ? spaceTypeData["Title"] : "") + "</div>" +
             "</div>"
         );
 
-        spaceInformationContainer.append("<div>" + analyzerData["SpaceTypeData"][analyzerData["SpaceData"][spaceIndex]["SpaceTypeIndex"]]["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
+        spaceInformationContainer.append("<div>" + spaceTypeData["Description"].replace("{stock-information}", spaceInformationPlaceholders["BankData"]["StockInformation"]).replace("{shop-name}", spaceInformationPlaceholders["ShopData"]["ShopName"]).replace("{shop-value}", spaceInformationPlaceholders["ShopData"]["ShopValue"]).replace("{shop-price}", spaceInformationPlaceholders["ShopData"]["ShopPrice"]).replace("{max-capital}", spaceInformationPlaceholders["ShopData"]["MaxCapital"]).replace("{suit-icon}", spaceInformationPlaceholders["SuitData"]["SuitIcon"]) + "</div>");
     }
 
     function movePlayerAroundMap(characterTreeGraph, spacesRemaining)
@@ -1365,14 +1371,18 @@ $(document).ready(function ()
             updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
 
             addLogEntry("Landed on " + spaceContainer.find(".space-icon").html() + ".");
+            let spaceData = analyzerData["SpaceData"][characterTreeGraph["Node"]["SpaceIndexCurrent"]];
+
+            let spaceTypeData = analyzerData["SpaceTypeData"][spaceData["SpaceTypeIndex"]];
+
+            let shopData = analyzerData["ShopData"][spaceData["ShopIndex"]];
 
             if (analyzerData["GameSettingsData"]["RuleData"]["Name"] === "Standard")
             {
             }
 
-            let spaceTypeName = analyzerData["SpaceTypeData"][analyzerData["SpaceData"][characterTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceTypeIndex"]]["Name"];
 
-            if (spaceTypeName === "bank" && playerTurnCharacterRollData["NetWorth"] >= analyzerData["GameSettingsData"]["RuleData"]["NetWorthThreshold"])
+            if (spaceTypeData["Name"] === "bank" && playerTurnCharacterRollData["NetWorth"] >= analyzerData["GameSettingsData"]["RuleData"]["NetWorthThreshold"])
             {
                 endGame();
 
