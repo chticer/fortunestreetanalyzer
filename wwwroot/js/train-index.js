@@ -1398,94 +1398,99 @@ $(document).ready(function ()
                 return;
             }
 
-            animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
-
-            $("#board-subpanel-spaces-remaining").remove();
-
-            savePreRollData([ playerTurnCharacterIndex ]);
-
-            alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_LOAD"]);
-
-            ajaxCall
-            (
-                "POST",
-                "SavePostRollTurnData",
-                {
-                    PostRollsRecord:
-                    {
-                        TurnIteratorID: playerTurnCharacterRollData["TurnIteratorID"],
-                        SpaceIDLandedOn: analyzerData["SpaceData"][playerTurnCharacterRollData["SpaceIndexCurrent"]]["ID"],
-                        DieRollValue: playerTurnCharacterRollData["DieRollValue"],
-                        Logs: JSON.stringify(playerTurnCharacterRollData["Logs"])
-                    }
-                }
-            ).done(function (response)
+            let endSpaceEvents = function ()
             {
-                if (response["Error"])
-                {
-                    alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
+                animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
 
-                    return;
-                }
+                $("#board-subpanel-spaces-remaining").remove();
 
-                alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_SUCCESS"]);
+                savePreRollData([ playerTurnCharacterIndex ]);
 
-                playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"]["PlayerData"].length;
+                alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_LOAD"]);
 
-                let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
-
-                playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
-
-                if (playerTurnCharacterIndex === 0)
-                {
-                    alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_LOAD"]);
-
-                    ajaxCall
-                    (
-                        "POST",
-                        "NewTurn",
-                        {
-                            TurnIteratorsRecord:
-                            {
-                                AnalyzerInstanceID: analyzerData["AnalyzerInstanceID"],
-                                TurnNumber: analyzerData["GameSettingsData"]["TurnData"].length + 1
-                            }
-                        }
-                    ).done(function (response)
+                ajaxCall
+                (
+                    "POST",
+                    "SavePostRollTurnData",
                     {
-                        if (response["Error"])
+                        PostRollsRecord:
                         {
-                            alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
-
-                            return;
+                            TurnIteratorID: playerTurnCharacterRollData["TurnIteratorID"],
+                            SpaceIDLandedOn: analyzerData["SpaceData"][playerTurnCharacterRollData["SpaceIndexCurrent"]]["ID"],
+                            DieRollValue: playerTurnCharacterRollData["DieRollValue"],
+                            Logs: JSON.stringify(playerTurnCharacterRollData["Logs"])
                         }
-
-                        let JSONResponse = JSON.parse(response["HTMLResponse"]);
-
-                        analyzerData["GameSettingsData"]["TurnData"].push(JSONResponse["Data"]);
-
-                        alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_SUCCESS"]);
-
-                        displayNewTurn(analyzerData["GameSettingsData"]["TurnData"].length - 1);
-
-                        $("#turns > div:last-of-type").append("<div></div>");
-
-                        startNextPlayerTurn();
-                    }).fail(function ()
+                    }
+                ).done(function (response)
+                {
+                    if (response["Error"])
                     {
                         alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
-                    });
 
-                    return;
-                }
+                        return;
+                    }
 
-                $("#turns > div:last-of-type").append("<div></div>");
+                    alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_SUCCESS"]);
 
-                startNextPlayerTurn();
-            }).fail(function ()
-            {
-                alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
-            });
+                    playerTurnCharacterIndex = (playerTurnCharacterIndex + 1) % analyzerData["CharacterData"]["PlayerData"].length;
+
+                    let playerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerTurnCharacterIndex]["TurnPlayerData"];
+
+                    playerTurnCharacterRollData = playerTurnCharacterData[playerTurnCharacterData.length - 1];
+
+                    if (playerTurnCharacterIndex === 0)
+                    {
+                        alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_LOAD"]);
+
+                        ajaxCall
+                        (
+                            "POST",
+                            "NewTurn",
+                            {
+                                TurnIteratorsRecord:
+                                {
+                                    AnalyzerInstanceID: analyzerData["AnalyzerInstanceID"],
+                                    TurnNumber: analyzerData["GameSettingsData"]["TurnData"].length + 1
+                                }
+                            }
+                        ).done(function (response)
+                        {
+                            if (response["Error"])
+                            {
+                                alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
+
+                                return;
+                            }
+
+                            let JSONResponse = JSON.parse(response["HTMLResponse"]);
+
+                            analyzerData["GameSettingsData"]["TurnData"].push(JSONResponse["Data"]);
+
+                            alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_SUCCESS"]);
+
+                            displayNewTurn(analyzerData["GameSettingsData"]["TurnData"].length - 1);
+
+                            $("#turns > div:last-of-type").append("<div></div>");
+
+                            startNextPlayerTurn();
+                        }).fail(function ()
+                        {
+                            alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
+                        });
+
+                        return;
+                    }
+
+                    $("#turns > div:last-of-type").append("<div></div>");
+
+                    startNextPlayerTurn();
+                }).fail(function ()
+                {
+                    alertStatusMessageDisplay(ALERT_STATUS_MESSAGES["DATABASE_SAVE_ERROR"]);
+                });
+            };
+
+            endSpaceEvents();
 
             return;
         }
