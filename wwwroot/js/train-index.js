@@ -296,13 +296,15 @@ $(document).ready(function ()
         }
     }
 
-    function createConfirmationActions(alignmentClass, buttonTags)
+    function createConfirmationActions(buttonProperties)
     {
-        return  "<div class=\"confirmation-actions" + (alignmentClass !== null ? " " + alignmentClass : "") + "\">" +
+        return  "<div class=\"confirmation-actions center-items\">" +
 
-                    $.map(buttonTags, function (value)
+                    $.map(buttonProperties, function (value)
                     {
-                        return "<div>" + value + "</div>";
+                        return  "<div>" +
+                                    "<button type=\"button\" class=\"" + value["Class"] + "\" name=\"" + value["Name"] + "\">" + value["Value"] + "</button>" +
+                                "</div>";
                     }).join("") +
 
                 "</div>";
@@ -1792,15 +1794,42 @@ $(document).ready(function ()
         (
             createConfirmationActions
             (
-                "center-items",
                 [
-                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"roll\">Roll</button>",
-                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"auction\">Auction</button>",
-                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"sell-shop\">Sell Shop</button>",
-                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"buy-shop\">Buy Shop</button>",
-                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"exchange-shops\">Exchange Shops</button>",
-                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"renovate-vacant-plot\">Renovate Vacant Plot</button>",
-                    "<button type=\"button\" class=\"btn btn-lg btn-primary\" name=\"sell-stocks\">Sell Stocks</button>"
+                    {
+                        Name: "roll",
+                        Value: "Roll",
+                        Class: "btn btn-lg btn-primary"
+                    },
+                    {
+                        Name: "auction",
+                        Value: "Auction",
+                        Class: "btn btn-lg btn-primary"
+                    },
+                    {
+                        Name: "sell-shop",
+                        Value: "Sell Shop",
+                        Class: "btn btn-lg btn-primary"
+                    },
+                    {
+                        Name: "buy-shop",
+                        Value: "Buy Shop",
+                        Class: "btn btn-lg btn-primary"
+                    },
+                    {
+                        Name: "exchange-shops",
+                        Value: "Exchange Shops",
+                        Class: "btn btn-lg btn-primary"
+                    },
+                    {
+                        Name: "renovate-vacant-plot",
+                        Value: "Renovate Vacant Plot",
+                        Class: "btn btn-lg btn-primary"
+                    },
+                    {
+                        Name: "sell-stocks",
+                        Value: "Sell Stocks",
+                        Class: "btn btn-lg btn-primary"
+                    }
                 ]
             )
         );
@@ -1817,13 +1846,25 @@ $(document).ready(function ()
 
                 createConfirmationActions
                 (
-                    "center-items",
                     [
-                        "<button type=\"button\" class=\"btn btn-lg btn-primary disabled\" name=\"confirm\" disabled=\"disabled\">Confirm</button>",
-                        "<button type=\"button\" class=\"btn btn-lg btn-secondary\" name=\"cancel\">Cancel</button>"
+                        {
+                            Name: "confirm",
+                            Value: "Confirm",
+                            Class: "btn btn-lg btn-primary"
+                        },
+                        {
+                            Name: "cancel",
+                            Value: "Cancel",
+                            Class: "btn btn-lg btn-secondary"
+                        }
                     ]
                 )
             );
+
+            let playerTurnOptionsConfirmButtonContainer = playerTurnContainer.find("button[name=\"confirm\"]");
+
+            playerTurnOptionsConfirmButtonContainer.prop("disabled", true);
+            playerTurnOptionsConfirmButtonContainer.addClass("disabled");
 
             let playerTurnEligibleDieRolls = Array.from(Array(analyzerData["GameSettingsData"]["BoardData"]["MaxDieRoll"]).keys(), n => n + 1);
 
@@ -1833,8 +1874,6 @@ $(document).ready(function ()
             let currentDieRollsContainer = playerTurnContainer.find(".die-rolls");
 
             let playerTurnDieRollValue = null;
-
-            let playerTurnOptionsConfirmButtonContainer = playerTurnContainer.find("button[name=\"confirm\"]");
 
             for (let i = 0; i < playerTurnEligibleDieRolls.length; ++i)
             {
