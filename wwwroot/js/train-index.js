@@ -1426,7 +1426,7 @@ $(document).ready(function ()
                 return;
             }
 
-            let endSpaceEvents = function ()
+            let endCurrentPlayerTurn = function ()
             {
                 animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
 
@@ -1585,7 +1585,7 @@ $(document).ready(function ()
                 return;
             }
 
-            endSpaceEvents();
+            endCurrentPlayerTurn();
 
             return;
         }
