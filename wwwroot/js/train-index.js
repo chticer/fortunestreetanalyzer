@@ -1388,13 +1388,22 @@ $(document).ready(function ()
 
         renderDie(boardSubpanelSpacesRemainingDieRollsContainer, spacesRemaining);
 
-        if (spacesRemaining === 0)
+        let updatePlayerMapSpace = function ()
         {
-            updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
+            let spaceIndexCurrentCopy = playerTurnCharacterRollData["SpaceIndexCurrent"];
 
             playerTurnCharacterRollData["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
 
+            updateMapSpace(spaceIndexCurrentCopy);
             updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
+
+            animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
+            animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
+        };
+
+        if (spacesRemaining === 0)
+        {
+            updatePlayerMapSpace();
 
             let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ")");
 
@@ -1658,11 +1667,7 @@ $(document).ready(function ()
         {
             if (characterTreeGraph["Node"]["SpaceIndexCurrent"] !== playerTurnCharacterRollData["SpaceIndexCurrent"])
             {
-                updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
-
-                playerTurnCharacterRollData["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
-
-                updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
+                updatePlayerMapSpace();
 
                 $("#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type > .die-rolls").empty();
 
