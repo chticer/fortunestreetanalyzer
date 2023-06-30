@@ -1577,8 +1577,11 @@ $(document).ready(function ()
                     {
                     });
 
-                    boardSubpanelSpaceInformationContainer.find("button[name=\"no\"]").on("click", function ()
+                    $("#board-subpanel-user-dialog button[name=\"no\"]").on("click", function ()
                     {
+                        $("#board-subpanel-user-dialog").remove();
+
+                        endCurrentPlayerTurn();
                     });
                 }
 
