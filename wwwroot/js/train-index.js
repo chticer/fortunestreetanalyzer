@@ -1342,18 +1342,23 @@ $(document).ready(function ()
 
     function movePlayerAroundMap(characterTreeGraph, spacesRemaining)
     {
+        let boardSubpanelSpacesRemainingDieRollsContainer = $("#board-subpanel-spaces-remaining > .die-rolls");
+
+        boardSubpanelSpacesRemainingDieRollsContainer.empty();
+
+        renderDie(boardSubpanelSpacesRemainingDieRollsContainer, spacesRemaining);
+
         if (spacesRemaining === 0)
         {
-            let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (characterTreeGraph["Node"]["SpaceIndexCurrent"] + 1) + ")");
-
-            let spaceIndexCurrentCopy = playerTurnCharacterRollData["SpaceIndexCurrent"];
+            updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
 
             playerTurnCharacterRollData["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
 
-            updateMapSpace(spaceIndexCurrentCopy);
-            updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
+            updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
 
-            let spaceData = analyzerData["SpaceData"][characterTreeGraph["Node"]["SpaceIndexCurrent"]];
+            let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ")");
+
+            let spaceData = analyzerData["SpaceData"][playerTurnCharacterRollData["SpaceIndexCurrent"]];
 
             let spaceTypeData = analyzerData["SpaceTypeData"][spaceData["SpaceTypeIndex"]];
 
@@ -1543,18 +1548,11 @@ $(document).ready(function ()
         {
             if (characterTreeGraph["Node"]["SpaceIndexCurrent"] !== playerTurnCharacterRollData["SpaceIndexCurrent"])
             {
-                let spaceIndexCurrentCopy = playerTurnCharacterRollData["SpaceIndexCurrent"];
+                updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
 
                 playerTurnCharacterRollData["SpaceIndexCurrent"] = characterTreeGraph["Node"]["SpaceIndexCurrent"];
 
-                updateMapSpace(spaceIndexCurrentCopy);
-                updateMapSpace(characterTreeGraph["Node"]["SpaceIndexCurrent"]);
-
-                let boardSubpanelSpacesRemainingDieRollsContainer = $("#board-subpanel-spaces-remaining > .die-rolls");
-
-                boardSubpanelSpacesRemainingDieRollsContainer.empty();
-
-                renderDie(boardSubpanelSpacesRemainingDieRollsContainer, spacesRemaining);
+                updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
 
                 $("#board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type > .die-rolls").empty();
 
@@ -1563,7 +1561,7 @@ $(document).ready(function ()
 
             $("#board-subpanel > div:first-of-type").append("<div id=\"board-subpanel-direction-choices\"></div>");
 
-            let sourceSpaceLayoutData = analyzerData["SpaceData"][characterTreeGraph["Node"]["SpaceIndexCurrent"]]["SpaceLayoutData"][layoutIndex];
+            let sourceSpaceLayoutData = analyzerData["SpaceData"][playerTurnCharacterRollData["SpaceIndexCurrent"]]["SpaceLayoutData"][layoutIndex];
 
             for (let currentPlayerSpaceTreeGraph of playerSpaceTreeGraphs)
             {
