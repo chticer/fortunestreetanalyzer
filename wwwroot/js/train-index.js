@@ -1,25 +1,6 @@
 ﻿const URL_QUERY_PARAMETERS = new URLSearchParams(window.location.search);
 const SPACE_SQUARE_SIZE = 100;
-const SUIT_DATA =
-[
-    {
-        Icon: "spade",
-        Color: "1491E3"
-    },
-    {
-        Icon: "heart",
-        Color: "FF8BE9"
-    },
-    {
-        Icon: "diamond",
-        Color: "FFF02C"
-    },
-    {
-        Icon: "club",
-        Color: "2DD936"
-    }
-];
-const SUIT_ORDER = [ "spade", "heart", "diamond", "club" ];
+const SUIT_NAMES = [ "spade", "heart", "diamond", "club" ];
 const DIE_DOT_LOCATIONS_DATA =
 [
     [
@@ -900,24 +881,24 @@ $(document).ready(function ()
 
         playerSuitCardContainer.children().first().toggle(playerTurnCharacterRollData["TotalSuitCards"] > 0);
 
-        for (let currentSuitData of SUIT_DATA)
+        for (let currentSuitName of SUIT_NAMES)
         {
             playerSuitCardContainer.children().first().children().first().append
             (
                 "<div>" +
-                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + currentSuitData["Color"] + ";\"></span>" +
+                    "<span class=\"fas fa-" + currentSuitName + "\"></span>" +
                 "</div>"
             );
 
             playerContainer.children().last().append
             (
                 "<div>" +
-                    "<span class=\"fas fa-" + currentSuitData["Icon"] + "\" style=\"color: #" + (playerTurnCharacterRollData["CollectedSuits"].indexOf(currentSuitData["Icon"]) > -1 ? currentSuitData["Color"] : "333") + ";\"></span>" +
+                    "<span class=\"fas fa-" + currentSuitName + "" + (playerTurnCharacterRollData["CollectedSuits"].indexOf(currentSuitName) === -1 ? " inactive" : "") + "\"></span>" +
                 "</div>"
             );
         }
 
-        animateChangeState($("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div"), ANIMATE_ACTIVE_STATES["Suits"], playerIndex, playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_DATA.length);
+        animateChangeState($("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div"), ANIMATE_ACTIVE_STATES["Suits"], playerIndex, playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_NAMES.length);
     }
 
     function updateCirclePosition(element, centerPercentage)
@@ -1206,7 +1187,7 @@ $(document).ready(function ()
         if (spaceIconValue === null)
         {
             if (spaceTypeData["Name"] === "suit")
-                spaceIconValue = SUIT_DATA[SUIT_ORDER.indexOf(spaceData["AdditionalPropertiesData"]["SuitData"]["Name"])]["Icon"];
+                spaceIconValue = SUIT_NAMES[SUIT_NAMES.indexOf(spaceData["AdditionalPropertiesData"]["SuitData"]["Name"])];
         }
 
         spaceSquareContainer.append
@@ -1512,7 +1493,7 @@ $(document).ready(function ()
                     return;
                 }
 
-                if (playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_DATA.length)
+                if (playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_NAMES.length)
                 {
                     executePlayerPromotion();
 
@@ -1547,7 +1528,7 @@ $(document).ready(function ()
 
                 if (spaceSuitAdditionalProperties["Rotate"])
                 {
-                    analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["AdditionalPropertiesData"]["SuitData"]["Name"] = SUIT_ORDER[(SUIT_ORDER.indexOf(suitName) + 1) % SUIT_ORDER.length];
+                    analyzerData["SpaceData"][spaceTreeGraph["Node"]["SpaceIndexCurrent"]]["AdditionalPropertiesData"]["SuitData"]["Name"] = SUIT_NAMES[(SUIT_NAMES.indexOf(suitName) + 1) % SUIT_NAMES.length];
 
                     updateMapSpace(spaceTreeGraph["Node"]["SpaceIndexCurrent"]);
                 }
@@ -2179,7 +2160,7 @@ $(document).ready(function ()
 
         playerTurnCharacterRollData["CollectedSuits"] = [];
 
-        playerTurnCharacterRollData["TotalSuitCards"] -= Math.min(SUIT_DATA.length - playerTurnCharacterRollData["CollectedSuits"].length, playerTurnCharacterRollData["TotalSuitCards"]);
+        playerTurnCharacterRollData["TotalSuitCards"] -= Math.min(SUIT_NAMES.length - playerTurnCharacterRollData["CollectedSuits"].length, playerTurnCharacterRollData["TotalSuitCards"]);
 
         updatePlayerStats
         (

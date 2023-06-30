@@ -878,3 +878,28 @@ body > div
 {
     opacity: 0.65;
 }
+
+span[data-fa-i2svg]:not(.inactive) > .fa-spade
+{
+    color: #1491E3;
+}
+
+span[data-fa-i2svg]:not(.inactive) > .fa-heart
+{
+    color: #FF8BE9;
+}
+
+span[data-fa-i2svg]:not(.inactive) > .fa-diamond
+{
+    color: #FFF02C;
+}
+
+span[data-fa-i2svg]:not(.inactive) > .fa-club
+{
+    color: #2DD936;
+}
+
+span[data-fa-i2svg] > .fa-shop, span[data-fa-i2svg].inactive
+{
+    color: #333;
+}
