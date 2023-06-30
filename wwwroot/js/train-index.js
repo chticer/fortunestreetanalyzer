@@ -911,6 +911,9 @@ $(document).ready(function ()
 
     function renderDie(element, value)
     {
+        if (value === 0)
+            return;
+
         $(element).append("<div></div>");
 
         let dieDotLocationContainer = $(element).children().last();
