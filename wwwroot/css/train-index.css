@@ -232,12 +232,6 @@ body > div
 
 #board-subpanel-spaces > div > div:first-of-type > .space-icon
 {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
     opacity: 0.75;
 }
 
@@ -245,12 +239,6 @@ body > div
 {
     width: 80%;
     height: 80%;
-}
-
-#board-subpanel-spaces > div > div:first-of-type > .space-icon > span[data-fa-i2svg] > .svg-inline--fa
-{
-    width: 100%;
-    height: 100%;
 }
 
 #board-subpanel-spaces > div > div:first-of-type > .shop-unowned-value
@@ -356,9 +344,7 @@ body > div
 
 #board-subpanel-spaces > div > .space-information.space-shop > div:first-of-type > div:last-of-type
 {
-    padding-left: 0;
-    padding-top: 0;
-    padding-right: 10px;
+    padding: 0 10px;
 }
 
 #board-subpanel-spaces > div > .space-information > div:first-of-type > div:first-of-type
@@ -373,17 +359,6 @@ body > div
 #board-subpanel-spaces > div > .space-information > div:first-of-type > div:last-of-type
 {
     padding-top: 50px;
-    font-size: 1.25em;
-}
-
-#board-subpanel-spaces > div > .space-information.space-shop > div:first-of-type > div:last-of-type
-{
-    text-align: right;
-}
-
-#board-subpanel-spaces > div > .space-information.space-shop > div:first-of-type > div:last-of-type > div > div:last-of-type
-{
-    font-size: 1.25em;
 }
 
 #board-subpanel-direction-choices > div
@@ -877,6 +852,51 @@ body > div
 .die-roll-selection > div:not(.active):not(:hover)
 {
     opacity: 0.65;
+}
+
+.space-icon
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.space-icon > span[data-fa-i2svg] > .svg-inline--fa
+{
+    width: 100%;
+    height: 100%;
+}
+
+.shop-description
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.shop-description > div
+{
+    flex: 1;
+}
+
+.shop-description > div:first-of-type > .space-icon > span[data-fa-i2svg]
+{
+    width: 50%;
+    height: 50%;
+}
+
+.shop-description > div:last-of-type
+{
+    text-align: right;
+}
+
+#board-subpanel-spaces > div > .space-information > div:first-of-type > div:last-of-type, .shop-description, .shop-description > div:last-of-type > div > div:last-of-type
+{
+    font-size: 1.25em;
 }
 
 span[data-fa-i2svg]:not(.inactive) > .fa-spade
