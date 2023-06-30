@@ -394,6 +394,56 @@ body > div
     top: 1.5%;
 }
 
+#board-subpanel-user-dialog
+{
+    position: sticky;
+    left: 0;
+    top: 0;
+    width: 100%;
+}
+
+#board-subpanel-user-dialog.confirmation-dialog
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+#board-subpanel-user-dialog > div:first-of-type
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    color: #FFF;
+    text-align: center;
+}
+
+#board-subpanel-user-dialog.confirmation-dialog > div:first-of-type > div:first-of-type
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 100%;
+}
+
+#board-subpanel-user-dialog > div:first-of-type > div:first-of-type > div:last-of-type
+{
+    font-size: 2em;
+}
+
+#board-subpanel-user-dialog.confirmation-dialog > div:first-of-type > div:first-of-type > div:last-of-type > div:last-of-type > div > button
+{
+    font-size: 1em;
+}
+
+#board-subpanel-user-dialog.confirmation-dialog > div:first-of-type > div:first-of-type > div:last-of-type > div:last-of-type > div, #board-subpanel-user-dialog.confirmation-dialog > div:first-of-type > div:first-of-type > div:last-of-type > div:last-of-type > div > button
+{
+    width: 100%;
+}
+
 #standings-subpanel > div:last-of-type
 {
     display: flex;

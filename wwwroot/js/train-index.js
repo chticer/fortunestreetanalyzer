@@ -1518,6 +1518,73 @@ $(document).ready(function ()
                 });
             };
 
+            if (spaceTypeData["Name"] === "shop")
+            {
+                if (spaceData["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] !== null)
+                {
+                    if (spaceData["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] === playerTurnCharacterIndex)
+                    {
+                    }
+                    else
+                    {
+                    }
+                }
+                else
+                {
+	                let boardSubpanelContainer = $("#board-subpanel > div:first-of-type");
+
+	                boardSubpanelContainer.append
+	                (
+                        "<div id=\"board-subpanel-user-dialog\" class=\"confirmation-dialog\">" +
+                            "<div>" +
+                                "<div>" +
+                                    "<div>" +
+                                        "<div class=\"shop-description\"></div>" +
+                                    "</div>" +
+
+                                    "<div>" +
+                                        "<div>Buy this shop?</div>" +
+
+                                        createConfirmationActions
+                                        (
+                                            [
+                                                {
+                                                    Name: "yes",
+                                                    Value: "Yes",
+                                                    Class: "btn btn-secondary"
+                                                },
+                                                {
+                                                    Name: "no",
+                                                    Value: "No",
+                                                    Class: "btn btn-secondary"
+                                                }
+                                            ]
+                                        ) +
+
+                                    "</div>" +
+                                "</div>" +
+                            "</div>" +
+                        "</div>"
+                    );
+
+                    let boardSubpanelDialogContainer = boardSubpanelContainer.find("#board-subpanel-user-dialog > div:first-of-type > div:first-of-type");
+
+                    let boardSubpanelSpaceInformationContainer = boardSubpanelDialogContainer.children().first().children().first();
+
+                    renderSpaceInformationDescription(boardSubpanelSpaceInformationContainer, playerTurnCharacterRollData["SpaceIndexCurrent"]);
+
+                    boardSubpanelSpaceInformationContainer.find("button[name=\"yes\"]").on("click", function ()
+                    {
+                    });
+
+                    boardSubpanelSpaceInformationContainer.find("button[name=\"no\"]").on("click", function ()
+                    {
+                    });
+                }
+
+                return;
+            }
+
             endSpaceEvents();
 
             return;
