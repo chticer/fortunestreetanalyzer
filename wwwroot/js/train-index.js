@@ -755,6 +755,26 @@ $(document).ready(function ()
         );
     }
 
+    function spaceCharacterMarkerIndices(spaceIndex)
+    {
+        return $.map(analyzerData["CharacterData"]["PlayerData"], function (value, index)
+        {
+            let currentPlayerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][index]["TurnPlayerData"];
+
+            if (currentPlayerTurnCharacterData[currentPlayerTurnCharacterData.length - 1]["SpaceIndexCurrent"] === spaceIndex)
+                return index;
+        });
+    }
+
+    function animateSpaceCharacterMarkerPlayer(spaceIndex, active)
+    {
+        let spaceCharacterMarkerPlayerIndices = spaceCharacterMarkerIndices(spaceIndex);
+
+        let spaceCharacterMarkerPlayerIndex = spaceCharacterMarkerPlayerIndices.indexOf(playerTurnCharacterIndex);
+
+        animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (spaceIndex + 1) + ") > div:first-of-type > .character-markers > div:nth-of-type(" + (spaceCharacterMarkerPlayerIndex + 1) + ")"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, active);
+    }
+
     function initializeGameSetup()
     {
         for (let i = 0; i < analyzerData["CharacterData"]["PlayerData"].length; ++i)
@@ -1321,19 +1341,13 @@ $(document).ready(function ()
 
         spaceSquareContainer.append("<div class=\"character-markers\"></div>");
 
-        let spaceCharacterMarkerIndices = $.map(analyzerData["CharacterData"]["PlayerData"], function (value, index)
-        {
-            let currentPlayerTurnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][index]["TurnPlayerData"];
+        let spaceCharacterMarkerPlayerIndices = spaceCharacterMarkerIndices(spaceIndex);
 
-            if (currentPlayerTurnCharacterData[currentPlayerTurnCharacterData.length - 1]["SpaceIndexCurrent"] === spaceIndex)
-                return index;
-        });
-
-        if (spaceCharacterMarkerIndices.length > 0)
+        if (spaceCharacterMarkerPlayerIndices.length > 0)
         {
             let spaceCharacterMarkersContainer = spaceSquareContainer.find(".character-markers");
 
-            for (let i = 0; i < spaceCharacterMarkerIndices.length; ++i)
+            for (let i = 0; i < spaceCharacterMarkerPlayerIndices.length; ++i)
             {
                 spaceCharacterMarkersContainer.append("<div></div>");
 
@@ -1353,7 +1367,7 @@ $(document).ready(function ()
                             }
                         ),
                         {
-                            backgroundColor: "#" + analyzerData["CharacterData"]["PlayerData"][spaceCharacterMarkerIndices[i]]["ColorData"]["CharacterColor"]
+                            backgroundColor: "#" + analyzerData["CharacterData"]["PlayerData"][spaceCharacterMarkerPlayerIndices[i]]["ColorData"]["CharacterColor"]
                         }
                     )
                 );
@@ -1397,8 +1411,8 @@ $(document).ready(function ()
             updateMapSpace(spaceIndexCurrentCopy);
             updateMapSpace(playerTurnCharacterRollData["SpaceIndexCurrent"]);
 
-            animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
-            animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
+            animateSpaceCharacterMarkerPlayer(spaceIndexCurrentCopy, false);
+            animateSpaceCharacterMarkerPlayer(playerTurnCharacterRollData["SpaceIndexCurrent"], true);
         };
 
         if (spacesRemaining === 0)
@@ -1437,7 +1451,7 @@ $(document).ready(function ()
 
             let endCurrentPlayerTurn = function ()
             {
-                animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
+                animateSpaceCharacterMarkerPlayer(playerTurnCharacterRollData["SpaceIndexCurrent"], false);
 
                 $("#board-subpanel-spaces-remaining").remove();
 
@@ -1813,7 +1827,7 @@ $(document).ready(function ()
 
                 $("#turns").remove();
 
-                animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, false);
+                animateSpaceCharacterMarkerPlayer(playerTurnCharacterRollData["SpaceIndexCurrent"], false);
 
                 let alertStatusMessageResetTurn = function (type)
                 {
@@ -1872,7 +1886,7 @@ $(document).ready(function ()
 
                     initializeTurns();
 
-                    animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
+                    animateSpaceCharacterMarkerPlayer(playerTurnCharacterRollData["SpaceIndexCurrent"], true);
                 });
             });
         });
@@ -2193,7 +2207,7 @@ $(document).ready(function ()
 
         playerTurnCharacterRollData["Logs"] = [];
 
-        animateChangeState($("#board-subpanel-spaces > div:nth-of-type(" + (playerTurnCharacterRollData["SpaceIndexCurrent"] + 1) + ") > div:first-of-type > .character-markers > div:first-of-type"), ANIMATE_ACTIVE_STATES["CharacterMarker"]["Player"], playerTurnCharacterIndex, true);
+        animateSpaceCharacterMarkerPlayer(playerTurnCharacterRollData["SpaceIndexCurrent"], true);
 
         $("#turns > div:last-of-type > div:last-of-type").append
         (
