@@ -1286,6 +1286,35 @@ $(document).ready(function ()
         }
     }
 
+    function buyShop(characterIndex, spaceIndex, amount)
+    {
+        let turnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][characterIndex]["TurnPlayerData"];
+
+        let turnCharacterRollData = turnCharacterData[turnCharacterData.length - 1];
+
+        let spaceData = analyzerData["SpaceData"][spaceIndex];
+
+        turnCharacterRollData["OwnedShopIndices"].push(spaceData["ShopIndex"]);
+
+        spaceData["AdditionalPropertiesData"]["ShopData"]["OwnerCharacterIndex"] = characterIndex;
+
+        updatePlayerStats
+        (
+            [
+                {
+                    CharacterIndex: characterIndex,
+                    ReadyCash: -1 * amount
+                }
+            ]
+        );
+
+        updateMapSpace(spaceIndex);
+    }
+
+    function sellShop(characterIndex, spaceIndex, amount)
+    {
+    }
+
     function updateMapSpace(spaceIndex)
     {
         let spaceContainer = $("#board-subpanel-spaces > div:nth-of-type(" + (spaceIndex + 1) + ")");
@@ -1600,8 +1629,13 @@ $(document).ready(function ()
 
                     renderSpaceInformationDescription(boardSubpanelSpaceInformationContainer, playerTurnCharacterRollData["SpaceIndexCurrent"]);
 
-                    boardSubpanelSpaceInformationContainer.find("button[name=\"yes\"]").on("click", function ()
+                    $("#board-subpanel-user-dialog button[name=\"yes\"]").on("click", function ()
                     {
+                        $("#board-subpanel-user-dialog").remove();
+
+                        buyShop(playerTurnCharacterIndex, playerTurnCharacterRollData["SpaceIndexCurrent"], shopData["Value"]);
+
+                        endCurrentPlayerTurn();
                     });
 
                     $("#board-subpanel-user-dialog button[name=\"no\"]").on("click", function ()
@@ -2236,7 +2270,15 @@ $(document).ready(function ()
             let currentTurnCharacterRollData = currentTurnCharacterData[currentTurnCharacterData.length - 1];
 
             currentTurnCharacterRollData["ReadyCash"] += currentData["ReadyCash"];
-            currentTurnCharacterRollData["NetWorth"] += currentData["ReadyCash"];
+
+            currentTurnCharacterRollData["TotalShopValue"] = 0;
+
+            $.map(currentTurnCharacterRollData["OwnedShopIndices"], function (value)
+            {
+                currentTurnCharacterRollData["TotalShopValue"] += analyzerData["ShopData"][value]["Value"];
+            });
+
+            currentTurnCharacterRollData["NetWorth"] = currentTurnCharacterRollData["ReadyCash"] + currentTurnCharacterRollData["TotalShopValue"] + currentTurnCharacterRollData["TotalStockValue"];
         }
 
         let playerNetWorthOrder = $.map(turnData, function (value, index)
