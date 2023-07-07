@@ -865,26 +865,30 @@ $(document).ready(function ()
 
     function updatePlayerStandings(playerIndex)
     {
+        let turnCharacterData = analyzerData["GameSettingsData"]["TurnData"][analyzerData["GameSettingsData"]["TurnData"].length - 1][playerIndex]["TurnPlayerData"];
+
+        let turnCharacterRollData = turnCharacterData[turnCharacterData.length - 1];
+
         let playerContainer = $("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ")");
 
         playerContainer.children().first().empty().append
         (
-            "<span>" + playerTurnCharacterRollData["Placing"] + "</span>" +
+            "<span>" + turnCharacterRollData["Placing"] + "</span>" +
 
             "<span>" +
-                "<sup>" + ordinalNumberSuffix(playerTurnCharacterRollData["Placing"]) + "</sup>" +
+                "<sup>" + ordinalNumberSuffix(turnCharacterRollData["Placing"]) + "</sup>" +
             "</span>"
         );
 
         let playerStatsContainer = playerContainer.children().eq(2);
 
-        playerStatsContainer.children().first().children().last().text(playerTurnCharacterRollData["ReadyCash"]);
-        playerStatsContainer.children().eq(1).children().last().text(playerTurnCharacterRollData["TotalShopValue"]);
+        playerStatsContainer.children().first().children().last().text(turnCharacterRollData["ReadyCash"]);
+        playerStatsContainer.children().eq(1).children().last().text(turnCharacterRollData["TotalShopValue"]);
 
         if (analyzerData["GameSettingsData"]["RuleData"]["Name"] === "Standard")
-            playerStatsContainer.children().eq(2).children().last().text(playerTurnCharacterRollData["TotalStockValue"]);
+            playerStatsContainer.children().eq(2).children().last().text(turnCharacterRollData["TotalStockValue"]);
 
-        playerStatsContainer.children().last().children().last().text(playerTurnCharacterRollData["NetWorth"]);
+        playerStatsContainer.children().last().children().last().text(turnCharacterRollData["NetWorth"]);
 
         playerContainer.children().last().empty().append
         (
@@ -892,14 +896,14 @@ $(document).ready(function ()
                 "<div>" +
                     "<div></div>" +
 
-                    "<div>" + playerTurnCharacterRollData["TotalSuitCards"] + "</div>" +
+                    "<div>" + turnCharacterRollData["TotalSuitCards"] + "</div>" +
                 "</div>" +
             "</div>"
         );
 
         let playerSuitCardContainer = playerContainer.children().last().find(".suit-card");
 
-        playerSuitCardContainer.children().first().toggle(playerTurnCharacterRollData["TotalSuitCards"] > 0);
+        playerSuitCardContainer.children().first().toggle(turnCharacterRollData["TotalSuitCards"] > 0);
 
         for (let currentSuitName of SUIT_NAMES)
         {
@@ -913,12 +917,12 @@ $(document).ready(function ()
             playerContainer.children().last().append
             (
                 "<div>" +
-                    "<span class=\"fas fa-" + currentSuitName + "" + (playerTurnCharacterRollData["CollectedSuits"].indexOf(currentSuitName) === -1 ? " inactive" : "") + "\"></span>" +
+                    "<span class=\"fas fa-" + currentSuitName + "" + (turnCharacterRollData["CollectedSuits"].indexOf(currentSuitName) === -1 ? " inactive" : "") + "\"></span>" +
                 "</div>"
             );
         }
 
-        animateChangeState($("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div"), ANIMATE_ACTIVE_STATES["Suits"], playerIndex, playerTurnCharacterRollData["CollectedSuits"].length + playerTurnCharacterRollData["TotalSuitCards"] >= SUIT_NAMES.length);
+        animateChangeState($("#standings-subpanel > div:last-of-type > div:nth-of-type(" + (playerIndex + 1) + ") > div:last-of-type > div"), ANIMATE_ACTIVE_STATES["Suits"], playerIndex, turnCharacterRollData["CollectedSuits"].length + turnCharacterRollData["TotalSuitCards"] >= SUIT_NAMES.length);
     }
 
     function updateCirclePosition(element, centerPercentage)
